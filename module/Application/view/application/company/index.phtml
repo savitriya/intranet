@@ -1,0 +1,60 @@
+<h2 class="title">Companies</h2><hr>
+<div style="min-height: 500px;" id="gridContainer">
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list").jqGrid({
+		url:"<?php echo $this->url('gridcompany'); ?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Company'],
+		colModel :[
+		
+		{name:'company', index:'company', editable:true},
+		],
+	  rowNum:70,
+	    rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px",
+	    //width:"1200",
+	    viewrecords: true,
+	});
+
+jQuery("#list").jqGrid('navGrid',"#pager",{add:true,edit:true,del:true, search:false, refresh:false},
+        {reloadAfterSubmit:true,url:"<?php echo $this->url('addcompany');?>"}, // edit options
+        {reloadAfterSubmit:true,url:"<?php echo $this->url('addcompany');?>",
+        	afterSubmit : function(response, postdata)
+     	   {
+     	
+     	var json=JSON.parse(response.responseText);
+        if(json.returnvalue=="valid"){
+  		   alert("Record added successfully");
+  	   }
+  	   else{
+  		  alert("Record not added.");
+  	   }
+  	  
+     	},closeAfterAdd:true  }, // add options
+        {reloadAfterSubmit:true,url:"<?php echo $this->url('deletecompany');?>",afterSubmit : function(response, postdata)
+        	   {
+        
+        	var json=JSON.parse(response.responseText);
+           if(json.data=="valid"){
+     		   alert("Record deleted successfully");
+     	   }
+     	   else{
+     		  alert("Record not deleted,Please make sure there are no users assigned to this company.");
+     	   }
+     	  
+        	} } // del options
+        );
+	jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+});
+resizegrid("gridContainer","list");
+</script>

@@ -1,0 +1,85 @@
+<script type="text/javascript" src="/js/bootbox.min.js"></script>
+<h2 class="title">Milestones</h2><hr />
+<button id="btnAddmilestones" class="btn btn-success" name="btnAddmilestones" style="margin-bottom:1em;">Add New Milestone</button>
+<div style="min-height: 500px;" id="gridContainer">
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list").jqGrid({
+		url:"<?php echo $this->url('gridmilestones');?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Project','Name','Estimated Startdate','Estimated End Date','Actual Start Date','Actual End Date','Status','Estimated Hours','IsDefault','Action'],
+		colModel :[
+        {name:'projects', index:'projects',editable: true},
+		{name:'name', index:'name',align:'right', editable:true},	
+		{name:'esd', index:'esd',align:'right', editable:true},
+		{name:'eed', index:'eed',align:'right', editable:true},
+		{name:'asd', index:'asd', editable:true},
+		{name:'aed', index:'aed',editable: true},
+		{name:'status', index:'status',editable: true},
+		{name:'esthours', index:'esthours',editable: true},
+		{name:'isdefault', index:'isdefault',editable: true,edittype:'checkbox', editoptions: { value:"1:0"},formatter: "checkbox",},
+		{name:'action', index:'action',editable: false},
+		],
+	  rowNum:20,
+	    rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager',
+	    sortname: 'name',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px",
+	});
+	
+	$("#btnAddmilestones").click(function( event ) {
+		window.location.href = '/addmilestones';
+	});
+	resizegrid("gridContainer","list");
+	jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+});
+
+function deletemilestone(id){
+	var id=jQuery('#list').getGridParam('selrow');
+	var isdefault = jQuery('#list').jqGrid ('getCell', id, 'isdefault');
+	if(isdefault!=1){
+	if(window.confirm('Are you sure you want to delete this Milestoe?'))
+	{
+		$.ajax({
+			 type: "POST",
+	         url: "<?php echo $this->url('deletemilestones');?>",
+	         dataType:"json",	         
+	         data: {flag: "view", id: id },
+	         beforeSend: function () {
+	 			$('#list').mask("Loading...");
+	 	 	 },
+	         success: function(response)
+	         {    
+	        	 if(response['returnvalue']=="valid"){
+	        	 bootbox.alert("Milestones deleted");
+	        	 }
+	        	 else if(response['returnvalue']=="relatedactivityspresent"){
+	        		 bootbox.alert("There are activites associated with this milestone. Pls delete associated activites first.");
+		        	 }
+	        	 
+	       	 $("#list").trigger("reloadGrid");
+            },
+	 	 	error: function(XMLHttpRequest,textStatus){
+	 	 		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		   	},
+			complete: function(){
+		    	setTimeout(function(){		    	
+		    		$('#list').unmask();	
+		   	},500);
+			}
+	       });
+		}
+	}
+	else{
+		bootbox.alert("Isdefault mileston ");
+	}
+}	
+</script>

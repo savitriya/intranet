@@ -1,0 +1,217 @@
+<?php echo $this->doctype();
+use Zend\Authentication\AuthenticationService; 
+$auth = new AuthenticationService();?>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <?php echo $this->headTitle('Savitriya '. $this->translate('IntraNet'))->setSeparator(' - ')->setAutoEscape(false) ?>
+
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+
+        <!-- Le styles -->
+        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/intranet_favicon.ico'))
+                         ?>
+                         
+        <link href="/css/zerocss/bootstrap.css" rel="stylesheet" type="text/css" />                 
+		<link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<link href="/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
+		<!-- <link rel="stylesheet" type="text/css" href="/css/hot-sneaks/jquery-ui-1.9.2.custom.min.css"/> -->
+		<!-- <link rel="stylesheet" type="text/css" href="/css/hot-sneaks/ ui.multiselect.css"/> -->
+       <link rel="stylesheet" type="text/css" href="/css/ui.jqgrid.css"/>
+       <link rel="stylesheet" type="text/css" href="/css/smoothness/jquery-ui-1.10.3.custom.min.css"/>
+       <!-- <link rel="stylesheet" type="text/css" href="/css/grey/ui.jqgrid.css"/> -->
+        <link rel="stylesheet" type="text/css" href="/js/jqplot/jquery.jqplot.css" />
+		<link href="/css/zerocss/font.css" rel="stylesheet" type="text/css" />        
+		<link href="/css/zerocss/style.css" rel="stylesheet" type="text/css" />
+
+       <!-- <link rel="stylesheet" type="text/css" href="/css/jquery.loadmask.css"/> -->  
+        <!-- Scripts -->
+        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/html5.js', 'text/javascript', array('conditional' => 'lt IE 9',))
+									->prependFile($this->basePath() . '/js/jquery.min.js')
+                                    //->prependFile($this->basePath() . '/js/bootstrap.min.js')
+                                       ?>
+		
+		<script type='text/javascript' src="/jquery/bootstrap-collapse.js"></script>
+		<script type='text/javascript' src="/jquery/bootstrap-dropdown.js"></script>
+ 		<script type='text/javascript' src="/js/bootstrap.min.js"></script>
+
+        <script type="text/javascript" src="/js/jquery.jqGrid.min.js"></script>
+       <!-- <script type="text/javascript" src="/js/grey/jquery.jqGrid.min.js"></script> -->
+       <!-- <script type="text/javascript" src="/js/grey/i18n/grid.locale-en.js"></script> -->
+        <script type="text/javascript" src="/js/grid.locale-en.js"></script>
+        <script type="text/javascript" src="/js/resize.min.js"></script>       
+        <!--<script type="text/javascript" src="/js/jquery-ui-1.9.2.custom.min.js"></script>-->
+        <script type="text/javascript" src="/js/smoothness/jquery-ui-1.10.3.custom.min.js"></script>
+		<script type="text/javascript" src="/js/jquery-ui-timepicker-addon.js"></script>
+		<script type="text/javascript" src="/js/loadmask/jquery.loadmask.js"></script>
+	    <script type="text/javascript" src="/js/common.js"></script>
+    	<script type="text/javascript" src="/js/jqplot/jquery.jqplot.min.js"></script>
+    	<script language="javascript" type="text/javascript" src="/js/jqplot/plugins/jqplot.logAxisRenderer.js"></script>
+    	<script language="javascript" type="text/javascript" src="/js/jqplot/plugins/jqplot.barRenderer.min.js"></script>
+        <script type="text/javascript" src="/js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+        <script type="text/javascript" src="/js/jqplot/plugins/jqplot.pointLabels.min.js"></script>
+    <script type="text/javascript" language="javascript" src="/js/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
+<script type="text/javascript" src="/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+   <script type="text/javascript" src="/js/jqplot/plugins/jqplot.pieRenderer.min.js"></script>
+<script type="text/javascript" src="/js/jqplot/plugins/jqplot.donutRenderer.min.js"></script>
+<script type="text/javascript" src="/js/ReportCharts.js"></script>
+   
+   
+   <script type="text/javascript" src="/js/jqplot/plugins/jqplot.barRenderer.min.js"></script>		
+	<script type="text/javascript" src="/js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>	
+	<script type="text/javascript" src="/js/jqplot/plugins/jqplot.highlighter.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$(window).bind('resize', function() {
+			    $("#list").setGridWidth($(window).width()-30);
+			    $("#list2").setGridWidth($(window).width()-30);
+			}).trigger('resize');
+			$('.dropdown-toggle').dropdown();
+		});
+		$(function(){
+			var url = window.location;
+			$('ul.nav a').filter(function() {
+			    return this.href == url;
+			}).parent().addClass('active');
+		});
+	</script>
+    </head>
+    <body>
+    <div id="wrap">
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                <button data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar" type="button">
+		            <span class="icon-bar"></span>
+		            <span class="icon-bar"></span>
+		            <span class="icon-bar"></span>
+		        </button>
+                <h1 class="marg-logo"><a href="<?php echo $this->url('home') ?>">Intranet</a></h1>
+                  <div class="nav-collapse collapse pull-right">
+                        <ul class="nav">                        	
+                        	<?php if($auth->hasIdentity()){?>
+                             <li><a href="<?php echo $this->url('attendancereport') ?>"><?php echo $this->translate('Attendance Report') ?></a></li>
+                            <li><a href="<?php echo $this->url('activities') ?>">Activities</a></li>
+                            <li><a href="<?php echo $this->url('sendmail') ?>">View My Report</a></li>
+                            <li class="dropdown">
+                            	<a class="dropdown-toggle" id="others" role="button" data-toggle="dropdown" href="#">Other<b class="caret"></b></a>
+                            	<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            			<li><a href="<?php echo $this->url('logspenttime') ?>">Log Spent Time</a></li>
+                            		<li><a href="<?php echo $this->url('loginreport') ?>"><?php echo $this->translate('Login Report') ?></a></li>
+                            		<li><a href="<?php echo $this->url('leave') ?>">Apply For Leave</a></li> 
+                            		<li><a href="<?php echo $this->url('leavelist') ?>">List Of Leaves</a></li>
+                            	</ul>
+                            </li>
+                          
+                            <?php if($auth->getIdentity()->isadmin==1){?>
+                            <li class="dropdown">
+                            	<a class="dropdown-toggle" id="masters" role="button" data-toggle="dropdown" href="#">Masters<b class="caret"></b></a>
+                            	<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            		<li>
+                            			<a href="<?php echo $this->url('users') ?>">Users</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('company') ?>">Company</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('userbycompany') ?>">Users By Company</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('addlogtime') ?>">Add Log Time</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('milestones') ?>">Milestones</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('projects') ?>">Projects</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('projectstatuses') ?>">Project Status</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('projecttype') ?>">Project Type</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('activitystatuses') ?>">Activity Status</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('activitycategories') ?>">Activity Categories</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('holiday') ?>">Holidays</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('preferences') ?>">Preferences</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('loginslots') ?>">Login Slots</a>
+                            		</li>
+                            	</ul>
+                            </li>
+                            <?php }?>
+                                     <?php if($auth->getIdentity()->isadmin==1){?>
+                            <li class="dropdown">
+                            	<a class="dropdown-toggle" id="report" role="button" data-toggle="dropdown" href="#">Reports<b class="caret"></b></a>
+                            	<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            		<li>
+                            			<a href="<?php echo $this->url('report') ?>">Reports</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('reportstatus') ?>">Monthly Report Status</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('userreport') ?>">User Report</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('weeklyreport') ?>">Weekly Report</a>
+                            		</li>
+                            		<li>
+                            			<a href="<?php echo $this->url('projectreport') ?>">Project Wise Report</a>
+                            		</li>
+                               </ul>
+                            </li>
+                            <?php }?>
+                            
+                             <li class="dropdown">
+                             	<?php $name=$auth->getIdentity()->fname;
+                             			if($auth->getIdentity()->lname!=null && $auth->getIdentity()->lname!=""){
+											$name.=" ".$auth->getIdentity()->lname;
+										}
+                             	?>
+                             	<a class="dropdown-toggle" id="masters" role="button" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> <b class="caret"></b></a>
+                             	<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">                           		
+                             		
+                             		<li><a href="<?php echo $this->url('myprofile'); ?>">My Profile</a></li>
+                           			<li><a href="<?php echo $this->url('changepassword'); ?>">Change Password</a></li>
+                             		<li><a href="<?php echo $this->url('mypreferences',array('userid'=>$auth->getIdentity()->id)); ?>">My Preferences</a></li>
+                             		<li><a href="<?php echo $this->url('logout'); ?>"><?php echo $this->translate('Logout') ?></a></li>
+                             	</ul>
+                             </li>
+                            <?php }?>                            
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </div>
+          
+<!--          <div class="navbar-down"> -->
+<!--         	<div class="container"> -->
+<!--             	<span class="login-time">Login Time - </span><span class="login-time"></span> &nbsp;&nbsp;&nbsp; <span class="login-time">Late By - </span><span class="login-time"></span> -->
+<!--             </div> -->
+<!--         </div> -->
+    </div>
+            <div class="clearfix"></div>
+        <div class="container-fluid home-marg-tp">
+            <?php echo $this->content; ?>
+        <footer>
+                <p>&copy; <?php echo date("Y");?>  Savitriya Technologies Ltd. <?php echo $this->translate('All rights reserved.') ?></p>
+        </footer>
+        </div> <!-- /container -->
+         
+        <?php //echo $this->inlineScript(); ?>
+        <!-- <script type="text/javascript" charset="utf-8">document.write(unescape('%3Cscript type="text/javascript" charset="utf-8" src="' + window.location.protocol + '//viewmybrowser.appspot.com/client.js" id="viewmybrowser" siteID="ag9zfnZpZXdteWJyb3dzZXJyDAsSBFNpdGUYyeNUDA" clientID="unknown"%3E%3C/script%3E'));</script> -->
+  </div>
+    </body>
+</html>

@@ -1,0 +1,60 @@
+<h2 class="title">Project's Status</h2>
+<hr/>
+<div style="min-height: 500px;" id="gridContainer">
+	<table id="list2">
+	</table>
+	<div id="pager2"></div>
+
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list2").jqGrid({
+		url:"<?php echo $this->url('gridprojectstatuses'); ?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Name','Color','Default'],
+		colModel :[
+		{name:'name', index:'name', editrules:{required:true}, editable:true},
+		{name:'color', index:'color', editrules:{required:true}, editable:true},
+		{name:'is_default',sortable:false,index:'is_default',align:'center', editable:true,edittype:'checkbox', editoptions: { value:"1:0"}, 
+			  formatter: "checkbox"},
+		],
+	  rowNum:20,
+	    //rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager2',
+	    sortname: 'name',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px",
+	    //width:"1100",
+	    viewrecords: true,
+	});
+	jQuery("#list2").setGridWidth($('#gridContainer').width(), true);
+	   jQuery("#list2").jqGrid('navGrid',"#pager2",{add:true,edit:true,del:true, search:false, refresh:false},
+	           {reloadAfterSubmit:false,closeAfterEdit: true,
+		   afterSubmit: function(response, postdata) {
+			     alert("Project status has been updated Successfully");
+                   return [true,"ok"];
+               },
+           url:"<?php echo $this->url('addprojectstatuses'); ?>"}, // edit options
+	           {reloadAfterSubmit:false,closeAfterAdd: true,afterSubmit: function(response, postdata) {
+	        	       alert("Project statuse has been added Successfully");
+	                   return [true,"ok"];
+	               },url:"<?php echo $this->url('addprojectstatuses'); ?>"}, // add options
+	           {reloadAfterSubmit:true,afterSubmit: function(response, postdata) {
+	        	   alert("Project statuse has been deleted Successfully");
+                   return [true,"ok"];
+               
+		           },url:"<?php echo $this->url('deleteprojectstatuses'); ?>"} // del options
+	           );
+	   
+	});
+resizegrid("gridContainer","list2");
+
+  //     return false;
+ 
+  	 
+	</script>
+

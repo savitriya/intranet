@@ -1,0 +1,47 @@
+<h2 class="title">Login Slots</h2>
+<hr/>
+<div style="min-height: 500px;" id="gridContainer">
+	<table id="list2">
+	</table>
+	<div id="pager2"></div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list2").jqGrid({
+		url:"<?php echo $this->url('gridloginslots'); ?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Name','Slot Time'],
+		colModel :[
+		{name:'slot_name', index:'slot_name', editrules:{required:true}, editable:true},
+		{name:'slot_login_time', index:'slot_login_time', editrules:{required:true}, editable:true},
+		],
+	  	rowNum:20,
+	    navigator:true,
+	    pager: '#pager2',
+	    sortname: 'slot_id',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px",
+	    viewrecords: true,
+	});
+	jQuery("#list2").setGridWidth($('#gridContainer').width(), true);
+	jQuery("#list2").jqGrid('navGrid',
+		"#pager2",{add:true,edit:true,del:true, search:false,refresh:false},
+		{reloadAfterSubmit:false,closeAfterEdit: true, afterSubmit: function(response, postdata) {
+			alert("Login Slot has been updated Successfully");
+			return [true,"ok"];
+		},
+		url:"<?php echo $this->url('addloginslots');?>"}, // edit options
+		{reloadAfterSubmit:false,closeAfterAdd: true,afterSubmit: function(response, postdata) {
+			alert("New Login Slot has been added Successfully");
+			return [true,"ok"];
+		},url:"<?php echo $this->url('addloginslots'); ?>"}, // add options
+		{reloadAfterSubmit:true,afterSubmit: function(response, postdata) {
+			alert("Login Slot has been deleted Successfully");
+			return [true,"ok"];
+		},url:"<?php echo $this->url('deleteloginslots'); ?>"} // del options
+	);
+	});
+	resizegrid("gridContainer","list2");
+</script>

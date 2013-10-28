@@ -1,0 +1,193 @@
+<?php use IntranetUtils\Common;
+$common = new Common();?>
+<h2 class="title">Project Details</h2>
+<hr/>
+<table class="table table-striped" style="width:1000px;">
+	<tr>
+		<td style="width:175px;"><b>Name:</b></td>
+		<td>
+			<label id="name" name="name" title="Name">
+				<?php if(isset($this->getProject[0]['name'])){echo $this->getProject[0]['name'];}?>
+			</label>
+		</td>
+		<td style="width:175px;"><b>Status:</b></td>
+		<td><label id="status" name="status" title="Status">
+				<?php if(isset($this->getProject[0]['status'])){echo $this->getProject[0]['status'];}?>
+			</label>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Type:</b></td>
+		<td>
+			<label id="type" name="type" title="Type">
+				<?php if(isset($this->getProject[0]['type'])){echo $this->getProject[0]['type'];}?>
+			</label>
+		</td>
+		<td><b>Estimated Start Date:</b></td>
+		<td><label id="estartdate" name="estartdate" title="Estimated Start Date">
+				<?php if(isset($this->getProject[0]['estartdate'])){echo $this->getProject[0]['estartdate'];}?>
+			</label>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Estimated End Date:</b></td>
+		<td><label id="eenddate" name="eenddate" title="Estimated End Date">
+				<?php if(isset($this->getProject[0]['eenddate'])){echo $this->getProject[0]['eenddate'];}?>
+			</label>
+		</td>
+		<td><b>Actual Start Date:</b></td>
+		<td><label id="astartdate" name="astartdate" title="Actual Start Date">
+				<?php if(isset($this->getProject[0]['astartdate'])){echo $this->getProject[0]['astartdate'];}?>
+			</label>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Actual End Date:</b></td>
+		<td><label id="aenddate" name="aenddate" title="Actual End Date">
+				<?php if(isset($this->getProject[0]['aenddate'])){echo $this->getProject[0]['aenddate'];}?>
+			</label>
+		</td>
+		<td><b>Estimated hours:</b></td>
+		<td><label id="esthours" name="esthours" title="Estimated hours">
+				<?php if(isset($this->getProject[0]['esthours'])){echo $this->getProject[0]['esthours'];}?>
+			</label>
+		</td>
+	</tr>
+	</table>
+	<hr/>
+	<h2 class="title" style="margin-bottom:5px !important;">Resource Allocation:</h2>
+	<form action="" method="post" id="form1" class="form-horizontal">
+		<div class="row-fluid">
+			<div class="span3 control-group">
+				<label class="control-label">Start Date:</label>
+				<div class="controls">
+					<input class="input-medium" type="text" id="startdate" name="startdate" 
+						title="Start Date" value="" />
+					<input class="input-medium" type="hidden" id="alternate_startdate" 
+						name="alternate_startdate" title="Start Date" value="" />
+				</div>
+			</div>
+			<div class="span3 control-group">
+				<label class="control-label">End Date:</label>
+				<div class="controls">
+					<input class="input-medium" type="text" id="enddate" name="enddate" 
+						title="End Date" value="" />
+					<input class="input-medium" type="hidden" id="alternate_enddate" 
+						name="alternate_enddate" title="End Date" value="" />
+				</div>
+			</div>
+			<div class="span4 control-group">
+				<div class="controls">
+					<button id="btngetspenthours" class="btn btn-success" name="btngetspenthours">Get Spent Hours</button>
+				</div>
+			</div>
+		</div>
+	</form>
+	<div id="datatable">
+	<table style="width:400px;" class="table table-striped">
+	<tr>
+		<td><b>Total Resources Allocated: </b></td>
+		<td><label id="totresource" name="totresource" title="Total Resources Allocated">
+				<?php if(isset($this->getProjectLog) && sizeof($this->getProjectLog)>0){echo sizeof($this->getProjectLog);}?>
+			</label>
+		</td>
+	</tr>	
+	<?php $tot_time = 0;for($i=0;$i<sizeof($this->getProjectLog);$i++) {
+			if(isset($this->getProjectLog[$i]['total_seconds']) && sizeof($this->getProjectLog[$i]['total_seconds'])>0)
+			{
+						$tot_time += $this->getProjectLog[$i]['total_seconds'];
+			}
+		?>
+		<tr>
+			<td><label id="resource<?php if(isset($this->getProjectLog[$i]['userid'])){echo $this->getProjectLog[$i]['userid'];}?>" name="resourcename" title="Resource Name">
+					<?php if(isset($this->getProjectLog[$i]['uname'])){echo ucwords($this->getProjectLog[$i]['uname']);}?>
+				</label>
+			</td>
+			<td>
+				<label id="resourcetime<?php if(isset($this->getProjectLog[$i]['userid'])){echo $this->getProjectLog[$i]['userid'];}?>" name="resourcetime" title="Time Spent">
+					<?php if(isset($this->getProjectLog[$i]['total_seconds'])){echo $common->convertSpentTime($this->getProjectLog[$i]['total_seconds']);}?>&nbsp;hours
+				</label>
+			</td>
+		</tr>
+	<?php }?>
+	<tr>
+		<td><b>Total Time Spent: </b></td>
+		<td><label id="totaltime" name="totaltime" title="Total Time Spent">
+				<?php				
+				echo $common->convertSpentTime($tot_time)." hours";?>
+			</label>
+		</td>
+	</tr>
+</table>
+</div>
+<hr/>
+<h2 class="title" style="margin-bottom:5px !important">Project's Activity Log</h2>
+	<div id="projectlog" name="projectlog" title="Project Log" style="border:1px solid gray;border-radius:3px; overflow: auto; max-height: 300px;">
+		<table width="1115px" class="table table-striped">
+			<tr>
+				<th width="800px">Description</th>
+				<th>Activity By</th>
+				<th>Created Date</th>
+			</tr>
+		<?php foreach($this->getProjectHistory as $prjhistory) {?>
+			<tr>
+				<td><?php echo $prjhistory['description'];?></td>
+				<td><?php echo $prjhistory['name'];?></td>
+				<td><?php echo $prjhistory['cdate'];?></td>
+			</tr>
+		<?php }?>
+		</table>
+	</div>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		 $("#startdate").datepicker({
+		       changeMonth: true,
+		       changeYear: true,
+		       showSecond: false,
+		       dateFormat: 'dd/mm/yy',
+		       onSelect: function (selectedDate){
+		       
+		       },
+		       altField: "#alternate_startdate",
+		       altFormat: "yy-mm-dd",
+	       });
+		 $("#enddate").datepicker({
+		       changeMonth: true,
+		       changeYear: true,
+		       showSecond: false,
+		       dateFormat: 'dd/mm/yy',
+		       onSelect: function (selectedDate){
+		       
+		       },
+		       altField: "#alternate_enddate",
+		       altFormat: "yy-mm-dd",
+	       });
+		 $("#btngetspenthours")//.button()
+		 .click(function( event ) {
+		  event.preventDefault();
+		  getSpentHoursByProject();
+		});	
+	});
+	 function getSpentHoursByProject(){
+	    	 $.ajax({
+	    	     type: "POST",
+	    	     url: "<?php echo $this->url('getspenthoursbyproject');?>",             
+	    	     data: {projectid: <?php if(isset($this->getProject[0]['projectid'])){echo $this->getProject[0]['projectid'];}?>,startdate:$("#alternate_startdate").val(),enddate:$("#alternate_enddate").val()},
+	    	     beforeSend: function () {
+	    				$('#datatable').mask("Loading...");
+	    		 },
+	    	     success: function(response)
+	    	     {   
+					$("#datatable").html(response);	    	        
+    	        },
+		 	 	error: function(XMLHttpRequest,textStatus){
+			    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+			   	},
+				complete: function(){
+			    	setTimeout(function(){		    	
+			    		$('#datatable').unmask();	
+					},500);
+				}
+	    	   });
+	    }
+	 </script>

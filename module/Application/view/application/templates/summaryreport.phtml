@@ -1,0 +1,71 @@
+<?php
+use IntranetUtils\Common;
+$common=new Common();
+?>
+<?php
+
+if(isset($responce)  && count($responce)>0){	
+	for($i=0;$i<count($responce);$i++){?>
+		<table class="table table-striped table-condensed" width="100%">
+			<tr class="info">
+				<td style="width:90%;">
+					<h4 style="text-align:center;"><?php echo strtoupper($responce[$i]['pname']); ?></h4>
+				</td>
+				<td>
+					<h4 style="margin-left: 10px;"><?php echo $common->convertSpentTime($responce[$i]['totaltime']); ?></h4>
+				</td>
+			</tr>
+		</table>
+		<table class="table table-striped table-condensed table-bordered" width="100%">
+			<?php for($j=0;$j<count($responce[$i]['user']);$j++){?>
+				<tr class="success">
+					<td colspan="2">
+						<b><?php echo strtoupper($responce[$i]['user'][$j]['name']);?></b>
+					</td>
+				</tr>
+				<?php for($k=0;$k<count($responce[$i]['user'][$j]['description']);$k++){ ?>
+					<tr>
+						<td width="90%"><span style="text-align:justify;"><?php echo ucwords($responce[$i]['user'][$j]['description'][$k]['activity']);?></span></td>
+						<td><span style="margin-left: 10px;"><?php echo $common->convertSpentTime($responce[$i]['user'][$j]['description'][$k]['spent']); ?></span></td>
+					</tr>
+				<?php }
+			}?>
+		</table>
+<?php }?>
+<br />
+<?php }?>
+<?php /*
+if(isset($responce)  && count($responce)>0){	
+	
+	for ($i=0;$i<count($responce);$i++){?>
+	<table width='100%' cellpadding='0' cellspacing='0' border='0'>
+		<tr>
+			<td width='10%' valign="top">
+				<b><?php echo ucwords($responce[$i]['pname']); ?></b>
+			</td>
+			<td valign="top">
+				<b><?php echo $common->convertSpentTime($responce[$i]['totaltime']); ?></b>
+			</td>
+		</tr>		
+		<?php for($j=0;$j<count($responce[$i]['user']);$j++){?>
+		
+		
+		<?php for($k=0;$k<count($responce[$i]['user'][$j]['description']);$k++){  ?>
+			
+		<tr>
+			<td width="10%" valign="top">
+				<?php echo ucwords($responce[$i]['user'][$j]['description'][$k]['activity']);?>
+			</td>
+			<td width="20%" valign="top">
+				<?php echo $common->convertSpentTime($responce[$i]['user'][$j]['description'][$k]['spent']); ?>
+	
+			</td>
+		</tr>	
+		<?php }?>
+		<?php }?>
+		<tr>
+			<td></td>
+			<td></td>
+		</tr>
+		</table>
+	<?php } }*/ ?>

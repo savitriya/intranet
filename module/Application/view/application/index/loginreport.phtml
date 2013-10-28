@@ -1,0 +1,102 @@
+<script type="text/javascript" src="/js/bootbox.min.js"></script>
+
+<?php 
+use Zend\Authentication\AuthenticationService;
+$auth = new AuthenticationService();
+?>
+<h2 class="title">Login Report</h2><hr/>
+<div class="row" id="gridContainer" style="margin-left: 0px !important;">
+<div style="min-height: 500px;"><table id="list">  </table>
+      <div id="pager"></div>
+</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+    jQuery("#list").jqGrid({        
+    url:"<?php echo $this->url('loginreportgrid');?>",
+    datatype: "json",
+    mtype: 'POST',
+    colNames:['User Name', 'Login Time', 'Logout Time','Spent Time','Creat Date','Ip Address','User Id'],
+    colModel:[
+        {name:'username',index:'username'},
+        {name:'mindt',index:'mindt'},
+        {name:'maxdt',index:'maxdt', align:"right"},
+        {name:'tdiff',index:'tdiff', align:"right"},           
+        {name:'cdate',index:'cdate',align:"right"},        
+        {name:'ipaddress',index:'ipaddress',align:"right"},  
+        {name:'userid',index:'userid',align:"right",hidden:true},    
+       ],
+    rowNum:20,
+    rowList:[10,20,25],
+    navigator:true,
+    pager: '#pager',
+    sortname: 'cdate',
+    viewrecords: true,
+    sortorder: "desc",
+    height:"400px",
+    viewrecords: true,
+   // OrdersGrid.ToolBarSettings.ShowRefreshButton = true;            
+    multiselect: false,
+	subGrid : true,
+	subGridOptions: {		
+		        "plusicon"  : "ui-icon-triangle-1-e",		
+		        "minusicon" : "ui-icon-triangle-1-s"	        	
+		    },			
+	subGridUrl: "<?php echo $this->url('loginreportsubgrid');?>",	
+	subGridModel: [{ name : ['Logintime','Logouttime','ip','action'],
+						index : ['mindt','maxdt','ip','action'],	
+						width : [200,200,200,100],
+						align : ['right','right','right','center'],												
+						params:['userid','cdate']
+						}],
+		onSelectRow: function(rowId){ 
+						      $("#list").expandSubGridRow(rowId); 
+						   },
+  });
+    resizegrid("gridContainer","list");
+    jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+});
+
+
+function deletesubrow(id){
+	<?php if($auth->getIdentity()->isadmin==1){ ?>
+	var isdefault = jQuery('#list').jqGrid ('getCell', id, 'isdefault');
+	if(isdefault!=1){
+	if(window.confirm('Are you sure you want to delete this Row?'))
+	{
+		$.ajax({
+			 type: "POST",
+	         url: "<?php echo $this->url('deleteloginrow');?>",
+	         dataType:"json",	         
+	         data: {id: id },
+	         beforeSend: function () {
+	 			$('#gridContainer').mask("Loading...");
+	 	 	 },
+	         success: function(response)
+	         {    
+	        	 if(response['returnvalue']=="valid"){
+	        	 bootbox.alert("Deleted successfully");
+	        	 }
+	        	 else if(response['returnvalue']=="invalid"){
+	        		 bootbox.alert("Operation invalid");
+		        	 }
+	        	 
+	       	 $("#list").trigger("reloadGrid");
+            },
+	 	 	error: function(XMLHttpRequest,textStatus){
+	 	 		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		   	},
+			complete: function(){
+		    	setTimeout(function(){		    	
+		    		$('#gridContainer').unmask();	
+		   	},500);
+			}
+	       });
+	}
+	}
+	<?php }else{?>
+		bootbox.alert("Admin have autority to delete.");
+		<?php } ?> 
+}	
+
+</script>

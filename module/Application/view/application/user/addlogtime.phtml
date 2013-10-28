@@ -1,0 +1,96 @@
+
+<script type="text/javascript">
+$(document).ready( function() {
+	$("#inouttime").datetimepicker({                        
+		changeMonth: true,
+		changeYear: true,
+		showSecond: false,
+		dateFormat:  'dd/mm/yy',
+		timeFormat: 'hh:mm:ss',                                
+		altField: "#convertinout",
+		altFormat: "yy-mm-dd",
+		altFieldTimeOnly:false
+	});
+	$("#ok").click(function(event) {
+		event.preventDefault();            
+		add();
+	});       
+});
+function add(){
+    $.ajax({
+         type: "POST",
+         url:"<?php echo $this->url('addlogtime'); ?>",
+         dataType:"json",
+         data: $("#inoutform").serialize(),
+         beforeSend: function () {
+    			$('#addlogtime').mask("Loading...");
+    	 	 },    
+         success: function(nofifyResponse)
+         { 
+        	 if(nofifyResponse['returnvalue']=="valid"){
+				alert('Record has been added successfully');
+				document.getElementById("inoutform").reset();
+				//window.location.reload(true);
+             }
+        	 else if(nofifyResponse.returnvalue=="exception"){
+                 alert("This Operation Could not be Completed,Please contact administrator");
+                 return false;
+           		 }
+           else{
+	               for(var key in nofifyResponse.data){
+		            	if(nofifyResponse.data[key]=="null"){
+		            		$("#"+key+"_error").attr("style","color:red");
+		            	   $("#"+key+"_error").html($("#"+key).attr("title")+" can not be left empty");					               
+		               	}
+		            	else if(nofifyResponse.data[key]=="valid"){
+		            	   $("#"+key+"_error").html(" ");					               
+		               	}
+		               	else if(nofifyResponse.data[key]=="invalid"){
+		               		$("#"+key+"_error").attr("style","color:red");
+		            	   $("#"+key+"_error").html("Invalid value specified for "+$("#"+key).attr("title"));
+						}		               
+		            }}
+             },
+  		   error: function(XMLHttpRequest,textStatus){
+		    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		   	},
+			complete: function(){
+		    	setTimeout(function(){		    	
+		    		$('#addlogtime').unmask();	
+		    	},500);
+			}
+         
+    })
+    return false; 
+    };
+</script>
+<h2 class="title">Add Log Time</h2><hr>
+<form action="" name="inoutform" id="inoutform" class="form-horizontal">
+	<div class="row-fluid">
+		<div class="span3 control-group">
+			<select id="user" name="user" title="User" class="input-medium">
+				<option value="">Select User</option>
+				<?php foreach($response as $res){?>
+				<option value="<?php echo $res['user_id']; ?>"><?php echo $res['user_name'];?></option><?php }?>
+			</select>
+			<div id="user_error"></div>
+		</div>
+		<div class="span3 control-group">
+			<select id="logtime" name="logtime" title="Logtime" class="input-medium">
+				<option value="">Select Action</option>
+				<option value="logintime">Login Time</option>
+				<option value="logouttime">Logout Time</option>
+			</select>
+			<div id="logtime_error"></div>
+		</div>
+		<div class="span3 control-group">
+			<input type="text" name="inouttime" id="inouttime" title="Date" placeholder="Date" class="input-medium" />
+			<input type="hidden" name="convertinout" id="convertinout" />
+			<div id="inouttime_error"></div>
+		</div>
+		<div class="span2 control-group">
+			<button id="ok" class="btn btn-success" name="ok">Submit</button>
+		</div>
+	</div>
+</form>
+<div id="addlogtime" align="center"> </div>

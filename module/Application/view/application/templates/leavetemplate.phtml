@@ -1,0 +1,22 @@
+<p>Hello,</p>
+<br/>
+<table cellpadding="7" border="2">
+  <tr>
+    <td>Name of Applicant: </td>
+    <td><?php echo $sender;?></td>
+  </tr>
+  <tr>
+    <td>Dates of Leave: </td>
+    <td><?php echo $startdate;?> to <?php echo $enddate;?></td>
+  </tr>
+  <tr>
+    <td>Reason: </td>
+    <td><?php echo $body;?></td>
+  </tr>
+  <?php if($isSender) {?>
+	  <tr>
+	    <td><a href="<?php echo $_SERVER['HTTP_HOST'];?>/leave/approveleave/approve/<?php echo $mailid;?>" style="margin:0 5px;" target="_blank">Approve Leave</a></td>
+	    <td><a href="<?php echo $_SERVER['HTTP_HOST'];?>/leave/approveleave/disapprove/<?php echo $mailid;?>" target="_blank">Disapprove Leave</a></td>
+	  </tr>
+  <?php }?>
+</table>

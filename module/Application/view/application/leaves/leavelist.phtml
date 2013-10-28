@@ -1,0 +1,42 @@
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list").jqGrid({
+		url:"<?php echo $this->url('leavelist'); ?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Subject','Name','Start Date','End Date','Date Of Application','Approved / Disapproved','Action'],
+		colModel :[
+		{name:'title',index:'title', editable:false},
+		{name:'user',index:'user', editable:false},
+		{name:'start_date',index:'start_date', editable:false},
+		{name:'end_date',index:'end_date', editable:false},
+		//{name:'no_of_days', index:'no_of_days',align:'right', editable:false},
+    	{name:'created_date', index:'created_date', editable:false},
+		{name:'is_sanctioned', index:'is_sanctioned', editable:false},
+		{name:'action', index:'action',align:'left',editable: false},		
+		],
+	  	rowNum:20,
+	    rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager',
+	    sortname: 'created_date',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px"
+	});
+	jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+});
+
+function leavedetail(id)
+{
+	window.location.href = "/leave/view/"+id;
+}
+</script>
+
+<h2 class="title">List Of Applied Leaves</h2>
+<hr/>
+<div style="min-height: 500px;" id="gridContainer">
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>

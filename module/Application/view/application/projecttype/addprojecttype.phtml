@@ -1,0 +1,88 @@
+<?php
+use IntranetUtils\Common;
+$common=new Common();
+?>
+<div id="projecttype" name="projecttype">
+	<form action="" method="post" id="frmprojecttype" class="form-horizontal">
+		<div class="row-fluid">
+			<div class="span9 control-group">
+				<label class="control-label small-label">Name:<sup style="color:red;">*</sup></label>
+				<div class="controls small-margin">
+					<input type="text" id="name" name="name" title="Name"
+						<?php if(isset ($projecttype) && $projecttype->getName()!=null){?>
+						value="<?php echo $projecttype->getName();}?>" />
+				</div>
+				<div class="controls small-margin"><div id="name_error" class="error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="span9 control-group">
+				<label class="control-label small-label">Color:<sup style="color:red;">*</sup></label>
+				<div class="controls small-margin">
+					<input type="text" id="color" name="color" title="Color"
+						<?php if(isset ($projecttype) && $projecttype->getColor()!=null){?>
+						value="<?php echo $projecttype->getColor();}?>" />
+				</div>
+				<div class="controls small-margin"><div id="color_error" class="error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="span9 control-group">
+				<label class="control-label small-label">Is Default:<sup style="color:red;">*</sup></label>
+				<div class="controls small-margin">
+					<input type="text" id="isdefault" name="isdefault" title="Isdefault"
+						<?php if(isset($projecttype) && $projecttype->getIs_default()!=null){?>
+						value="<?php echo $projecttype->getIs_default();}?>" />
+				</div>
+				<div class="controls small-margin"><div id="isdefault_error" class="error"></div></div>
+			</div>
+		</div>
+	</form>
+
+	<script type="text/javascript">
+	function add(id){ 
+	     $.ajax({
+	         type: "POST",
+	         url:  "<?php echo $this->url('addprojecttype'); ?>",
+	         dataType:"json",
+	         data: $("#frmprojecttype").serialize()+"&id="+id,
+	         success: function(response){
+	              if(response['returnvalue']=="valid"){
+	                   $("#addprojecttype").dialog("close");
+	               	<?php  if(isset($projecttype) && $projecttype->getId()!=""){?>
+	                     alert("Project type has been updated Successfully");
+	               	<?php    } else{?>
+                    alert("Project type has been added Successfully");
+                    <?php }?>
+	                     window.location.reload();
+	                     return false;
+	              }                       
+	              else if(response.returnvalue=="exception"){
+	                   alert("This Operation Could not be Completed,Please contact administrator");
+	                   return false;
+	              }
+	             
+	              else{
+	                   for(var key in response.data){
+	                       if(response.data[key]=="null"){
+	                    	   $("#"+key+"_error").attr("style","color:red");
+	                           $("#"+key+"_error").html($("#"+key).attr("title")+" can not be left empty");                                   
+	                       }
+	                       else if(response.data[key]=="valid"){
+	                           $("#"+key+"_error").html(" ");                                   
+	                       }
+	                       else if(response.data[key]=="invalid"){
+	                    	   $("#"+key+"_error").attr("style","color:red");
+	                           alert("some error has occured while performing operation,please try again later after some time");
+	                           
+	                       }
+	                       else if(response.data[key]=="duplicate"){
+	                           alert("Project type aleady exist");
+	                          }
+	                    }}
+	           }
+	       });
+	      return false; 
+	}
+	</script>
+</div>

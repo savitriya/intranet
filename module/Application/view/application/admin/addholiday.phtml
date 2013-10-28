@@ -1,0 +1,46 @@
+<script type="text/javascript" src="/js/bootbox.min.js"></script>
+<?php
+use IntranetUtils\Common;
+$common=new Common();
+?>
+
+	<form action="" method="post" id="form1" class="form-horizontal">
+		<div class="span4 control-group">
+			<label class="control-label small-label">Holiday:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls small-margin">
+				<input type="text" id="holidayname" name="holidayname"
+					title="Holiday Name" <?php if(isset($holiday) && $holiday->getHolidayname()!=''){?>
+					value="<?php echo $holiday->getHolidayname();}?>">
+			</div>
+			<div class="controls small-margin"><div id="holidayname_error" class="error"></div></div>
+		</div>
+		<div class="span4 control-group">
+			<label class="control-label small-label">Date:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls small-margin">
+				<input type="text" id="holidaydate" name="holidaydate"
+					title="Holiday Date" <?php if(isset($holiday) && $holiday->getDate()!=''){?>
+					value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+					$holiday->getDate()),"Asia/Calcutta","d/m/Y");}?>"/>
+				<input type="hidden" id="altholidaydate" name="altholidaydate" title="Holiday Date" 
+					<?php if(isset($holiday) && $holiday->getDate()!=''){?> 
+					value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+					$holiday->getDate()),"Asia/Calcutta","Y-m-d");}?>"/>
+			</div>
+			<div class="controls small-margin"><div id="altholidaydate_error" class="error"></div></div>
+		</div>
+<!-- <div class="span4 control-group">
+			<button id="ok" class="btn btn-success" name="ok">Submit</button>
+		</div> -->
+	</form>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#ok")//.button()
+	   .click(function( event ) {
+     event.preventDefault();
+     add('<?php if(isset($holiday) && $holiday->getId()!="" && $holiday->getId()!=null){ echo $holiday->getId();}?>');
+ });
+$( "#holidaydate" ).datepicker({altField:"#altholidaydate", altFormat: "yy-mm-dd", changeMonth: true,
+	    changeYear: true, });
+});
+
+</script>

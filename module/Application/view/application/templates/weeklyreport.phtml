@@ -1,0 +1,39 @@
+<?php
+use IntranetUtils\Common;
+$common=new Common();
+?>
+<?php
+if(isset($responce)  && count($responce)>0){	
+	for($i=0;$i<count($responce);$i++){?>
+		<br/>
+		<h4 style="text-align:center;background-color:#CCD232;padding:2px;border-radius:5px;">
+			<?php echo strtoupper($responce[$i]['pname'])." (".$common->convertSpentTime($responce[$i]['totaltime']).")";?>
+		</h4>
+
+			<?php for($j=0;$j<count($responce[$i]['milestone']);$j++){?>
+			
+			<?php if (isset($milestone) && $milestone==1){?>
+						<h6 style="margin-left: 1px; background-color: #93C3CD;"><?php echo strtoupper($responce[$i]['milestone'][$j]['mname'])." (".$common->convertSpentTime($responce[$i]['milestone'][$j]['time']).")";?></h6>
+						<br/>
+						<?php }?>
+			<?php for($u=0;$u<count($responce[$i]['milestone'][$j]['user']);$u++){?>
+			
+			<?php if (isset($userTime) && $userTime==1){?>
+						<span style="margin-left: 10px; background-color: #cccccc;"><?php echo $responce[$i]['milestone'][$j]['user'][$u]['username']."(".$common->convertSpentTime($responce[$i]['milestone'][$j]['user'][$u]['time']).")"; ?></span>
+				<br/>
+				<?php }?>
+			
+			
+			<?php for($k=0;$k<count($responce[$i]['milestone'][$j]['user'][$u]['description']);$k++){ ?>
+			<?php if (isset($userTime) && $userTime==1){?>
+                        <span style="margin-left: 35px; text-align:justify; "><?php echo ucwords($responce[$i]['milestone'][$j]['user'][$u]['description'][$k]['activity'])." (".$common->convertSpentTime($responce[$i]['milestone'][$j]['user'][$u]['description'][$k]['spent']).")";?></span>
+			<?php }else {?>
+			  <span style="margin-left: 35px; text-align:justify; "><?php echo ucwords($responce[$i]['milestone'][$j]['user'][$u]['description'][$k]['activity']);?></span>
+			
+			<?php }?>
+				<br/>
+				<?php }?>
+				<?php }?>
+                <?php }?>
+				<?php }
+}?>

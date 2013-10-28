@@ -1,0 +1,23 @@
+
+<?php
+
+use IntranetUtils\Common;
+$common=new Common();
+?>
+<?php 
+if(isset($response)  && count($response)>0){
+	echo "hi sir,"."<br/> <br/>"."i have done following work today"."<br/><br/>";
+	for ($i=0;$i<count($response);$i++){
+		echo "<b>".$response[$i]['pname']."</b><br/>";
+		
+    
+    "<ul>";
+    for($j=0;$j<count($response[$i]['activities']);$j++){
+ 	echo  "<li>".ucwords($response[$i]['activities'][$j]['subject'])
+            ."(".$common->convertSpentTime($response[$i]['activities'][$j]['totaltime']).")"
+	    ."</li>";
+	}
+	"</ul>";
+	}
+
+} ?>

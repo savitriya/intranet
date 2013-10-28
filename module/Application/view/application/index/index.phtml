@@ -1,0 +1,163 @@
+<?php 
+use IntranetUtils\Common;
+use Zend\Authentication\AuthenticationService;
+$common = new Common();
+$auth = new AuthenticationService();
+$uid=$auth->getIdentity()->id;
+
+if (isset($userid) && $userid!=$uid){
+	?>
+	<h4 style="text-align:left; background-color:#F0F0F0;"><?php  echo "Welcome to $username Dashboard";?></h4>
+<?php }?>	
+
+
+<div class="row-fluid">
+	<div class="span12">
+		<b> Today Login Time<?php echo  "  ".$todayLoginTime."    Late By ".$lateBy;?></b>
+	</div>
+</div>
+<!--<div style="clear: both;"></div>-->
+<div class="row-fluid">
+<div id="chart1" style="float: left;height:400px;" class="span6"></div>
+<div id="chart2" style="float: right;height:400px;" class="span6"></div>
+</div>
+<div class="row-fluid" <?php if($birthdayUsers!="" || $selfBirthday==1){?>style="height:450px;"<?php }else{?>style="display:none;"<?php }?> >	
+    <!-- <div style="float: left;align="center""><h1><?php // echo sprintf($this->translate('Welcome to %sIntraNet%s'), '<span class="zf-green">', '</span>') ?></h1></div>  -->
+   <div class="span12">
+	    <?php if($birthdayUsers!=""){?>
+			<h3>
+				<b>Today's BirthDay: 
+					<?php echo $birthdayUsers; ?>
+					<img src="/images/cake_128.png"/>
+				</b>
+			</h3>
+		<?php }?>
+		<?php if($selfBirthday==1){
+			$iconNames=array(0=>"bouquet.png",1=>"box1.png",2=>"box2.png",3=>"box3.png",4=>"cake.png",5=>"rose.png");
+			$key=rand(0,5);
+		?>
+		<p>
+			<img src="/images/<?php echo $iconNames[$key]; ?>"/>
+			<b>Many Many Happy Returns of the day</b>
+		</p>
+		<?php } ?>
+	</div>
+</div>
+<div class="row-fluid">
+    <div class="span5">
+        <h2 class="title"><?php echo $this->translate('My Activities') ?></h2><hr/>
+        <p><?php  if(isset($activityRecordResult) && $activityRecordResult!=""){
+        //	print_r($activityRecordResult);
+        	foreach($activityRecordResult as $rw){
+        		echo "<b>". $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i", $rw['date']),"Asia/Calcutta",'d/m/Y')."</b></br>";
+        		echo "<a href='/viewactivitydetail/".$rw['id']."'>".$rw['subject']."</a>[".$rw['pname'] ."]</br>";
+        	}
+        }?></p>
+        <p><a class="btn btn-success" href="<?php echo $this->url('activities'); ?>" target="_blank"><?php echo $this->translate('View All Activities') ?> &raquo;</a></p>
+   </div>
+</div>
+   <?php $month=date("m");	$year=date("Y");
+		 $offset = $common->get_timezone_offset('Asia/Calcutta','GMT');
+		 $strDate = date($year."-".$month."-01"." 00:00:00");
+		 //$strDate = strtotime($ss)+$offset;
+		 $num= cal_days_in_month(CAL_GREGORIAN,$month,$year);
+		 $endDate = date($year."-".$month.'-'.$num." 00:00:00");
+		// $endDate = strtotime($ee)+$offset;
+		?>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+	var strdate='<?php echo $strDate?>';
+	var enddate='<?php echo $endDate?>';
+	var userid='<?php echo $userid?>';
+	   $.ajax({
+	        type: "POST",
+	        url: "<?php echo $this->url('userreport');?>",
+	        dataType:"json",
+	        async: false,
+	        data:{"strdate" : strdate,"enddate":enddate,"userid":userid},
+	        success: function(response){
+	        	$("#chart1").empty();
+	        	//$("#chart2").empty();
+	        	    var legends = [];
+		   			var lineData = [];
+		   			var ticksLabel = [] ;
+		   			var pesttime = [];
+		   		 	var userspenttime = [];
+		   			var useresttime = [];
+		   			var mydata = response;
+		   			for(var i in mydata.legend) {
+		   	   	   	   	legends.push({label : mydata.legend[i]});
+		   	   	  	}
+		   			for(var i in mydata.pname) {
+		   				ticksLabel.push(mydata.pname[i]);
+		   				pesttime.push(parseFloat(mydata.projectest[i]));
+		   				userspenttime.push(parseFloat(mydata.userspenttime[i]));
+		   				useresttime.push(parseFloat(mydata.userest[i]));
+		   	   	  	}
+		   		//	alert(response['title']);
+		   	   	  	var title=response['title'];
+		   	   	  	
+		   	   		var lineOptions = {
+							'divTag':'chart1',
+							'seriesLabel': legends,
+							'ticksLabel' : ticksLabel,
+							'xaxisLabel' : 'Projects',
+							'yaxisLabel' :  'Hours',
+							'legendPlacement' : 'outsideGrid',
+							'legendShow' : 'true',
+							'yFormatString' : '%.2f',
+							'chartTitle' : title,
+							};	
+					if(userspenttime.length>0 && useresttime.length>0){
+						lineData.push(userspenttime);
+						lineData.push(useresttime);
+						barCharts(lineData,lineOptions);
+					}
+					$(window).resize(function () {
+						$("#chart1").empty();
+						barCharts(lineData,lineOptions);
+					});
+	        	},
+		    });
+
+	   $.ajax({
+	        type: "POST",
+	        url: "<?php echo $this->url('piechart');?>",
+	        dataType:"json",
+	        async: false,
+	        data:{"strdate" : strdate,"enddate":enddate,"userid":userid},
+	        success: function(response){
+	        	$("#chart2").empty();
+	        	 	var dataArray=new Array();
+		   			for(var i in response.data) {
+			   			var tmp=new Array();			   			
+			   			tmp.push(response.data[i]['categoryname']);
+			   			tmp.push(parseFloat(response.data[i]['userspenttime']));
+			   			dataArray.push(tmp);		   				
+		   	   	  	}
+		   	   	  	var title="Total Time "+response['totalspent'];
+		   	   	  
+		   	   		var lineOptions = {
+							'divTag':'chart2',
+							'dataLabelFormatString' : '%g',
+							'chartTitle' : title,
+							
+							};
+			   	   	if(dataArray.length>0){
+				   	   pieChart(dataArray,lineOptions);
+			   	   	}
+			   	 	$(window).resize(function () {
+						$("#chart2").empty();
+						pieChart(dataArray,lineOptions);
+					});
+	        	},
+		 	 
+		    });
+});
+</script>
+
+
+

@@ -1,0 +1,75 @@
+<h2 class="title">Company-Wise Employees</h2><hr/>
+<div class="row" id="gridContainer" style="margin-left: 0px !important;">
+<div id="grid" style="min-height: 500px;"><table id="list"> <div id="subgrid" >
+<table id="subgridtable"></table>
+</div> </table>
+      <div id="pager"></div>
+</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+    jQuery("#list").jqGrid({        
+    url:"<?php echo $this->url('gridcompany');?>",
+    datatype: "json",
+    mtype: 'POST',
+    colNames:['company'],
+    colModel:[
+        {name:'company',index:'company'},
+       ],
+    rowNum:20,
+    rowList:[10,20,25],
+    navigator:true,
+    pager: '#pager',
+    viewrecords: true,
+    height:"400px",
+    viewrecords: true,
+   // OrdersGrid.ToolBarSettings.ShowRefreshButton = true;            
+    multiselect: false,
+	subGrid : true,
+	subGridRowExpanded: function(subgrid_id, row_id) {
+		 var subgrid_table_id;
+	       subgrid_table_id = subgrid_id+"_t";
+	       jQuery("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table>");
+	       jQuery("#"+subgrid_table_id).jqGrid({
+	    	  mtype: 'POST',
+	          datatype: "json",
+	      		
+	          url: "<?php echo $this->url('griduser');?>",
+	          postData: {companyid:row_id},	
+	          colNames:['Name','Email','Mobile','Dob','Active','Admin','Action'],
+	  		colModel :[
+	  		{name:'name', index:'name',align:'right', editrules:{required:true}, editable:true},		
+	  		{name:'email', index:'email',align:'right', editrules:{required:true}, editable:true},		
+	  		{name:'mobile', index:'mobile', editable:true},
+	  		{ name:'dob', index:'dob', label: 'Date', width: 80,
+	  		    editable: true, edittype: 'text',
+	  		    editoptions: {
+	  		      size: 10, maxlengh: 10,
+	  		      dataInit: function(element) {
+	  		        $(element).datepicker({dateFormat: 'mm-dd-yy',changeMonth: true,changeYear: true,})
+	  		      }
+	  		    }
+	  		  },		
+	  		{name:'isactive', index:'isactive', editable:true,edittype:'checkbox', editoptions: { value:"1:0"},formatter: "checkbox",sortable:false},
+	  		{name:'isadmin', index:'isadmin', editable:true,edittype:'checkbox', editoptions: { value:"1:0"},formatter: "checkbox",sortable:false},
+	  		{name:'action', index:'action'},
+	  		],
+	  	  rowNum:5,
+	  	    rowList:[10,20,25],
+	  	    navigator:true,
+	  	    pager: '#subgrid',
+	  	    sortname: 'name',
+	  	    viewrecords: true,
+	  	    sortorder: "desc",
+	  	    height:"400px",
+	  	    width:"1100",
+	  		
+	  	      	});
+	 }
+    });
+    resizegrid("gridContainer","list");
+    jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+});
+
+
+</script>

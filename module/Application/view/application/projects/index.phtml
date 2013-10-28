@@ -1,0 +1,116 @@
+<div id="addProjectsModal" title="Add Project" class="modal hide fade" data-backdrop="static" 
+	data-toggle="modal" tabindex="-1" role="dialog" 
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<button class="bootbox-close-button close" type="button" data-dismiss="modal" style="margin-right:5px;">×</button>
+    <div class="modal-header">
+    	<h6 class="title" style="margin-bottom:1px;">Enter Project Details</h6>
+    </div>
+    <!-- dialog contents -->
+	<div class="modal-body">
+		<div id="addProjects" name="addProjects" title="Add Projects"></div>
+    </div>
+    <div class="modal-footer">
+    	<button class="btn btn-success" data-toggle="modal" style="margin-left:33px;" 
+			type="button" id="closemodeldilog" data-dismiss="modal" >Close</button>
+	    <button class="btn btn-success" data-toggle="modal" style="margin-left:33px" 
+	    	type="button" value="Ok" id="ok" name="ok">Submit</button>
+    </div>
+</div>
+<h2 class="title">Projects</h2><hr />
+<button id="btnAddprojects" class="btn btn-success" name="btnAddprojects" style="margin-bottom:1em;">Add New Project</button>
+<div style="min-height: 500px;" id="gridContainer">
+
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+
+<div id="maskloder"></div>
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list").jqGrid({
+		url:"<?php echo $this->url('gridprojects');?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Name','Status','Type','Estimated Start Date','Estimated End Date','Actual Start Date','Actual End Date','Estimated Hours','Spent Time','Action'],
+		colModel :[
+		{name:'name',index:'name'},
+		{name:'status',index:'status',sortable:false},
+		{name:'type',index:'type',sortable:false},
+		{name:'esd', index:'esd',align:'right', editable:true},
+		{name:'eed', index:'eed',align:'right', editable:true},
+		{name:'asd', index:'asd', editable:true},
+		{ name:'aed', index:'aed',editable: true},
+		{name:'esthours', index:'esthours',editable: true},
+		{name:'pst', index:'pst',editable: true,sortable:false},
+		{name:'action', index:'action',editable: false}
+		],
+	  	rowNum:20,
+	    rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager',
+	    sortname: 'esd',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px",
+	});
+	
+	$("#btnAddprojects")//.button()
+	.click(function( event ) {
+	   event.preventDefault();
+	   addProject("");
+		});
+    jQuery("#list").jqGrid('navGrid',"#pager",{add:false,edit:false,del:false, search:false, refresh:false})
+//    $( "#addProjects" ).dialog({ autoOpen:false, width:400,});
+    resizegrid("gridContainer","list");
+    jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+	});
+function addProject(id){
+	$( "#addProjectsModal" ).modal({show:true});
+	$.ajax({
+		type: "POST",
+		url: "<?php echo $this->url('addprojects');?>",	         
+		data: {flag: "view", id: id },
+		success: function(response)
+		{ 
+			$("#addProjects").html(response);
+			$("#list").trigger("reloadGrid");
+		},
+		error: function(XMLHttpRequest,textStatus){
+			alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		},
+	});
+}
+function deleteProjects(id){
+	var id=jQuery('#list').getGridParam('selrow');
+	if(window.confirm('Are you sure you want to delete this project?'))
+	{
+	 $.ajax({
+	     type: "POST",
+	     url: "<?php echo $this->url('deleteprojects');?>",             
+	     data: {id: id },
+	 	 async:true,
+	 	 beforeSend: function () {
+			$('#list').mask("Loading...");
+	 		 /*loadingmsg('addProjects','addProjects','Add New Project');*/	
+	 	 },
+	     success: function(response)
+	     {   
+	        alert("record deleted");
+	        $("#list").trigger('reloadGrid');
+	     },
+	     error: function(XMLHttpRequest,textStatus){
+	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+	   	},
+		complete: function(){
+	    	setTimeout(function(){		    	
+	    		$('#list').unmask();	
+	    		//unmaskloading('addProjects');
+			},500);
+		}
+	   });
+	}
+}	
+
+	</script>
+

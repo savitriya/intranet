@@ -1,0 +1,43 @@
+<div style="min-height: 500px;" id="gridContainer">
+	<table id="list2">
+	</table>
+	<div id="pager2"></div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list2").jqGrid({
+		url:"<?php echo $this->url('gridprojects');?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Name','estimated_startdate','estimated_enddate','estimated_starttime','estimated_endtime','actual_startdate','actual_starttime','actual_enddate','actual_endtime','status'],
+		colModel :[
+		{name:'name', index:'name', editable:true},
+		{name:'estimated_startdate', index:'estimated_startdate',align:'right', editable:true},
+		{name:'estimated_enddate', index:'estimated_enddate', editable:true},
+		{name:'estimated_starttime', index:'estimated_starttime', editable:true},
+		{name:'estimated_endtime', index:'estimated_endtime', editable:true},
+		{name:'actual_startdate', index:'actual_startdate', editable:true},
+		{name:'actual_starttime', index:'actual_starttime', editable:true},
+		{name:'actual_enddate', index:'actual_enddate', editable:true},
+		{name:'actual_endtime', index:'actual_endtime', editable:true},
+		{name:'status', index:'status', editable:true},
+		],
+	  rowNum:20,
+	    rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager2',
+	    sortname: 'name',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px",
+	    viewrecords: true,
+	});
+	   jQuery("#list2").jqGrid('navGrid',"#pager2",{add:true,edit:true,del:true, search:false, refresh:false},
+	           {reloadAfterSubmit:true,url:"<?php echo $this->url('editprojects'); ?>" }, // edit options
+	           {reloadAfterSubmit:true,url:"<?php echo $this->url('addaprojects'); ?>" }, // add options
+	           {reloadAfterSubmit:true,url:"<?php echo $this->url('deleteprojects'); ?>"} // del options
+	           );
+	});
+resizegrid("gridContainer","list2");
+  	</script>
+

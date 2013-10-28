@@ -1,0 +1,55 @@
+<h2 class="title">Preferences</h2><hr/>
+<button id="addpreferences" class="btn btn-success" name="addpreferences" style="margin-bottom:15px;">Add Preference</button>
+
+<div style="min-height: 500px;" id="gridContainer">
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list").jqGrid({
+		url:"<?php echo $this->url('gridpreferences'); ?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['User Name','TO','Cc','Leave Contact','Action'],
+		colModel :[		
+		{name:'username',index:'username', editable:true},
+		{name:'tomail',index:'tomail', editable:true,sortable:false},
+		{name:'cc',index:'cc', editable:true,sortable:false},
+		{name:'leavecontact',index:'leavecontact', editable:true,sortable:false},
+		{name:'action', index:'action',editable: false,sortable:false}	
+		],
+	  	rowNum:20,
+	    rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager',
+	    sortname: 'username',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px"
+	    //width:"1200"
+	});
+	resizegrid("gridContainer","list");
+	jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+	$("#addpreferences")//.button()
+	.click(function( event ) {
+	   event.preventDefault();
+	  window.location.href="<?php echo $this->url('addpreferences');?>";
+	});
+});
+
+function deletePreferences(id){
+	 $.ajax({
+	     type: "POST",
+	     url: "<?php echo $this->url('deletepreferences');?>",             
+	     data: {id: id },
+	     success: function(response)
+	     {   
+	        alert("record deleted");
+	        $("#list").trigger('reloadGrid');
+	      }
+	   });
+}
+	</script>
+

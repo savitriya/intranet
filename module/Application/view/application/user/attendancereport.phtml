@@ -1,0 +1,506 @@
+<?php
+use IntranetUtils\Common;
+use Zend\Authentication\AuthenticationService;
+$num= cal_days_in_month(CAL_GREGORIAN,$month,$year);// 31
+$common=new Common();
+$auth = new AuthenticationService();
+$uid=$auth->getIdentity()->id;
+$dailyReportUser="";
+$dailyReportDate="";
+?>
+<!-- CSS and JS for table fixed header -->
+<link rel="stylesheet" type="text/css" href="/css/table-fixed-header.css" />
+<script type="text/javascript" src="/js/table-fixed-header.js"></script>
+<script type="text/javascript" src="/js/bootbox.min.js"></script>
+<style type="text/css">
+#scroller {
+	/*width: 1600px;*/
+	/*width: 80%;margin-left: 269px;*/
+	overflow-x: scroll;
+}
+
+#scroller table {
+	/* just a quick hack to make the table overflow the containing div
+       your method may differ */
+	/*width: 1826px;
+	overflow-x: scroll;*/
+}
+
+#scroller .table.fixedCol {
+	width: auto;
+	position: absolute;
+	/* below styles are specific for borderd Bootstrap tables
+       to remove rounded corners on cloned table */
+	-webkit-border-top-right-radius: 0px;
+	-webkit-border-bottom-right-radius: 0px;
+	-moz-border-radius-topright: 0px;
+	-moz-border-radius-bottomright: 0px;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+.table.fixedCol th,.table.fixedCol td {
+	/* background is set to white to hide underlaying column
+       of original table */
+	background: white;
+}
+
+.odd {
+	background-color: #EFFEFE;
+	text-align: center;
+}
+
+.even {
+	background-color: #ADD8E6;
+	text-align: center;
+}
+
+.abs {
+	background-color: red;
+}
+
+.holiday {
+	background-color: #997272;
+}
+
+.Sun {
+	background-color: #997272;
+}
+
+.Orange {
+	background-color: #FFA500;
+}
+
+.Yellow {
+	background-color: #FFFF00;
+}
+</style>
+<h2 class="title">Attendance Report</h2><hr/>
+	<?php $id=$response[0]['id'];
+		$companyName='';
+		for($c=0;$c<count($viewCompanies);$c++){
+			if($id==$viewCompanies[$c]['cid']){
+				$companyName=$viewCompanies[$c]['name'];
+			}
+		 }?>
+<div>
+	<h2 class="title" style="display:inline;"><?php echo $companyName;?></h2>
+    <ul class="inline" style="float:right;display:inline;">
+	    <li class="abs color-legend">Red- Absent</li>
+	    <li class="Orange color-legend">Orange- Spent Hours less than 5</li>
+	    <li class="Yellow color-legend">Yellow- Spent Hours between 5 and 7</li>
+    </ul>
+</div>
+<br/><br/>
+<form action="" method="post" id="form1" name="form1" class="form-horizontal">
+	<div class="row-fluid">
+		<div class="span4 control-group">
+			<label class="control-label">Month:</label>
+			<div class="controls">
+				<select class="right-margin" id="month" name="month">
+					<option></option>
+					<option value="1" <?php if($month==1){echo "selected=selected"; }?>>January</option>
+					<option value="2" <?php if($month==2){echo "selected=selected"; }?>>February</option>
+					<option value="3" <?php if($month==3){echo "selected=selected"; }?>>March</option>
+					<option value="4" <?php if($month==4){echo "selected=selected"; }?>>April</option>
+					<option value="5" <?php if($month==5){echo "selected=selected"; }?>>May</option>
+					<option value="6" <?php if($month==6){echo "selected=selected"; }?>>June</option>
+					<option value="7" <?php if($month==7){echo "selected=selected"; }?>>July</option>
+					<option value="8" <?php if($month==8){echo "selected=selected"; }?>>August</option>
+					<option value="9" <?php if($month==9){echo "selected=selected"; }?>>September</option>
+					<option value="10" <?php if($month==10){echo "selected=selected"; }?>>October</option>
+					<option value="11" <?php if($month==11){echo "selected=selected"; }?>>November</option>
+					<option value="12" <?php if($month==12){echo "selected=selected"; }?>>December</option>
+				</select>
+			</div>
+		</div>
+		<div class="span4 control-group">
+			<label class="control-label">Year:</label>
+			<div class="controls">
+				<select id="year" class="right-margin" name="year">
+					<option></option>
+					<?php for($y=2011;$y<=date('Y');$y++){?>
+					<option value='<?php echo $y?>'
+					<?php if($year==$y){echo "selected=selected"; }?>>
+						<?php echo $y?>
+					</option>
+					<?php }?>
+				</select>
+			</div>
+		</div>
+		<div class="span4 control-group">
+			<label class="control-label">
+				<button type="submit" value="Submit" id="btnsubmit" class="btn btn-success" name="btnsubmit" style="margin-top:-4px;">Submit</button>
+			</label>
+		</div>
+	</div>
+	<?php if($auth->getIdentity()->isadmin==1){?>
+	<div class="row-fluid">
+		<div class="span4 control-group">
+			<label class="control-label">Company:</label>
+			<div class="controls">
+				<select id="company" class="right-margin" name="company">
+					<option></option>
+					<?php for ($c=0;$c<count($viewCompanies);$c++){?>		
+					<option value='<?php echo $viewCompanies[$c]['cid']?>'>
+						<?php echo $viewCompanies[$c]['name'];?>
+					</option>
+					<?php }?>
+				</select>
+			</div>
+		</div>
+	</div>
+	<?php }?>
+</form>
+<hr />
+<div>
+	<?php 
+	$currentMonth=date("m");
+	$cIndex=0;
+
+foreach ($response as $rc){ ?>
+	<?php $id=$rc["id"];?>
+			<div id="scroller">
+				<table 	class="table table-fixed-header table-bordered table-condensed">
+					<thead class="header">
+						<th height="56px;">Name</th>
+						<th>Time</th>
+						<?php for($i=1;$i<=$num;$i++){?>
+						<?php 
+						$date = "$i-$month-$year";
+						$weekday = date('D', strtotime($date));
+						?>
+						<th><?php if($i<=9){?> <?php echo "0".$i."<br/>".$weekday ;?> <?php }else{ echo $i."<br/>".$weekday ;
+						}?></th>
+						<?php }?>
+						<th>Total</th>
+						<th>Late</th>
+					</thead>
+					<tbody>
+						<?php foreach($rc['user'] as $res){?>
+
+						<?php $leave=0;$totalholiday=0;$presentdays=0; $colorIt=true;$lateCountinMonth=0;$avglate=0;$todayLate=0;?>
+						<tr>
+							<?php $home="/".$res['user_id'];?>
+							<td><a href=<?php echo $home; ?>> <?php echo $res['user_name']; ?>
+							</a>
+							</td>
+							<td><?php echo 'In' ?></td>
+							<?php
+							$today=date("d");
+							$numDaysUserCame = 0; //the number of days or halfdays, an employee has come to office
+							for($i=1;$i<=$num;$i++){
+		$formatedMonthDay=sprintf('%02d', $i);
+		$date = $i."-".$month."-".$year;
+		
+		//$todaystrtotime=strtotime($date);
+		$weekday = date('D', strtotime($date));
+		$spentTime=$res[$formatedMonthDay]['spenttime'];
+		$yesterday=0;
+		$tomorrow=0;
+		if($res[$formatedMonthDay]['intime']=="" && $res[$formatedMonthDay]['outtime']=="" && $i<=$num)
+		{
+			if(!in_array($i,$holiday) && $weekday!="Sun" && $i<=$num){
+				if($currentMonth==$month && $i<=$today){
+					$leave++;
+				}
+				else if($currentMonth!=$month){
+					$leave++;
+				}
+			}
+           elseif ($weekday="Sun" || in_array($i,$holiday) && $i<$num){
+           	$yesterday=$i;
+           	$tomorrow=$i;
+            if ($weekday="Sun"){
+            	$yesterday=$i-1;
+            	$tomorrow=$i+1;
+            }
+           	while (in_array($yesterday,$holiday)){
+           		$yesterday=$yesterday-1;
+           }
+          
+           while (in_array($tomorrow,$holiday)){
+           	$tomorrow=$tomorrow+1;
+           }
+           $yesterday=sprintf('%02d', $yesterday);
+           $tomorrow=sprintf('%02d', $tomorrow);
+           if ($yesterday<$num && $tomorrow<$num && $yesterday!=0){
+           if($res[$yesterday]['intime']=="" && $res[$yesterday]['outtime']=="" && $res[$tomorrow]['intime']=="" && $res[$tomorrow]['outtime']==""  && $i<=$num && !in_array($i,$holiday))
+           {
+           	if($currentMonth==$month && $i<=$today){
+           		$leave++;
+           	}
+           	else if($currentMonth!=$month){
+           		$leave++;
+           	}
+         
+           }
+           }
+           }
+			if (in_array($i,$holiday) || $weekday=="Sun" && $i<=$num){
+				$totalholiday++;
+			}
+		}
+		$spent = explode(":",$spentTime);
+		$inTime = explode(':', $res[$formatedMonthDay]['intime']);
+		$outTime = explode(':', $res[$formatedMonthDay]['outtime']);
+		if($res[$formatedMonthDay]['intime'] != "" && $res[$formatedMonthDay]['outtime'] != "" 
+			&& $i <= $num && $spent[0] >= 5 && $inTime[0] < 11 && $outTime[0] > 16){
+			$presentdays++;
+		}
+		elseif($res[$formatedMonthDay]['intime'] != "" && $res[$formatedMonthDay]['outtime'] != "" 
+			&& $i <= $num && $spent[0] < 5){
+			$presentdays += 0.5;
+		}
+		elseif(($res[$formatedMonthDay]['intime'] != "" || $res[$formatedMonthDay]['outtime'] != "") 
+			&& $i <= $num){
+			$presentdays += 0.5;
+		}
+		//print_r($res);exit;
+		
+		if ($res[$formatedMonthDay]['intime']!=""){
+	
+			if($res[$formatedMonthDay]['login']>=$res[$formatedMonthDay]['cdate']+$res['login_slot'] && $res[$formatedMonthDay]['login']<=$res[$formatedMonthDay]['cdate']+$res['login_slot']+600){
+				//if person comes between 9:10 and 9:00 than it will be considered earlt,so minus that much seconds in his avglate
+				$avglate-=($res[$formatedMonthDay]['cdate']+$res['login_slot']+600)-$res[$formatedMonthDay]['login'];
+				$numDaysUserCame++;
+			}
+			else if($res[$formatedMonthDay]['login']>$res[$formatedMonthDay]['cdate']+$res['login_slot']+600){
+				//if person comes after 9:10 it will be considered late,so add that much seconds in his avglate
+				$avglate+=$res[$formatedMonthDay]['login']-($res[$formatedMonthDay]['cdate']+$res['login_slot']+600);
+				$lateCountinMonth++;
+				$numDaysUserCame++;
+			}
+			else{
+				//if person comes before nine,calculate its average from 9,means if x comes at 8:45 than also he will be considered on 9 for in hours average calculations,
+				//and he will get benifit of 10 mins(9:10) thus in seconds 10*60*60=600
+				$avglate-=600;
+				$numDaysUserCame++;
+			}
+		}
+		$strdate=date("Y-m-d");
+		$strdate=strtotime($strdate)-19800;
+		if ($res[$formatedMonthDay]['intime']!="" && $res[$formatedMonthDay]['cdate'] ==$strdate){
+			$todayLate=$res[$formatedMonthDay]['login']-($res[$formatedMonthDay]['cdate']+$res['login_slot']+600);
+
+			if ($todayLate>0){
+				$todayLate=$common->convertSpentTime($todayLate);
+			}else {
+			    $todayLate="00:00";
+			}
+		}
+	//$spent=explode(":",$spentTime);
+	if($spent[0]<5 && $spentTime !=""){
+		$spent="Orange";
+	};
+	if($spent[0]<7 && $spent[0]>=5 && $spentTime !=""){
+		$spent="Yellow";
+	}
+$loginBy=$res[$formatedMonthDay]['loginByResult'];
+?>
+							<td
+								 class="<?php if($colorIt){?>odd<?php }else{ echo "even";}?> <?php if(!is_array($spent)){echo $spent;}?> <?php echo $weekday;?> <?php if(in_array($i,$holiday)){ echo "holiday"; }?> <?php if($res[$formatedMonthDay]['intime']=="" && $res[$formatedMonthDay]['outtime']=="" && $i<=$numc){ echo "abs";}?>"
+								title="<?php echo $weekday."-".date('d/m/Y',strtotime($date));?>">  <?php echo $res[$formatedMonthDay]['intime'];if($loginBy!=$res['user_id'] && $res[$formatedMonthDay]['intime']!=""){?><sup>*</sup>
+								<?php }?>
+							</td>
+							<?php }?>
+							<td title="Leave"><?php echo $leave;?></td>
+							<td title="Late By. Today"><?php echo $todayLate;?></td>
+
+						</tr>
+						<tr>
+							<td height="20px;">&nbsp;</td>
+							<td><?php echo "Out";?></td>
+							<?php 
+							for($i=1;$i<=$num;$i++){
+								$formatedMonthDay=sprintf('%02d', $i);
+								$date = $i."-".$month."-".$year;
+								$weekday = date('D', strtotime($date));
+
+								$spentTime=$res[$formatedMonthDay]['spenttime'];
+								$spent=explode(":",$spentTime);
+								if($spent[0]<5 && $spentTime !=""){
+						$spent="Orange";
+						};
+						if($spent[0]<7 && $spent[0]>=5 && $spentTime !=""){
+						$spent="Yellow";
+						}
+						$logoutBy=$res[$formatedMonthDay]['logoutByResult'];
+						?>
+							<td
+								class="<?php if($colorIt){?>odd<?php }else{ echo "even";}?> <?php if(!is_array($spent)){echo $spent;}?> <?php echo $weekday;?> <?php if(in_array($i,$holiday)){ echo "holiday"; }?> <?php if($res[$formatedMonthDay]['intime']=="" && $res[$formatedMonthDay]['outtime']=="" && $i<=$numc){ echo "abs";}?>"
+								title="<?php echo $weekday."-".date('d/m/Y',strtotime($date));?>"><?php echo $res[$formatedMonthDay]['outtime'];if($logoutBy!=$res['user_id'] && $res[$formatedMonthDay]['outtime']!="" ){?><sup>*</sup>
+								<?php }?>
+							</td>
+							<?php }?>
+							<td title="Present Day/Working Day"><?php echo $presentdays;echo "/";echo $num-$totalholiday;
+							?>
+							</td>
+							<td title="Avg.Late">
+							<?php if ($numDaysUserCame>0){
+								$avglate=$avglate/$numDaysUserCame;
+							}
+							if ($avglate>600){
+								$avglate=$common->convertSpentTime($avglate);
+								echo "<span class='abs'>".$avglate."</span>";
+							}
+							elseif ($avglate>0 && $avglate<=600){
+								$avglate=$common->convertSpentTime($avglate);
+								echo "<span class='Yellow'>".$avglate."</span>";
+							}
+							else { $avglate="00:00";
+								echo "<span style='background-color: #3ADF00;'>".$avglate."</span>";
+							} ?>
+		</td>
+	</tr>
+	<tr>
+		<td style="border-bottom: 1px solid #000000;" height="21px;">&nbsp;</td>
+		<td style="border-bottom: 1px solid #000000;"><?php echo "<b>Total</b>";?>
+		</td>
+		<?php 
+		for($i=1;$i<=$num;$i++){
+		$formatedMonthDay=sprintf('%02d', $i);
+		$date = $i."-".$month."-".$year;
+		$datedmy=$i."/".$month."/".$year;
+		$dateymd=$year."-".$month."-".$i;
+		$userName=$res['user_name'];
+
+		if($auth->getIdentity()->isadmin==1){ 
+		$onClick="dailyReport('".$res['user_id']."','".$dateymd."','".$datedmy."','".$userName."')";		
+		}else {
+			if($uid==$res['user_id']){
+			$onClick="dailyReport('".$uid."','".$dateymd."','".$datedmy."','".$userName."')";
+			}else{
+				$onClick="";
+				}
+			}
+		$weekday = date('D', strtotime($date));
+		$spentTime=$res[$formatedMonthDay]['spenttime'];
+		$spent=explode(":",$spentTime);
+		if($spent[0]<5 && $spentTime !=""){
+$spent="Orange";
+};
+if($spent[0]<7 && $spent[0]>=5 && $spentTime !=""){
+$spent="Yellow";
+}
+
+if(is_array($spent)){
+		}
+
+		?>
+							<td style="border-bottom: 1px solid #000000;"
+								class="<?php if($colorIt){?>odd<?php }else{ echo "even"; }?>  <?php if(!is_array($spent)){echo $spent;}?> <?php echo $weekday;?> <?php if(in_array($i,$holiday)){ echo "holiday"; }?> <?php if($res[$formatedMonthDay]['intime']=="" && $res[$formatedMonthDay]['outtime']=="" && $i<=$numc){ echo "abs";}?>"
+								title="<?php echo $weekday."-".date('d/m/Y',strtotime($date));?>"> <span style="cursor:pointer;" onclick="<?php echo $onClick;?>"> <?php echo $res[$formatedMonthDay]['spenttime'];?> </span>
+
+							</td>
+							<?php }?>
+							<td title="Total Working Time"><?php echo $common->convertSpentTime($res['totalspenttime']); ?>
+							</td>
+							<td title="Late Count in month"><?php echo $lateCountinMonth;?></td>
+						</tr>
+						<?php if($colorIt){
+							$colorIt=false;
+						}
+						else{
+		$colorIt=true;
+	}?>
+						<?php  }?>
+					</tbody>
+				</table>
+			</div>
+	<?php  }?>
+	</div>
+
+<div id="dailyReportModal" class="modal hide fade" tabindex="-1" role="dialog" 
+	data-backdrop="static" data-toggle="modal" aria-labelledby="myModalLabel" aria-hidden="true">
+	<button class="bootbox-close-button close" type="button" data-dismiss="modal" style="margin-right: 5px;">×</button>
+    <div class="modal-header">
+    	<h6 class="title" style="margin-bottom:5px;">Daily Report</h6>
+    </div>
+	<!-- dialog contents -->
+	<div class="modal-body">
+			<div id="userDate"  title="UserName and Date"></div>
+	    	<div id="dailyReport"  title="DailyReport"></div>
+    </div>
+    <!-- dialog buttons -->
+    <div class="modal-footer">
+    	<button class="btn btn-success" data-toggle="modal" style="margin-left:33px;" 
+			id="closemodeldilog" data-dismiss="modal">Close</button>
+    </div>
+</div>
+	
+	
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	
+	$("#btnsubmit")//.button();
+	/*$('tableId').fixedHeaderTable({ footer: false, cloneHeadToFoot: false, fixedColumn: true });*/
+	
+	$("#scroller").css('width',$(document).width()-40);
+	$('#scroller table').each(function(){
+	    var table = $(this),
+	        fixedCol = table.clone(true),
+	        fixedWidth = table.find('th').eq(0).width(),
+	        tablePos = table.position();
+	    
+	    // Remove all but the first column from the cloned table
+	    fixedCol.find('th').not(':eq(0)').remove();
+	    fixedCol.find('tbody tr').each(function(){
+	        $(this).find('td').not(':eq(0)').remove();
+	    });
+	    
+	    // Set positioning so that cloned table overlays
+	    // first column of original table
+	    fixedCol.addClass('fixedCol');
+	    fixedCol.css({
+	        left: tablePos.left,
+	        top: tablePos.top
+	    });
+	    // Match column width with that of original table
+	    fixedCol.find('th,td').css('width',fixedWidth+'px');
+	    fixedCol.find('th,td').attr('width',fixedWidth+'px');
+	    $('#scroller').append(fixedCol);
+	});
+	//$('.table-fixed-header').fixedHeader();
+	
+});
+
+
+function dailyReport(userid,dateymd,datedmy,userName){
+
+	 $.ajax({
+	        type: "POST",
+	        url: "<?php echo $this->url('sendmail');?>",
+	        dataType:"json",
+	        data:{"activitydate" :dateymd,"flag":"getreport","userid":userid},
+	        beforeSend: function () {
+	 			$('.container-fluid').mask("Loading...");
+	 	 	 },
+	        success: function(response){
+	        		if(response['returnvalue']=="valid"){
+	        			$("#dailyReport").html();
+	        			$("#dailyReportModal").modal({show:true});
+	        			$("#dailyReportModal .modal-header").html("<b>Daily Report of "+userName+" For :"+datedmy+"</b>");
+		                $("#dailyReport").html(response['html']);
+		                
+			    	}
+		        	else{
+
+		        		bootbox.alert("No report available of "+userName+" for :"+datedmy);
+		                return false;
+
+		            }
+		        	
+	        	},
+		 	 	error: function(XMLHttpRequest,textStatus){
+		 	 		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+			   	},
+				complete: function(){
+			    	setTimeout(function(){		    	
+			    		$('.container-fluid').unmask();	
+			    	},500);
+				}
+		    });
+}
+</script>

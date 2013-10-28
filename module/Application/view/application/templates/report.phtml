@@ -1,0 +1,162 @@
+<?php
+use IntranetUtils\Common;
+$common=new Common();
+?>
+<?php
+if(isset($responce)  && count($responce)>0){	
+	
+	for ($i=0;$i<count($responce);$i++){?>
+	<table width='100%' cellpadding='0' cellspacing='0' border='0'>
+		<tr>
+			<td width='10%' valign="top">
+				<b><?php echo ucwords($responce[$i]['pname']); ?></b>
+			</td>
+			<td valign="top">
+				<b><?php echo $common->convertSpentTime($responce[$i]['totaltime']); ?></b>
+			</td>
+		</tr>		
+		<?php for($j=0;$j<count($responce[$i]['user']);$j++){?>
+		
+		<tr>
+			<td width="10%" valign="top">
+				<?php echo ucwords($responce[$i]['user'][$j]['name']);?>
+			</td>
+			<td width="20%" valign="top">
+				<?php echo $common->convertSpentTime($responce[$i]['user'][$j]['time']); ?>
+			</td>
+		</tr>	
+		<?php }?>
+		<tr>
+			<td></td>
+			<td></td>
+		</tr>
+		</table>
+	<?php } } ?>
+	
+	<?php
+if(isset($projectreport)  && count($projectreport)>0){	
+	
+	for ($i=0;$i<count($projectreport);$i++){?>
+
+	
+	<table width='100%' cellpadding='0' cellspacing='0' border='0'>
+		<tr>
+			<td width='10%' valign="top">
+				<b><?php echo ucwords($projectreport[$i]['pname']); ?></b>
+			</td>
+			<td valign="top">
+				<b><?php echo $common->convertSpentTime($projectreport[$i]['spenttime']); ?></b>
+			</td>
+		</tr>	
+	</table>
+	<?php } } ?>	
+	
+	
+	
+	<?php
+if(isset($dateReport)  && count($dateReport)>0){	
+	
+	for ($n=0;$n<count($dateReport);$n++){?>
+
+	<table width='40%' cellpadding='0' cellspacing='0' border='0'>
+	
+		<tr>
+			<td valign="top">
+				<h4><?php echo ucwords($dateReport[$n]['pname']); ?></h4>
+			</td>
+			<td valign="top"> </td>
+			<td valign="top"> </td>
+			<td >
+				<h4><?php echo $common->convertSpentTime($dateReport[$n]['totaltime']); ?></h4>
+			</td>
+			
+			
+		</tr>	
+		<?php for ($i=0;$i<count($dateReport[$n]['date']);$i++){?>
+		<tr>
+		<td > </td>
+        <td  valign="top">
+				
+				<h6><?php $date1=date("Y-m-d H:i:s",$dateReport[$n]['date'][$i]['date']); 
+				echo  $common->ConvertGMTToLocalTimezone($date1, "Asia/Calcutta","d-m-Y");//date("d/m/Y",$dateReport[$n]['date'][$i]['date']); ?></h6>
+			</td>
+		
+		<td valign="top"><td> </td></td>
+			<td valign="top"><td> </td></td>
+		</tr>	
+		<?php for ($t=0;$t<count($dateReport[$n]['date'][$i]['user']);$t++){?>
+		<tr>
+		<td valign="top"><td> </td></td>
+<td valign="top">
+				<?php echo ucwords($dateReport[$n]['date'][$i]['user'][$t]['name']); ?>
+			</td>
+			<td valign="top">
+					
+			</td>
+			
+			<td valign="top"><?php echo $common->convertSpentTime($dateReport[$n]['date'][$i]['user'][$t]['time']); ?>
+			 </td>
+		</tr>	
+		<?php }?>
+		
+		
+		
+		<?php }?>	</table></br>
+	<?php } } ?>	
+	
+
+	<?php
+if(isset($dateDescriptionReport)  && count($dateDescriptionReport)>0){	?>
+<?php for ($n=0;$n<count($dateDescriptionReport);$n++){?>
+<table >
+<tr>
+			<td valign="top">
+				<h4><?php echo ucwords($dateDescriptionReport[$n]['pname']); ?></h4>
+			</td>
+			<td >
+				<h4><?php echo $common->convertSpentTime($dateDescriptionReport[$n]['totaltime']); ?></h4>
+			</td>
+			<td valign="top"> </td>
+		</tr>
+		<?php for ($i=0;$i<count($dateDescriptionReport[$n]['date']);$i++){?>
+	
+	<tr>
+	<td valign="top"> </td>
+	    <td  valign="top">
+				<h5><?php $date1=date("Y-m-d H:i:s",$dateDescriptionReport[$n]['date'][$i]['date']); 
+				echo  $common->ConvertGMTToLocalTimezone($date1, "Asia/Calcutta","d-m-Y")."[".$common->convertSpentTime($dateDescriptionReport[$n]['date'][$i]['time'])."]";//date("d/m/Y",$dateReport[$n]['date'][$i]['date']); ?></h5>
+			</td>
+		<td valign="top"><td> </td></td>
+		</tr>	
+		
+	<?php for ($t=0;$t<count($dateDescriptionReport[$n]['date'][$i]['user']);$t++){?>
+	
+	<tr>
+<td valign="top"> </td>	
+<td valign="top"> </td>	
+<td valign="top">
+				<h6><?php echo ucwords($dateDescriptionReport[$n]['date'][$i]['user'][$t]['name'])."[".$common->convertSpentTime($dateDescriptionReport[$n]['date'][$i]['user'][$t]['time'])."]"; ?></h6>
+			</td>
+			
+			
+		</tr>	
+	<?php for ($r=0;$r<count($dateDescriptionReport[$n]['date'][$i]['user'][$t]['description']);$r++){?>
+	<tr>
+		<td valign="top"> </td>
+		<td valign="top"> </td>
+<td valign="top">
+				<?php echo ucwords($dateDescriptionReport[$n]['date'][$i]['user'][$t]['description'][$r]); ?>
+			</td>
+			
+		</tr>	
+	
+	<?php }?>
+	<?php }?>
+	<?php }?>
+		
+</table>
+
+<?php }?>
+
+<?php }?>
+	

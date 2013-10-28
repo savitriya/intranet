@@ -1,0 +1,215 @@
+<?php use Zend\Authentication\AuthenticationService;
+	$auth = new AuthenticationService();?>
+<div>
+<h2 class="title">
+	<?php if(isset($oldPref) && $oldPref->getId()!=null){ echo "Edit";}	
+	else{echo "Add";}?> Preference		
+	</h2><hr/>
+	<form action="" method="post" id="form1" class="form-inline">
+		<div class="row-fluid">
+			<div class="span4 control-group">
+				<label class="control-label">To:</label>
+				<div class="controls">
+					<textarea tabindex="1" id="tomail" name="tomail" title="To Name" rows="4" class="input-xlarge"><?php if(isset($oldPref) && $oldPref->getTomail()!=''){echo $oldPref->getTomail();} ?></textarea>
+				</div>
+				<div class="controls"><div id="to_error"></div></div>
+			</div>
+			<div class="span4 control-group">
+				<label class="control-label">Cc:</label>
+				<div class="controls">
+					<textarea tabindex="2" id="ccmail" name="ccmail" title="Cc Mail" rows="4" class="input-xlarge"><?php if(isset($oldPref) && $oldPref->getCc()!=''){ echo $oldPref->getCc();}?></textarea>
+				</div>					
+				<div class="controls"><div id="cc_error"></div></div>
+			</div>
+			<div class="span4 control-group">
+				<label class="control-label">Leave Contact:</label>
+				<div class="controls">
+					<textarea tabindex="3" id="leavecontact" rows="4" class="input-xlarge" <?php if(!$auth->getIdentity()->isadmin){echo "disabled='disabled' ";}?> name="leavecontact" title="Leave Contact"><?php if(isset($oldPref) && $oldPref->getLeaveContact()!=''){ echo $oldPref->getLeaveContact();}?></textarea>
+				</div>					
+				<div class="controls"><div id="leavecontact_error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="span4 control-group">
+				<button tabindex="4" id="ok" class="btn btn-success" name="ok">Submit</button>
+			</div>
+		</div>
+	</form>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#ok")//.button()
+	   .click(function( event ) {
+     event.preventDefault();
+     add('<?php if(isset($oldPref) && $oldPref->getId()!="" && $oldPref->getId()!=null){ echo $oldPref->getId();}?>');
+ });
+
+	function split( val ) {
+        return val.split( /,\s*/ );
+    }
+    function extractLast( term ) {
+        return split( term ).pop();
+    }
+  $( "#tomail" )
+  // don't navigate away from the field on tab when selecting an item
+  .bind( "keydown", function( event ) {
+      if ( event.keyCode === $.ui.keyCode.TAB &&
+              $( this ).data( "autocomplete" ).menu.active ) {
+           event.preventDefault();
+      }
+  })
+  .autocomplete({
+      source: function( request, response ) {
+          $.getJSON( "<?php echo $this->url('getmultiuser');?>", {
+              term: extractLast( request.term )
+          }, response );
+      },
+      search: function() {
+          
+          var term = extractLast( this.value );
+          if ( term.length < 1 ) {
+              return false;
+          }
+      },
+      focus: function() {
+          // prevent value inserted on focus
+          return false;
+      },
+      select: function( event, ui ) {
+          var terms = split( this.value );
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push( ui.item.value );
+          // add placeholder to get the comma-and-space at the end
+          terms.push( "" );
+          this.value = terms.join( "," );
+          //$(this).css("height","150px;")
+          
+          return false;
+      }
+  });
+
+  $( "#ccmail" )
+  // don't navigate away from the field on tab when selecting an item
+  .bind( "keydown", function( event ) {
+      if ( event.keyCode === $.ui.keyCode.TAB &&
+              $( this ).data( "autocomplete" ).menu.active ) {
+           event.preventDefault();
+      }
+  })
+  .autocomplete({
+      source: function( request, response ) {
+          $.getJSON( "<?php echo $this->url('getmultiuser');?>", {
+              term: extractLast( request.term )
+          }, response );
+      },
+      search: function() {
+          
+          var term = extractLast( this.value );
+          if ( term.length < 1 ) {
+              return false;
+          }
+      },
+      focus: function() {
+          // prevent value inserted on focus
+          return false;
+      },
+      select: function( event, ui ) {
+          var terms = split( this.value );
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push( ui.item.value );
+          // add placeholder to get the comma-and-space at the end
+          terms.push( "" );
+          this.value = terms.join( "," );
+          //$(this).css("height","150px;")
+          
+          return false;
+      }
+  });
+
+  $( "#leavecontact" )
+  .bind( "keydown", function( event ) {
+      if ( event.keyCode === $.ui.keyCode.TAB &&
+              $( this ).data( "autocomplete" ).menu.active ) {
+           event.preventDefault();
+      }
+  })
+  .autocomplete({
+      source: function( request, response ) {
+          $.getJSON( "<?php echo $this->url('getmultiuser');?>", {
+              term: extractLast( request.term )
+          }, response );
+      },
+      search: function() {
+          
+          var term = extractLast( this.value );
+          if ( term.length < 1 ) {
+              return false;
+          }
+      },
+      focus: function() {
+          // prevent value inserted on focus
+          return false;
+      },
+      select: function( event, ui ) {
+          var terms = split( this.value );
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push( ui.item.value );
+          // add placeholder to get the comma-and-space at the end
+          terms.push( "" );
+          this.value = terms.join( "," );
+          //$(this).css("height","150px;")
+          
+          return false;
+      }
+  });
+});
+
+function add(){ 
+    $.ajax({
+        type: "POST",
+        <?php if(isset($oldPref) && $oldPref->getId()!=null){?>
+        url: "<?php echo $this->url('addpreferences',array('id'=>$oldPref->getId()));?>",	
+        <?php }else{?>
+        url: "<?php echo $this->url('addpreferences');?>",
+        <?php }?>
+        dataType:"json",
+        data: $("#form1").serialize(),
+        success: function(response)
+        {   
+             if(response['returnvalue']=="valid"){
+           	  <?php if(isset($oldPref) && $oldPref->getId()!=null){?>
+					alert("Record has been updated Successfully");
+           	  <?php }else{?>
+           	  	alert("Record has been added Successfully");
+           	  <?php }?>            	  
+            	window.location.href="<?php echo $this->url('preferences');?>";
+             }                       
+             else if(response.returnvalue=="exception"){
+                  alert("This Operation Could not be Completed,Please contact administrator");
+                  return false;
+             }else if(response.returnvalue=="duplicate"){
+                  alert("This Preference is already exists");
+                  return false;
+                 }            
+             else{
+                  for(var key in response.data){
+                      if(response.data[key]=="null"){
+                    	  $("#"+key+"_error").attr("style","color:red");
+                          $("#"+key+"_error").html($("#"+key).attr("title")+" can not be left empty");                                   
+                      }
+                      else if(response.data[key]=="invalid"){
+						$("#"+key+"_error").attr("style","color:red");
+						$("#"+key+"_error").html("Invalid value for "+$("#"+key).attr("title"));  
+                      }
+                   }}
+          }
+      });
+     return false; 
+}
+</script>
+</div>

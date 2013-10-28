@@ -1,0 +1,191 @@
+<div id="addHolidayModal" title="Add Holiday"  class="modal hide fade" data-backdrop="static" 
+	data-toggle="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	
+	<button class="bootbox-close-button close" type="button" data-dismiss="modal" style="margin-right: 5px;">×</button>
+    <div class="modal-header">
+    	<h6 class="title" style="margin-bottom:2px;">Add Holiday</h6>
+    </div>
+	<!-- dialog contents -->
+	<div class="modal-body">
+		<div id="addHoliday" name="addHoliday" title="Add Holiday"></div>
+    </div>
+    <div class="modal-footer">
+		<button class="btn btn-success" data-toggle="modal" style="margin-left:33px;" 
+			id="closemodeldilog" data-dismiss="modal" >Close</button>
+		<button class="btn btn-success" data-toggle="modal" style="margin-left:33px;" 
+			id="ok" name="btnaddHoliday" >Submit</button>
+    </div>
+</div>
+<h2 class="title">Holidays</h2><hr/>
+<div style="min-height: 500px;" id="gridContainer">
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list").jqGrid({
+		url:"<?php echo $this->url('gridholiday'); ?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Holiday', 'Date'],
+		colModel :[
+		
+		{name:'holiday', index:'holiday', editable:true},
+		{name:'date', index:'date',align:'right', editable:true},
+		],
+		rowNum:70,
+	    rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager',
+	    sortname: 'date',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px",
+	    //width:"1200",
+	    viewrecords: true
+	});
+
+	jQuery("#list").jqGrid('navGrid',"#pager",{edit: false,add: false,del: false,search: false,refresh:false})
+	.navButtonAdd('#pager',{caption:"Add", onClickButton:function(){
+	    	  $("#addHolidayModal").modal({show:true});
+	    	  var id=jQuery('#list').getGridParam('selrow');
+	
+	    	  $.ajax({
+	     	     type: "POST",
+	     	     url: "<?php echo $this->url('addholiday');?>",             
+	     	   	 data: {flag: "view", id: id },
+				beforeSend: function () {
+	 				$('#addHoliday').mask("Loading...");
+	 		 	 },
+	    	    
+	     	     success: function(response)
+	     	     {   
+	     	    	$("#addHoliday").html(response);
+                 },
+	     	    error: function(XMLHttpRequest,textStatus){
+            	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+					   	},
+			   complete: function(){
+					    	setTimeout(function(){		    	
+					    		$('#addHoliday').unmask();	
+					    		//unmaskloading('addProjects');
+							},500);
+						}
+	     	   });
+	    
+	}}).navButtonAdd('#pager',{caption:"Delete", onClickButton:function(){
+		 var id=jQuery('#list').getGridParam('selrow');
+ 	
+ 	    if(id>0){
+ 	    	if(window.confirm('Are you sure you want to delete this holiday?'))
+ 	   	{
+    	 $.ajax({
+    	     type: "POST",
+    	     url: "<?php echo $this->url('deleteholiday');?>",             
+    	     data: { id: id },
+    	     beforeSend: function () {
+ 				$('#list').mask("Loading...");
+ 		 	 },
+    	     success: function(response)
+    	     {   
+    	        alert("holiday deleted");
+    	        $("#list").trigger("reloadGrid");
+    	              },
+    	          	error: function(XMLHttpRequest,textStatus){
+				    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+				   	},
+					complete: function(){
+				    	setTimeout(function(){		    	
+				    		$('#addHoliday').unmask();	
+				    		//unmaskloading('addProjects');
+						},500);
+					}
+    	   });
+ 	   	}
+ 	    }else{
+ 	 	    alert("Please select a row to edit first.");
+ 	    }
+	  	}});
+	resizegrid("gridContainer","list");
+	jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+	$("#ok").click(function(event) {
+	  event.preventDefault();
+	  add('<?php if(isset($holiday) && $holiday->getId()!="" && $holiday->getId()!=null){ echo $holiday->getId();}?>');
+	});
+	$("#pager_left").css('width','130px');
+});
+
+function add(id){ 
+    $.ajax({
+        type: "POST",
+        url: "<?php echo $this->url('addholiday'); ?>",
+        dataType:"json",
+        data: $("#form1").serialize()+"&id="+id,
+        beforeSend: function () {
+				$('#addHoliday').mask("Loading...");
+		 	 },
+        success: function(response)
+        {
+         
+             if(response['returnvalue']=="valid"){       
+                 if(id!="" && id!=''){alert("Record has been updated Successfully");
+                 }else{
+                	 alert("Holiday has been added Successfully");
+                 }     	 
+                 $( "#addHolidayModal" ).modal('hide');
+                 
+           	    $("#list").trigger("reloadGrid");                    	         
+
+                    return false;
+             }	              
+             if(response['returnvalue']=="update"){            	 
+            	 $( "#addHolidayModal" ).modal('hide');
+                 alert("Holiday has been updated Successfully");
+           	     $("#list").trigger("reloadGrid");           	          		         		 
+                    return false;
+             }	              
+
+              else if(response.returnvalue=="exception"){
+                  alert("This Operation Could not be Completed,Please contact administrator");
+                  return false;
+             }
+             else{
+	               for(var key in response.data){
+		              // alert($("#"+key).attr("title"));
+		               if(response.data[key]=="null"){
+		            	   $("#"+key+"_error").attr("style","color:red");
+		            	   $("#"+key+"_error").html($("#"+key).attr("title")+" can not be left empty");					               
+		               }
+		               else if(response.data[key]=="valid"){
+		            	   $("#"+key+"_error").html(" ");
+		            	   $( "#addHolidayModal" ).modal('hide');					               
+		               }
+		               else if(response.data[key]=="invalid"){
+		            	  //$("#addholiday").dialog("close");
+		            	  $("#"+key+"_error").attr("style","color:red");
+			              //alert("some error has occured while performing operation,please try again later after some time");
+			               
+		               }
+		               else if(response.data[key]=="duplicate"){
+		            	   //$("#addholiday").dialog("close");
+		            	   $("#"+key+"_error").attr("style","color:red");
+		            	   $("#"+key+"_error").html("This holiday aleady exists");
+			               //alert("field aleady exist");
+		               }
+		            }}
+		  		 },
+		  	 	error: function(XMLHttpRequest,textStatus){
+			    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+			   	},
+				complete: function(){
+			    	setTimeout(function(){		    	
+			    		$('#addHoliday').unmask();	
+			    		//unmaskloading('addProjects');
+					},500);
+				}
+      		});
+
+     return false; 
+}
+</script>		

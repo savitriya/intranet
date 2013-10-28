@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <?php echo $this->headTitle('Savitriya '. $this->translate('IntraNet'))->setSeparator(' - ')->setAutoEscape(false) ?>
+
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+
+        <!-- Le styles -->
+        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/intranet_favicon.ico'))
+                         ?>
+                         
+        <link href="/css/zerocss/bootstrap.css" rel="stylesheet" type="text/css" />                 
+		<link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<link href="/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" type="text/css" href="/css/hot-sneaks/jquery-ui-1.9.2.custom.min.css"/>
+		<!-- <link rel="stylesheet" type="text/css" href="/css/hot-sneaks/ ui.multiselect.css"/> -->
+       <link rel="stylesheet" type="text/css" href="/css/ui.jqgrid.css"/>
+        <link rel="stylesheet" type="text/css" href="/js/jqplot/jquery.jqplot.css" />
+		<link href="/css/zerocss/font.css" rel="stylesheet" type="text/css" />        
+		<link href="/css/zerocss/style.css" rel="stylesheet" type="text/css" />
+
+       	<!-- <link rel="stylesheet" type="text/css" href="/css/jquery.loadmask.css"/> -->  
+        <!-- Scripts -->
+        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/html5.js', 'text/javascript', array('conditional' => 'lt IE 9',))
+        							->prependFile($this->basePath() . '/js/jquery.min.js')
+                                    //->prependFile($this->basePath() . '/js/bootstrap.min.js')
+                                       ?>
+		
+		<script type='text/javascript' src="/jquery/bootstrap-collapse.js"></script>
+		<script type='text/javascript' src="/jquery/bootstrap-dropdown.js"></script>
+ 		<script type='text/javascript' src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<div id="wrap" class="bg-one">
+		<!--nav-->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner"></div>
+		</div>
+		<div class="clearfix"></div>
+		<!--container-left-right-->
+		<div class="container-fluid marg-tp">
+			<div class="row-fluid">
+				<div class="span5 offset2">
+					<img src="/images/logo-tag.png" alt="intranet" />
+					<div class="clearfix"></div>
+				</div>
+
+				<div class="span4">
+					<form class="form-signin" action="" method="post" class="form-horizontal"
+						enctype="application/x-www-form-urlencoded" id="frmlogin">
+						<div class="control-group">
+							<label class="control-label">
+								<h2 class="left login-title">Login</h2>
+							</label>
+							<div class="controls">
+								<?php if(isset($messages->isvalid) && !$messages->isvalid){
+										foreach ($messages as $key=>$value){
+										if($key=="credentials"){
+											echo "<span class='help-inline' style='color:red;'>Invalid Credentials</span><br/>";
+										}
+									}
+								}?>
+								<input type="text" class="login-usernm" id="username" name="username" placeholder="Email address" />
+							</div>
+							<div class="controls">
+								<div class="error">
+								<?php if(isset($messages->isvalid) && !$messages->isvalid){
+									foreach ($messages as $key=>$value){
+										if($key=="username"){
+											echo "<span class='help-inline error' style='color:red;margin-top:-13px;'>Email Address can not be left blank</span><br/>";
+										}
+									}
+								}?>
+								</div>
+							</div>
+						</div>
+						<div class="control-group">
+							<div class="controls">
+								<input type="password" class="login-usernm" id="password" name="password" placeholder="Password" />
+							</div>
+							<div class="controls">
+								<?php if(isset($messages->isvalid) && !$messages->isvalid){
+									foreach ($messages as $key=>$value){
+										if($key=="password"){
+											echo "<span class='help-inline' style='color:red;margin-top:-2px;margin-top:-13px;'>Password  can not be left blank</span><br/>";
+										}
+									}
+								}?>
+							</div>
+						</div>
+						<div class="control-group">
+							<div class="controls">
+								<input type="submit" value="submit" class="login-submit" id="submit" />
+								<a href="##forgotpassword" id="fpw" name="fpw" class="password-link" role="button" data-toggle="modal">Forgot Password?</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="span12 footer-login">
+					<p class="footer-tag">&copy; Savitriya Technologies Ltd. All rights
+						reserved.</p>
+				</div>
+			</div>
+		</div>
+		<!--container-footer-->
+	</div>
+<script type="text/javascript">
+
+function forgotpassword(){    $('#myModal').on('show', function (e) {
+    if (!data) return e.preventDefault() // stops modal from being shown
+})
+    $.ajax({
+        type: "POST",
+        url: "<?php echo $this->url('forgotpassword');?>",
+        dataType:"json",
+        data: $("#frmforgotpassword").serialize(),
+        success: function(response)
+        {   
+             if(response['returnvalue']=="valid"){
+                    alert("Password has been send on your mail Successfully");                    
+                    $( "#forgotpassword" ).modal( "hide" );
+                    return false;
+             }		               
+             else if(response.returnvalue=="exception"){
+                  alert("This Operation Could not be Completed,Please contact administrator");
+                  return false;
+             }
+            else{
+	               for(var key in response.data){
+		            if(response.data[key]=="null"){
+		            	$("#"+key+"_error").attr("style","color:red");
+		            	$("#"+key+"_error").html($("#"+key).attr("title")+" can not be left empty");					               
+	               }
+	               else if(response.data[key]=="invalid"){
+	            	   $("#"+key+"_error").attr("style","color:red");
+	            	   $("#"+key+"_error").html("Invalid value for "+$("#"+key).attr("title"));
+	            	//alert("Invalid value for "+$("#"+key).attr("title"));
+		           }
+	               else if(response.data[key]=="duplicate"){
+	            	   $("#"+key+"_error").attr("style","color:red");
+	            	   $("#"+key+"_error").html("Field aleady exist");
+	            	   //alert("field aleady exist");
+		           }
+		      }}
+		   }
+      });
+     return false; 
+}
+
+$(document).ready(function() { 
+	$("#username").focus();
+	$("#ok")//.button()
+	   .click(function( event ) {
+        event.preventDefault();
+        forgotpassword();
+    });
+	 
+}); 
+</script>
+
+	<div id="forgotpassword" title="Forgot password" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h2 class="title" style="margin-bottom:-3px;">Get Your Password</h2>
+    </div>
+    <div class="modal-body">
+	    <form action="" method="post" id="frmforgotpassword" class="form-horizontal">
+	    	<div class="control-group">
+	    		<input type="text" class="input-xlarge" id="email" name="email" title="Email" placeholder="Email address" />
+	    		<sup style="color:#FF0000;">*</sup>
+	    		<div id="email_error"></div>
+	    	</div>
+	   </form>
+   </div>
+   <div class="modal-footer">
+		<input class="btn btn-success" data-toggle="modal" style="margin-left:33px;" 
+			type="button" id="closemodeldilog" data-dismiss="modal" value="Close" />
+   		<input type="submit" id="ok" class="btn btn-success" value="Submit" name="ok" 
+   			data-toggle="modal" style="margin-left:33px;" />
+    </div>
+</div>
+</body>
+</html>

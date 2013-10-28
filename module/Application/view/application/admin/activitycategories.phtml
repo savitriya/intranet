@@ -1,0 +1,46 @@
+<h2 class="title">Activity Categories</h2><hr/>
+<div style="min-height: 500px;" id="gridContainer">
+	<table id="list2">
+	</table>
+	<div id="pager2"></div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list2").jqGrid({
+		url:'gridactivitycategories',
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Name','Color'],
+		colModel :[
+		
+		{name:'name', index:'name', editrules:{required:true}, editable:true},
+	
+		{name:'color', index:'color',align:'right', editrules:{required:true}, editable:true},
+		],
+	  rowNum:20,
+	    rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager2',
+	    sortname: 'name',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px",
+	    //width:"1100",
+	    viewrecords: true,
+	 	});
+	   jQuery("#list2").jqGrid('navGrid',"#pager2",{add:true,edit:true,del:true, search:false, refresh:false},
+	           {reloadAfterSubmit:true,closeAfterEdit: true,url:"<?php echo $this->url('editactivitycategories');?>",beforeSubmit: function(postdata, formid){ 
+	              	alert('Record has been Updated Successfully');
+	              		return [true,''];
+	              		} // no error
+	         }, // edit options
+	           {reloadAfterSubmit:true,closeAfterAdd: true,url:"<?php echo $this->url('addactivitycategories');?>",beforeSubmit: function(postdata, formid){ 
+	               		alert('Record has been Added Successfully');
+	              		return [true,''];
+	              	 }}, // add options
+	           {reloadAfterSubmit:true,url:"<?php echo $this->url('deleteactivitycategories');?>"} // del options
+	           );
+	   jQuery("#list2").setGridWidth($('#gridContainer').width(), true);
+	});
+resizegrid("gridContainer","list2");

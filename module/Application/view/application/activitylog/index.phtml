@@ -1,0 +1,102 @@
+<h2 class="title">Activity Log</h2><hr/>
+<div id="addactivitylog" name="addactivitylog"></div>
+<div style="min-height: 500px;margin:0 10px;" id="gridContainer">
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list").jqGrid({
+		url:"<?php echo $this->url('gridactivitylog'); ?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['id','Project Name','Milestone Name','User Name','Activity Name','Description','Created DateTime','Activity Date','Seconds spent'],
+		colModel :[
+		{name:'id', index:'id',hidden:true},
+		{name:'project_name', index:'project_name',align:'right', editable:true},		
+		{name:'milestone_name', index:'milestone_name',align:'right', editable:true},
+		{name:'username', index:'username',align:'right', editable:true},
+		{name:'activityname', index:'activityname', editable:true},
+		{name:'description', index:'description', editable:true},
+		{name:'created_datetime', index:'created_datetime', editable:true},
+		{name:'activity_date', index:'activity_date', editable:true},
+		{name:'seconds_spent', index:'seconds_spent', editable:true},
+		],
+	  rowNum:20,
+	    rowList:[10,20,25],
+	    navigator:true,
+	    pager: '#pager',
+	    sortname: 'project_name',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"400px",
+	 	});
+
+jQuery("#list").jqGrid('navGrid',"#pager",{add:false,edit:false,del:false, search:false, refresh:false})
+.navButtonAdd('#pager',{caption:"Add New", onClickButton:function(){
+   $( "#addactivitylog" ).dialog( "open" );
+   var id=jQuery('#list').getGridParam('selrow');
+    $.ajax({
+        type: "POST",
+        url: "<?php $this->url('addactivitylog');?>",             
+        data: {flag: "view", id: id },
+        beforeSend: function () {
+			$('#addactivitylog').mask("Loading...");
+	 	 },
+        success: function(response)
+        { 
+            $("#addactivitylog").html(response);
+                   },
+                 	error: function(XMLHttpRequest,textStatus){
+           	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+           	   	},
+           	 error: function(XMLHttpRequest,textStatus){
+      	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+      	   	},
+      	  complete: function(){
+  	    	setTimeout(function(){		    	
+  	    		$('#addactivitylog').unmask();	
+  	    		//unmaskloading('addProjects');
+  			},500);
+  		}
+  	
+           	
+      });
+}}).navButtonAdd('#pager',{caption:"Delete", onClickButton:function(){
+    var id=jQuery('#list').getGridParam('selrow');
+    $.ajax({
+     type: "POST",
+     url: "<?php echo $this->url('deleteactivitylog'); ?>",             
+     data: {flag: "view", id: id },
+     beforeSend: function () {
+			$('#list').mask("Loading...");
+	 	 },
+     success: function(response)
+     {   
+        alert("record deleted");
+         window.location.reload();
+               },
+     error: function(XMLHttpRequest,textStatus){
+      	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+      	   	},
+      	  complete: function(){
+  	    	setTimeout(function(){		    	
+  	    		$('#list').unmask();	
+  	    		//unmaskloading('addProjects');
+  			},500);
+  		}
+  	          
+   });
+
+ }});
+  $( "#addactivitylog" ).dialog({ autoOpen:false, width:400,});
+  
+  jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+  
+});
+$(window).bind('resize', function() {
+    jQuery("#list").setGridWidth($('#gridContainer').width()-40, true);
+}).trigger('resize');
+</script>

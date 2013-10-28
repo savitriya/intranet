@@ -1,0 +1,286 @@
+<?php
+use IntranetUtils\Common;
+use Zend\Authentication\AuthenticationService;
+$common=new Common();
+$auth = new AuthenticationService();
+?>
+<div id="addactivity">
+<h1 class="title">Edit User Detail</h1><hr/>
+<form action="" method="post" id="frmeditcontact" class="form-horizontal">
+	<div class="row-fluid">
+		<div class="span5 control-group">
+			<label class="control-label">First Name:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" name="fname" id="fname" title="First Name" 
+				<?php if(isset($contact) && $contact['0']['fname']!=""){?> 
+				value="<?php echo $contact['0']['fname'];}?>" tabindex="1" />
+			</div>
+			<div class="controls"><div id="fname_error" class="error"></div></div>
+		</div>
+		<div class="span5 control-group">
+			<label class="control-label">Last Name:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" name="lname" id="lname" title="Last Name" 
+					<?php if(isset($contact) && $contact['0']['lname']!=""){?> 
+					value="<?php echo $contact['0']['lname'];}?>" tabindex="2" />
+			</div>
+			<div class="controls"><div id="lname_error" class="error"></div></div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span5 control-group">
+			<label class="control-label">Email:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" name="email" id="email" title="Email" 
+				<?php if(isset($contact) && $contact['0']['email']!=""){?> 
+				value="<?php echo $contact['0']['email'];}?>" tabindex="3" />
+			</div>
+			<div class="controls"><div id="email_error" class="error"></div></div>
+		</div>
+		<div class="span5 control-group">
+			<label class="control-label">Company:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<select id="companyid" name="companyid" title="Company Name" tabindex="4">
+					<option value="">--Select--</option>
+						<?php for($i=0;$i<count($company);$i++){?>
+					<option value="<?php echo $company[$i]['id'];?>"
+					<?php if(isset($company)  && isset($contact) && $company[$i]['id']!=null && $company[$i]['id']==$contact['0']['companyid']){?>
+						selected="selected" <?php }?>>
+						<?php echo $company[$i]['name'];?>
+					</option>
+					<?php }?>
+				</select>
+			</div>
+			<div class="controls"><div id="companyid_error" class="error"></div></div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span5 control-group">
+			<label class="control-label">Joining Date:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" name="joiningdate" id="joiningdate" Title="Joining Date" 
+					<?php if(isset($contact) && $contact['0']['joindate']!=""){ ?> 
+					value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+					$contact['0']['joindate']),"Asia/Calcutta","d/m/Y");}?>" tabindex="5" />
+				<input type="hidden" id="alternate_joining_date"
+						name="alternate_joining_date" title="Joining Date" 
+						<?php if(isset($contact) && $contact['0']['joindate']!=""){?> 
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+						$contact['0']['joindate']),"Asia/Calcutta","Y-m-d");}?>" />
+			</div>
+			<div class="controls"><div id="joiningdate_error" class="error"></div></div>
+		</div>
+		<div class="span5 control-group">
+			<label class="control-label">Leaving Date:</label>
+			<div class="controls">
+				<input type="text" name="leavingdate" id="leavingdate" Title="leaving Date" 
+					<?php if(isset($contact) && $contact['0']['leavedate']!=""){ ?> 
+					value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+					$contact['0']['leavedate']),"Asia/Calcutta","d/m/Y");}?>" tabindex="6" />
+				<input type="hidden" id="alternate_leaving_date" name="alternate_leaving_date" 
+					title="leaving Date" <?php if(isset($contact) && $contact['0']['leavedate']!=""){?> 
+					value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+					$contact['0']['leavedate']),"Asia/Calcutta","Y-m-d");}?>" />
+			</div>
+			<div class="controls"><div id="joiningdate_error" class="error"></div></div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span5 control-group">
+			<label class="control-label">DOB:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" name="dob" id="dob" title="DOB" 
+					<?php if(isset($contact) && $contact['0']['dob']!=""){ $dob=$contact['0']['dob'];?> 
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",$dob),
+						"Asia/Calcutta","d/m/Y");}?>" tabindex="7" />
+				<input type="hidden" id="alternate_dob" name="alternate_dob" title="DOB" 
+					<?php if(isset($contact) && $contact['0']['dob']!=""){ $dob=$contact['0']['dob'];?> 
+					value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",$dob),
+					"Asia/Calcutta","Y-m-d");}?>" />
+			</div>
+			<div class="controls"><div id="dob_error" class="error"></div></div>
+		</div>
+		<div class="span5 control-group">
+			<label class="control-label">Mobile No.:</label>
+			<div class="controls">
+				<input type="text" name="mobile" id="mobile" title="Mobile No." 
+					<?php if(isset($contact) && $contact['0']['mobile']!="" ){?> 
+					value="<?php echo $contact['0']['mobile'];}?>" tabindex="8" />
+			</div>
+			<div class="controls"><div id="mobile_error" class="error"></div></div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span5 control-group">
+			<label class="control-label">Residential Address:</label>
+			<div class="controls">
+				<textarea name="raddress" id="raddress" rows="4" class="input-xlarge" tabindex="9" 
+					title="Residential Address"><?php if(isset($contact) && $contact['0']['raddress']!=" "){
+					echo $contact['0']['raddress'];}?>
+				</textarea>
+			</div>
+			<div class="controls"><div id="raddress_error" class="error"></div></div>
+		</div>
+		<div class="span5 control-group">
+			<label class="control-label">Permanent Address:</label>
+			<div class="controls">
+				<textarea name="paddress" id="paddress" rows="4" class="input-xlarge" tabindex="10" 
+					title="Parmanent Address"><?php if(isset($contact) && $contact['0']['paddress']!=""){
+					echo $contact['0']['paddress'];}?>
+				</textarea>
+			</div>
+			<div class="controls"><div id="paddress_error" class="error"></div></div>
+		</div>
+		
+	</div>
+	<div class="row-fluid">
+		<div class="span5 control-group">
+			<label class="control-label">Alt. contact no.:</label>
+			<div class="controls">
+				<input type="text" name="altcontactnumber" id="altcontactnumber" tabindex="11" title="Alt. Contact No." 
+					<?php if(isset($contact)){ ?> value="<?php echo $contact['0']['altcontactnumber'];}?>" />
+			</div>
+			<div class="controls"><div id="altcontactnumber_error" class="error"></div></div>
+		</div>
+		<?php if($auth->getIdentity()->isadmin==1){?>
+		<div class="span5 control-group">
+			<label class="control-label">Login Slot:</label>
+			<div class="controls">
+				<select name="loginslot" id="loginslot" tabindex="12" title="Login Slot" 
+					style="width:100px;">
+				<?php foreach ($slots as $key=>$value){?>
+					<option value="<?php echo $key;?>" <?php if($contact['0']['login_slot']==$key){
+						echo " selected";}?>><?php echo $value;?></option>
+				<?php }?>
+				</select>
+			</div>
+			<div class="controls"><div id="loginslot_error" class="error"></div></div>
+		</div>
+		<?php }?>
+	</div>
+	<?php if($auth->getIdentity()->isadmin==1){?>
+	<div class="row-fluid">
+		<div class="span5 control-group">
+            <label class="control-label">IsAdmin:</label>
+            <div class="controls">
+				<input type="checkbox" name="isadmin" id="isadmin" title="IsAdmin" value="1" tabindex="13" 
+					<?php if(isset($contact) && $contact['0']['isadmin']==1){echo 'checked="yes"';}?> />
+			</div>
+		</div>
+		<div class="span5 control-group">
+			<label class="control-label">Need Daily Report:</label>
+			<div class="controls">
+				<input type="checkbox" name="needdailyreport" id="needdailyreport" title="NeeedDailyReport" tabindex="14" 
+					value="1" <?php if(isset($contact) && $contact['0']['needdailyreport']==1){echo 'checked="yes"';}?> />
+			</div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span5 control-group">
+			<label class="control-label">IsActive:</label>
+			<div class="controls">
+				<input type="checkbox" name="isactive" id="isactive" title="IsActive" value="1" tabindex="12" 
+					<?php if(isset($contact) && $contact['0']['isactive']==1){echo 'checked="yes"';}?> />
+			</div>
+		</div>
+	</div>
+	<?php }?>
+	<div class="row-fluid">
+		<div class="span5 control-group">
+			<div class="controls">
+				<button id="ok" class="btn btn-success" tabindex="15" name="ok">Submit</button>
+			</div>
+		</div>
+	</div>
+</form>
+</div>	
+<script type="text/javascript">
+$(document).ready(function(){
+	$( "#dob" ).datepicker({dateFormat:"dd/mm/yy", changeMonth: true,changeYear: true,altField: "#alternate_dob",
+	    altFormat: "dd-mm-yy",defaultDate: '01/01/90',maxDate:"-18y"});
+	 $( "#dob" ).bind('blur',function(){
+		   if($( "#dob" ).val()==""){
+			   $( "#alternate_dob" ).val("");
+		   }
+	   });
+	   $( "#joiningdate" ).datepicker({dateFormat:"dd/mm/yy", changeMonth: true,changeYear: true, altField: "#alternate_joining_date",
+		    altFormat: "yy-mm-dd",defaultDate: '01/01/00',maxDate:"<?php echo date("d/m/y");?>",minDate:"-18y"});
+	   $( "#joiningdate" ).bind('blur',function(){
+		   if($( "#joiningdate" ).val()==""){
+			   $( "#alternate_joining_date" ).val("");
+		   }
+	   });
+	   $( "#leavingdate" ).datepicker({dateFormat:"dd/mm/yy", changeMonth: true,changeYear: true, altField: "#alternate_leaving_date",
+		    altFormat: "yy-mm-dd",defaultDate: '01/01/00',maxDate: "<?php echo date("d/m/y");?>",minDate:"-18y"});
+	    $( "#leavingdate" ).bind('blur',function(){
+		   if($( "#leavingdate" ).val()==""){
+			   $( "#alternate_leaving_date" ).val("");
+		   }
+	   });
+	   $("#ok")//.button()
+	   .click(function( event ) {
+           event.preventDefault();
+          add('<?php if(isset($contact) && $contact['0']['contactid']!="" && $contact['0']['contactid']!=null){ echo $contact['0']['contactid'];}?>','<?php if(isset($contact) && $contact['0']['uid']!="" && $contact['0']['uid']!=null){ echo $contact['0']['uid'];}?>');
+    
+          });
+		$("#btnAddUser")//.button()
+		.click(function( event ) {
+		   event.preventDefault();
+		   window.location.href = "<?php echo $this->url('editcontact');?>";
+		});
+});
+
+function add(contactid,uid){ 
+	 
+    $.ajax({
+        type: "POST",
+        url: "<?php echo $this->url('editcontact');?>",
+        dataType:"json",
+        data: $("#frmeditcontact").serialize()+"&contactid="+contactid+"&userid="+uid,
+        success: function(response)
+        {   
+    	   if(response['returnvalue']=="valid"){
+        	   <?php if(isset($contact) && $contact['0']['contactid']!=null && $contact['0']['uid']!=null){?>
+				alert("User has been updated Successfully");
+       	  <?php }else{?>
+       	  	alert("User has been added Successfully");
+       	  <?php }?>            	  
+        	window.location.href="<?php echo $this->url('users');?>";
+           }
+           else if(response.returnvalue=="exception"){
+               alert("This Operation Could not be Completed,Please contact administrator");
+               return false;
+          }
+          else if(response.returnvalue=="duplicate"){
+        	  alert("Project name aleady exist");
+              return false;
+         }
+          else{
+			for(var key in response.data){
+	            if(response.data[key]=="null"){
+	            	$("#"+key+"_error").attr("style","color:red");
+					$("#"+key+"_error").html($("#"+key).attr("title")+" can not be left empty");					               
+				}
+	            else if(response.data[key]=="valid"){
+	               $("#"+key+"_error").html(" ");					               
+	            }
+	            else if(response.data[key]=="emailinvalid"){
+	            	$("#"+key+"_error").attr("style","color:red");
+	            	$("#"+key+"_error").html($("#"+key).attr("title")+" not valid"); 
+	            }
+	            else if(response.data[key]=="invalid"){
+	            	$("#"+key+"_error").attr("style","color:red");
+	            	$("#"+key+"_error").html("Invalid value for "+$("#"+key).attr("title"));
+		        }
+	            else if(response.data[key]=="emailduplicate"){
+					alert("This email address already exists.");
+               }
+			}
+		}
+	   } ,
+	 });
+     return false; 
+}
+
+
+</script>

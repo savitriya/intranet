@@ -1,0 +1,215 @@
+<?php
+use IntranetUtils\Common;
+$common=new Common();
+?>
+<div id="addproject">
+	<form action="" method="post" id="form1" class="form-horizontal">
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">Name:<sup style="color:#FF0000;">*</sup></label>
+				<div class="controls">
+					<input type="text" id="name" name="name" title="Name"
+				<?php if(isset($project) && $project->getName()!=''){?>
+					value="<?php echo $project->getName();}?>">
+				</div>
+				<div class="controls"><div id="name_error" class="error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">Type:<sup style="color:#FF0000;">*</sup></label>
+				<div class="controls">
+					<select id="type" name="type" title="Type">
+						<option value="">--Select--</option>
+						<?php for($i=0;$i<count($ptype);$i++){?>
+							<option value="<?php echo $ptype[$i]['id'];?>"
+						<?php if(isset($project) && $project->getType_id()!=null && $project->getType_id()==$ptype[$i]['id']){?>
+							selected="selected" <?php }?>>
+							<?php echo $ptype[$i]['name'];?>
+						</option>
+						<?php }?>
+					</select>
+				</div>
+				<div class="controls"><div id="type_error" class="error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">Estimated Start Date:<sup style="color:#FF0000;">*</sup></label>
+				<div class="controls">
+					<input type="text" id="esd" name="esd" title="Estimated startdate"
+						<?php if(isset($project) && ($project->getEstimated_startdate())){?>
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+						$project->getEstimated_startdate()),"Asia/Calcutta","d/m/Y");}?>" />
+					<input type="hidden" id="altesd" name="altesd" title="altesd"
+						<?php if(isset($project) && ($project->getEstimated_startdate())){?>
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+						$project->getEstimated_startdate()),"Asia/Calcutta","Y-m-d");}?>" />
+				</div>
+				<div class="controls"><div id="esd_error" class="error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">Estimated End Date:</label>
+				<div class="controls">
+					<input type="text" id="eed" name="eed" title="Estimated enddate"
+						<?php if(isset($project) && ($project->getEstimated_enddate())){?>
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+						$project->getEstimated_enddate()),"Asia/Calcutta","d/m/Y");}?>" />
+					<input type="hidden" id="alteed" name="alteed" title="alteed"
+						<?php if(isset($project) && ($project->getEstimated_enddate())){?>
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+						$project->getEstimated_enddate()),"Asia/Calcutta","Y-m-d");}?>" />
+				</div>
+				<div class="controls"><div id="eed_error" class="error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">Actual Start Date:</label>
+				<div class="controls">
+					<input type="text" id="asd" name="asd" title="Actual startdate"
+						<?php  if(isset($project) && ($project->getActual_startdate())){?>
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+						$project->getActual_startdate()),"Asia/Calcutta","d/m/Y");}?>" />
+					<input type="hidden" id="altasd" name="altasd" title="altasd"
+						<?php  if(isset($project) && ($project->getActual_startdate())){?>
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+						$project->getActual_startdate()),"Asia/Calcutta","Y-m-d");}?>" />
+				</div>
+				<div class="controls"><div id="asd_error" class="error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">Actual End Date:</label>
+				<div class="controls">
+					<input type="text" id="aed" name="aed" title="Actual enddate"
+						<?php  if(isset($project) && ($project->getActual_enddate())){?>
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+						$project->getActual_enddate()),"Asia/Calcutta","d/m/Y");}?>" />
+					<input type="hidden" id="altaed" name="altaed" title="altaed"
+						<?php  if(isset($project) && ($project->getActual_enddate())){?>
+						value="<?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",
+						$project->getActual_enddate()),"Asia/Calcutta","Y-m-d");}?>" />
+				</div>
+				<div class="controls"><div id="aed_error" class="error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">Estimated Hours</label>
+				<div class="controls">
+					<input type="text" id="esthours" name="esthours" title="Estimated Hours(HH:mm)"
+						<?php if(isset($project) && $project->getEstimated_hours() !="null" ){?>
+						value="<?php echo $common->convertSpentTime($project->getEstimated_hours());}?>" />
+				</div>
+				<div class="controls"><div id="esthours_error" class="error"></div></div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">Status:<sup style="color:#FF0000;">*</sup></label>
+				<div class="controls">
+					<select id="status" name="status" title="Status">
+						<option value="">--Select--</option>
+						<?php for($i=0;$i<count($status);$i++){?>
+						<option value="<?php echo $status[$i]['id'];?>"
+						<?php if(isset($project) && $project->getStatus_id()!=null && $project->getStatus_id()==$status[$i]['id']){?>
+							selected="selected" <?php }?>>
+							<?php echo $status[$i]['name'];?>
+						</option>
+						<?php }?>
+					</select>
+				</div>
+				<div class="controls"><div id="status_error" class="error"></div></div>
+			</div>
+		</div>
+	</form>
+
+	<script type="text/javascript">
+$(document).ready(function(){
+		$( "#esd" ).datepicker({dateFormat:"dd/mm/yy",altField:"#altesd",  changeMonth: true,
+		       changeYear: true,
+		      altFormat: "yy-mm-dd" });
+	   $( "#eed" ).datepicker({dateFormat:"dd/mm/yy",altField:"#alteed", changeMonth: true,
+	       changeYear: true,
+		       altFormat: "yy-mm-dd" });
+	   $( "#asd" ).datepicker({dateFormat:"dd/mm/yy",altField:"#altasd",  changeMonth: true,
+	       changeYear: true,
+		      altFormat: "yy-mm-dd" });
+	   $( "#aed" ).datepicker({dateFormat:"dd/mm/yy",altField:"#altaed", changeMonth: true,
+	       changeYear: true,
+		       altFormat: "yy-mm-dd" });
+
+	   $("#ok")
+	   .click(function( event ) {
+           event.preventDefault();
+          add('<?php if(isset($project) && $project->getId()!="" && $project->getId()!=null){ echo $project->getId();}?>');
+    
+          });
+	});
+function add(id){ 
+     $.ajax({
+         type: "POST",
+         url: "<?php echo $this->url('addprojects');?>",
+         dataType:"json",
+         data: $("#form1").serialize()+"&id="+id,
+         beforeSend: function () {
+   			$('#addproject').mask("Loading...");
+   	 	 },    
+         
+         success: function(response)
+         {   
+              if(response['returnvalue']=="valid"){
+            	    $("#addProjectsModal").modal('hide');
+						<?php  if(isset($project) && $project->getId()!=""){?>
+                     alert("Project has been updated Successfully");
+              <?php    } else{?>
+              $("#addProjects").modal('hide');
+              alert("Project has been added Successfully");
+              <?php }?>
+                     $("#list").trigger("reloadGrid");
+                     return false;
+              }		               
+              else if(response.returnvalue=="exception"){
+                   alert("This Operation Could not be Completed,Please contact administrator");
+                   return false;
+              }
+              else if(response.returnvalue=="duplicate"){
+            	  alert("Project name aleady exist");
+                  return false;
+             }
+             else{
+				for(var key in response.data){
+					if(response.data[key]=="null"){
+						$("#"+key+"_error").css("color", "#FF0000");
+						$("#"+key+"_error").html($("#"+key).attr("title")+" can not be left empty");					               
+					}
+		            else if(response.data[key]=="valid"){
+						$("#"+key+"_error").html(" ");	
+						$("#addProjects").modal('hide');				               
+					}
+					else if(response.data[key]=="invalid"){
+						$("#"+key+"_error").css("color", "#FF0000");
+		            	$("#"+key+"_error").html("The value of "+$("#"+key).attr("title")+" is invalid");
+					}
+	               else if(response.data[key]=="duplicate"){
+						alert("field aleady exist");
+					}
+	            }}
+		   },
+		   error: function(XMLHttpRequest,textStatus){
+		    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		   },
+			complete: function(){
+		    	setTimeout(function(){		    	
+		    		$('#addProjects').unmask();	
+		    	},500);
+			}
+		 });
+      return false; 
+}
+</script>
+</div>

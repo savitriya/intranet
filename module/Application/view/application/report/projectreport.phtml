@@ -1,0 +1,43 @@
+<h2 class="title">Project Wise Report</h2><hr/>
+
+<form action="" method="post" id="frmFilter">
+	<label style="display:inline;">Filter By Project Status: </label>
+	<select id="projectstatus" name="projectstatus" style="display:inline;">
+		<option value="0">All</option>
+		<?php foreach($project_status as $status){
+			if($status['status_id'] == $current_status){
+				$selected='selected';
+			}
+			else{
+				$selected='';
+			}
+			echo "<option value='".$status['status_id']."' ".$selected.">".$status['status_name']."</option>";
+		}?>
+	</select>
+</form>
+
+<table id="projecttable" class="table table-striped table-bordered">
+	<tr class="success">
+		<td style="width:40%;text-align:center;">Project Name</td>
+		<td style="text-align:center;">Estimated Hours</td>
+		<td style="text-align:center;">Actual Hours</td>
+		<td style="text-align:center;">Project Status</td>
+	</tr>
+	<?php foreach($projects as $p){
+		echo '<tr><td>'.ucwords($p['name']).'</td><td>'.$p['estimatedhours'].'</td>';
+		if($p['color'] == 'red'){
+			echo '<td style="background-color:red;">'.$p['totaltime'].'</td>';
+		}
+		else{
+			echo '<td>'.$p['totaltime'].'</td>';
+		}
+		echo '<td>'.ucwords($p['projectstatus']).'</td></tr>';
+	}?>
+</table>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#projectstatus").change(function(){
+			$("#frmFilter").submit();
+		});
+	});
+</script>

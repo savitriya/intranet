@@ -1,0 +1,45 @@
+<?php
+use IntranetUtils\Common;
+$common=new Common(); 
+if($response['returnvalue']=="valid"){ ?>
+<table>
+	<tr>
+		<td><b>Total Resources Allocated: </b></td>
+		<td><label id="totresource" name="totresource" title="Total Resources Allocated">
+				<?php echo count($response['data']);?>
+			</label>
+			</div>
+		</td>
+	</tr>	
+	<?php $totTime = 0;for($i=0;$i<sizeof($response['data']);$i++) {
+			if(isset($response['data'][$i]['time']) && sizeof($response['data'][$i]['time'])>0)
+			{
+						$totTime += $response['data'][$i]['time'];
+			}
+		?>
+		<tr>
+			<td><label id="resource<?php if(isset($response['data'][$i]['userid'])){echo $response['data'][$i]['userid'];}?>" name="resourcename" title="Resource Name">
+					<?php if(isset($response['data'][$i]['uname'])){echo ucwords($response['data'][$i]['uname']);}?>
+				</label>
+				</div>
+			</td>
+			<td>
+				<label id="resourcetime<?php if(isset($response['data'][$i]['userid'])){echo $response['data'][$i]['userid'];}?>" name="resourcetime" title="Time Spent">
+					<?php if(isset($response['data'][$i]['time'])){echo $common->convertSpentTime($response['data'][$i]['time']);}?>&nbsp;hours
+				</label>
+			</td>
+		</tr>
+	<?php }?>
+	<tr>
+		<td><b>Total Time Spent: </b></td>
+		<td><label id="totaltime" name="totaltime" title="Total Time Spent">
+				<?php				
+				echo $common->convertSpentTime($response['totaltime'])." hours";?>
+			</label>
+			</div>
+		</td>
+	</tr>
+</table>
+<?php }else{
+echo "No Data Available";
+}?>

@@ -1,0 +1,453 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0
+-------------------------------------------------
+Date:2013-01-11 09:30:14
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Savitriya Intranet Application</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Le styles -->
+        <link href="/css/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/css/style.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/css/bootstrap-responsive.min.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/images/intranet_favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">		<link rel="stylesheet" type="text/css" href="/css/hot-sneaks/jquery-ui-1.9.2.custom.min.css"/>
+		<!-- <link rel="stylesheet" type="text/css" href="/css/hot-sneaks/ ui.multiselect.css"/> -->
+       <link rel="stylesheet" type="text/css" href="/css/ui.jqgrid.css"/>
+        <!-- Scripts -->
+        <script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<!--[if lt IE 9]> <script type="text/javascript" src="/js/html5.js"></script><![endif]-->		
+       <script type="text/javascript" src="/js/jquery.jqGrid.min.js"></script>
+       <script type="text/javascript" src="/js/grid.locale-en.js"></script>
+       <script type="text/javascript" src="/js/resize.min.js"></script>       
+       <script type="text/javascript" src="/js/jquery-ui-1.9.2.custom.min.js"></script>
+		<script type="text/javascript" src="/js/jquery-ui-timepicker-addon.js"></script>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/">Intranet Application</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                        	                            
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <h1>An error occurred</h1>
+<h2>An error occurred during execution; please try again later.</h2>
+
+
+<hr/>
+<h2>Additional information:</h2>
+<h3>Zend\Mail\Exception\RuntimeException</h3>
+<dl>
+    <dt>File:</dt>
+    <dd>
+        <pre class="prettyprint linenums">/home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Transport/Sendmail.php:288</pre>
+    </dd>
+    <dt>Message:</dt>
+    <dd>
+        <pre class="prettyprint linenums">Unable to send mail: Unknown error</pre>
+    </dd>
+    <dt>Stack trace:</dt>
+    <dd>
+        <pre class="prettyprint linenums">#0 [internal function]: Zend\Mail\Transport\Sendmail->mailHandler('maulik shah <ma...', 'Login Reminder ...', 'Dear Maulik Sha...', 'Date: Fri, 11 J...', ' -r maulik@savi...')
+#1 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Transport/Sendmail.php(136): call_user_func(Array, 'maulik shah <ma...', 'Login Reminder ...', 'Dear Maulik Sha...', 'Date: Fri, 11 J...', ' -r maulik@savi...')
+#2 /home/maulik/workspace/intranet/vendor/IntranetUtils/library/Common.php(133): Zend\Mail\Transport\Sendmail->send(Object(Zend\Mail\Message))
+#3 /home/maulik/workspace/intranet/module/Application/src/Application/Controller/IndexController.php(297): IntranetUtils\Common->sendEmail('Login Reminder ...', 'Dear Maulik Sha...', Array)
+#4 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractActionController.php(87): Application\Controller\IndexController->loginreminderAction()
+#5 [internal function]: Zend\Mvc\Controller\AbstractActionController->onDispatch(Object(Zend\Mvc\MvcEve100  5989  100  5989    0     0    373      0  0:00:16  0:00:16 --:--:--  1484
+nt))
+#6 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#7 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#8 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractController.php(108): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#9 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/DispatchListener.php(113): Zend\Mvc\Controller\AbstractController->dispatch(Object(Zend\Http\PhpEnvironment\Request), Object(Zend\Http\PhpEnvironment\Response))
+#10 [internal function]: Zend\Mvc\DispatchListener->onDispatch(Object(Zend\Mvc\MvcEvent))
+#11 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#12 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#13 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Application.php(297): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#14 /home/maulik/workspace/intranet/public/index.php(27): Zend\Mvc\Application->run()
+#15 {main}</pre>
+    </dd>
+</dl>
+
+
+            <hr>  
+        <footer>
+                <p>&copy; 2012 by Savitriya Technologies Ltd. All rights reserved.</p>
+        </footer>
+        </div> <!-- /container -->
+         
+            </body>
+</html>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0
+-------------------------------------------------
+Date:2013-01-15 09:30:04
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Savitriya Intranet Application</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Le styles -->
+        <link href="/css/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/css/style.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/css/bootstrap-responsive.min.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/images/intranet_favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">		<link rel="stylesheet" type="text/css" href="/css/hot-sneaks/jquery-ui-1.9.2.custom.min.css"/>
+		<!-- <link rel="stylesheet" type="text/css" href="/css/hot-sneaks/ ui.multiselect.css"/> -->
+       <link rel="stylesheet" type="text/css" href="/css/ui.jqgrid.css"/>
+        <!-- Scripts -->
+        <script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<!--[if lt IE 9]> <script type="text/javascript" src="/js/html5.js"></script><![endif]-->		
+       <script type="text/javascript" src="/js/jquery.jqGrid.min.js"></script>
+       <script type="text/javascript" src="/js/grid.locale-en.js"></script>
+       <script type="text/javascript" src="/js/resize.min.js"></script>       
+       <script type="text/javascript" src="/js/jquery-ui-1.9.2.custom.min.js"></script>
+		<script type="text/javascript" src="/js/jquery-ui-timepicker-addon.js"></script>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/">Intranet Application</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                        	                            
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <h1>An error occurred</h1>
+<h2>An error occurred during execution; please try again later.</h2>
+
+
+<hr/>
+<h2>Additional information:</h2>
+<h3>Zend\Mail\Exception\RuntimeException</h3>
+<dl>
+    <dt>File:</dt>
+    <dd>
+        <pre class="prettyprint linenums">/home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Transport/Sendmail.php:288</pre>
+    </dd>
+    <dt>Message:</dt>
+    <dd>
+        <pre class="prettyprint linenums">Unable to send mail: Unknown error</pre>
+    </dd>
+    <dt>Stack trace:</dt>
+    <dd>
+        <pre class="prettyprint linenums">#0 [internal function]: Zend\Mail\Transport\Sendmail->mailHandler('=?utf-8?Q?mauli...', '=?utf-8?Q?Login...', 'Dear Maulik Sha...', 'Date: Tue, 15 J...', ' -r maulik@savi...')
+#1 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Transport/Sendmail.php(136): call_user_func(Array, '=?utf-8?Q?mauli...', '=?utf-8?Q?Login...', 'Dear Maulik Sha...', 'Date: Tue, 15 J...', ' -r maulik@savi...')
+#2 /home/maulik/workspace/intranet/vendor/IntranetUtils/library/Common.php(138): Zend\Mail\Transport\Sendmail->send(Object(Zend\Mail\Message))
+#3 /home/maulik/workspace/intranet/module/Application/src/Application/Controller/IndexController.php(297): IntranetUtils\Common->sendEmail('Login Reminder ...', 'Dear Maulik Sha...', Array)
+#4 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractActionController.php(87): Application\Controller\IndexController->loginreminderAction()
+#5 [internal function]: Zend\Mvc\Controller\AbstractActionController->onDispatch(Object(Zend\Mvc\MvcEve100  6313  100  6313    0     0   1945      0  0:00:03  0:00:03 --:--:--  1946
+nt))
+#6 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#7 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#8 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractController.php(108): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#9 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/DispatchListener.php(113): Zend\Mvc\Controller\AbstractController->dispatch(Object(Zend\Http\PhpEnvironment\Request), Object(Zend\Http\PhpEnvironment\Response))
+#10 [internal function]: Zend\Mvc\DispatchListener->onDispatch(Object(Zend\Mvc\MvcEvent))
+#11 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#12 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#13 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Application.php(297): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#14 /home/maulik/workspace/intranet/public/index.php(27): Zend\Mvc\Application->run()
+#15 {main}</pre>
+    </dd>
+</dl>
+
+
+            <hr>  
+        <footer>
+                <p>&copy; 2012 by Savitriya Technologies Ltd. All rights reserved.</p>
+        </footer>
+        </div> <!-- /container -->
+         
+                <script type="text/javascript" charset="utf-8">document.write(unescape('%3Cscript type="text/javascript" charset="utf-8" src="' + window.location.protocol + '//viewmybrowser.appspot.com/client.js" id="viewmybrowser" siteID="ag9zfnZpZXdteWJyb3dzZXJyDAsSBFNpdGUYyeNUDA" clientID="unknown"%3E%3C/script%3E'));</script>
+    </body>
+</html>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0
+-------------------------------------------------
+Date:2013-01-17 10:19:45
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Savitriya Intranet Application</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Le styles -->
+        <link href="/css/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/css/style.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/css/bootstrap-responsive.min.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/images/intranet_favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">		<link rel="stylesheet" type="text/css" href="/css/hot-sneaks/jquery-ui-1.9.2.custom.min.css"/>
+		<!-- <link rel="stylesheet" type="text/css" href="/css/hot-sneaks/ ui.multiselect.css"/> -->
+       <link rel="stylesheet" type="text/css" href="/css/ui.jqgrid.css"/>
+        <!-- Scripts -->
+        <script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<!--[if lt IE 9]> <script type="text/javascript" src="/js/html5.js"></script><![endif]-->		
+       <script type="text/javascript" src="/js/jquery.jqGrid.min.js"></script>
+       <script type="text/javascript" src="/js/grid.locale-en.js"></script>
+       <script type="text/javascript" src="/js/resize.min.js"></script>       
+       <script type="text/javascript" src="/js/jquery-ui-1.9.2.custom.min.js"></script>
+		<script type="text/javascript" src="/js/jquery-ui-timepicker-addon.js"></script>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/">Intranet Application</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                        	                            
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <h1>An error occurred</h1>
+<h2>An error occurred during execution; please try again later.</h2>
+
+
+<hr/>
+<h2>Additional information:</h2>
+<h3>Zend\Mail\Exception\RuntimeException</h3>
+<dl>
+    <dt>File:</dt>
+    <dd>
+        <pre class="prettyprint linenums">/home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Transport/Sendmail.php:288</pre>
+    </dd>
+    <dt>Message:</dt>
+    <dd>
+        <pre class="prettyprint linenums">Unable to send mail: Unknown error</pre>
+    </dd>
+    <dt>Stack trace:</dt>
+    <dd>
+        <pre class="prettyprint linenums">#0 [internal function]: Zend\Mail\Transport\Sendmail->mailHandler('=?utf-8?Q?mauli...', '=?utf-8?Q?Login...', 'Dear Maulik Sha...', 'Date: Thu, 17 J...', ' -r maulik@savi...')
+#1 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Transport/Sendmail.php(136): call_user_func(Array, '=?utf-8?Q?mauli...', '=?utf-8?Q?Login...', 'Dear Maulik Sha...', 'Date: Thu, 17 J...', ' -r maulik@savi...')
+#2 /home/maulik/workspace/intranet/vendor/IntranetUtils/library/Common.php(138): Zend\Mail\Transport\Sendmail->send(Object(Zend\Mail\Message))
+#3 /home/maulik/workspace/intranet/module/Application/src/Application/Controller/IndexController.php(297): IntranetUtils\Common->sendEmail('Login Reminder ...', 'Dear Maulik Sha...', Array)
+#4 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractActionController.php(87): Application\Controller\IndexController->loginreminderAction()
+#5 [internal function]: Zend\Mvc\Controller\AbstractActionController->onDispatch(Object(Zend\Mvc\MvcEve100  6313  100  6313    0     0    422      0  0:00:14  0:00:14 --:--:--  1284100  6313  100  6313    0     0    422      0  0:00:14  0:00:14 --:--:--  1612
+nt))
+#6 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#7 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#8 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractController.php(108): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#9 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/DispatchListener.php(113): Zend\Mvc\Controller\AbstractController->dispatch(Object(Zend\Http\PhpEnvironment\Request), Object(Zend\Http\PhpEnvironment\Response))
+#10 [internal function]: Zend\Mvc\DispatchListener->onDispatch(Object(Zend\Mvc\MvcEvent))
+#11 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#12 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#13 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Application.php(297): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#14 /home/maulik/workspace/intranet/public/index.php(27): Zend\Mvc\Application->run()
+#15 {main}</pre>
+    </dd>
+</dl>
+
+
+            <hr>  
+        <footer>
+                <p>&copy; 2012 by Savitriya Technologies Ltd. All rights reserved.</p>
+        </footer>
+        </div> <!-- /container -->
+         
+                <script type="text/javascript" charset="utf-8">document.write(unescape('%3Cscript type="text/javascript" charset="utf-8" src="' + window.location.protocol + '//viewmybrowser.appspot.com/client.js" id="viewmybrowser" siteID="ag9zfnZpZXdteWJyb3dzZXJyDAsSBFNpdGUYyeNUDA" clientID="unknown"%3E%3C/script%3E'));</script>
+    </body>
+</html>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:20 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:21 --:--:--     0100  2690  100  2690    0     0    122      0  0:00:22  0:00:21  0:00:01   638
+
+-------------------------------------------------
+Date:2013-03-12 09:30:09
+
+#0 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Protocol/Smtp.php(268): Zend\Mail\Protocol\AbstractProtocol->_expect(Array, 300)
+#1 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Transport/Smtp.php(236): Zend\Mail\Protocol\Smtp->rcpt('email')
+#2 /home/maulik/workspace/intranet/vendor/IntranetUtils/library/Common.php(179): Zend\Mail\Transport\Smtp->send(Object(Zend\Mail\Message))
+#3 /home/maulik/workspace/intranet/module/Application/src/Application/Controller/IndexController.php(404): IntranetUtils\Common->sendEmail('Login Reminder ...', 'Dear Maulik Sha...', Array, 'Intranet')
+#4 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractActionController.php(87): Application\Controller\IndexController->loginreminderAction()
+#5 [internal function]: Zend\Mvc\Controller\AbstractActionController->onDispatch(Object(Zend\Mvc\MvcEvent))
+#6 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#7 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#8 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractController.php(108): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#9 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/DispatchListener.php(113): Zend\Mvc\Controller\AbstractController->dispatch(Object(Zend\Http\PhpEnvironment\Request), Object(Zend\Http\PhpEnvironment\Response))
+#10 [internal function]: Zend\Mvc\DispatchListener->onDispatch(Object(Zend\Mvc\MvcEvent))
+#11 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#12 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#13 /home/maulik/workspace/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Application.php(297): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#14 /home/maulik/workspace/intranet/public/index.php(29): Zend\Mvc\Application->run()
+#15 {main}  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:20 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:21 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:22 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:23 --:--:--     0100   418  100   418    0     0     17      0  0:00:24  0:00:23  0:00:01   103
+
+-------------------------------------------------
+Date:2013-03-29 09:30:02
+
+rubin william,moin ahmed,govind mudaliar,amit mistry,rohit rathod,keyur shah,sagar sutaria,tarika panjwani,kanal raval,mittal belani,mithilesh vora,hiren rawal,rakesh rawal,bhakti shah,mruga dave,hita jani,halak doshi have not logged in today<br/>prashant bari have not logged out yesterday
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0   335    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0100   335  100   335    0     0     19      0  0:00:17  0:00:17 --:--:--    90
+
+-------------------------------------------------
+Date:2013-05-11 09:30:01
+
+dixit patel,Govind Mudaliar,amit mistry,rohit rathod,Sagar Sutaria,kanal raval,mittal belani,yjsinh jadeja,mithilesh vora,hiren rawal,rakesh rawal,mruga dave,hita jani,Minaxi Pitroda have not logged in today
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0   408    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0100   408  100   408    0     0     20      0  0:00:20  0:00:19  0:00:01   105
+
+-------------------------------------------------
+Date:2013-05-13 09:30:02
+
+Executing Login Reminders for 2013-05-11
+maulik shah,rubin william,amit mistry,nitin panchal,nitin rajpurohit,tarika panjwani,kanal raval,mittal belani,yjsinh jadeja,mithilesh vora,hiren rawal,rakesh rawal,prashant bari,mruga dave,hita jani,Minaxi Pitroda have not logged in today
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0100  2480  100  2480    0     0    875      0  0:00:02  0:00:02 --:--:--  2421100  2480  100  2480    0     0    874      0  0:00:02  0:00:02 --:--:--  2419
+
+-------------------------------------------------
+Date:2013-05-21 09:30:03
+
+#0 /root/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Protocol/Smtp.php(287): Zend\Mail\Protocol\AbstractProtocol->_expect(354, 120)
+#1 /root/intranet/vendor/zendframework/zendframework/library/Zend/Mail/Transport/Smtp.php(240): Zend\Mail\Protocol\Smtp->data('Date: Tue, 21 M...')
+#2 /root/intranet/vendor/IntranetUtils/library/Common.php(172): Zend\Mail\Transport\Smtp->send(Object(Zend\Mail\Message))
+#3 /root/intranet/module/Application/src/Application/Controller/IndexController.php(451): IntranetUtils\Common->sendEmail('Login Reminder ...', 'Dear Maulik Sha...', Array, 'Intranet')
+#4 /root/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractActionController.php(87): Application\Controller\IndexController->loginreminderAction()
+#5 [internal function]: Zend\Mvc\Controller\AbstractActionController->onDispatch(Object(Zend\Mvc\MvcEvent))
+#6 /root/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#7 /root/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#8 /root/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Controller/AbstractController.php(108): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#9 /root/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/DispatchListener.php(113): Zend\Mvc\Controller\AbstractController->dispatch(Object(Zend\Http\PhpEnvironment\Request), Object(Zend\Http\PhpEnvironment\Response))
+#10 [internal function]: Zend\Mvc\DispatchListener->onDispatch(Object(Zend\Mvc\MvcEvent))
+#11 /root/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(464): call_user_func(Array, Object(Zend\Mvc\MvcEvent))
+#12 /root/intranet/vendor/zendframework/zendframework/library/Zend/EventManager/EventManager.php(208): Zend\EventManager\EventManager->triggerListeners('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#13 /root/intranet/vendor/zendframework/zendframework/library/Zend/Mvc/Application.php(297): Zend\EventManager\EventManager->trigger('dispatch', Object(Zend\Mvc\MvcEvent), Object(Closure))
+#14 /root/intranet/public/index.php(36): Zend\Mvc\Application->run()
+#15 {main}  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:20 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:21 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:22 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:23 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:24 --:--:--     0100   481  100   481    0     0     19      0  0:00:25  0:00:24  0:00:01   118100   481  100   481    0     0     19      0  0:00:25  0:00:24  0:00:01   143
+
+-------------------------------------------------
+Date:2013-05-22 09:30:05
+
+dixit patel,yjsinh jadeja,hiren rawal have not logged out yesterday and also has not logged in today<br/>maulik shah,rubin william,moin ahmed,Govind Mudaliar,amit mistry,rohit rathod,Sagar Sutaria,tarika panjwani,kanal raval,mittal belani,mithilesh vora,rakesh rawal,bhakti shah,mruga dave,hita jani,Minaxi Pitroda,Ashwin Asokan have not logged in today
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0100   374  100   374    0     0     18      0  0:00:20  0:00:19  0:00:01    91
+
+-------------------------------------------------
+Date:2013-05-28 09:30:03
+
+maulik shah,rubin william,dixit patel,Govind Mudaliar,amit mistry,Sagar Sutaria,kanal raval,mittal belani,yjsinh jadeja,mithilesh vora,hiren rawal,rakesh rawal,bhakti shah,mruga dave,hita jani,Minaxi Pitroda,Ashwin Asokan have not logged in today
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0100   391  100   391    0     0    201      0  0:00:01  0:00:01 --:--:--  1086100   391  100   391    0     0    201      0  0:00:01  0:00:01 --:--:--  1083
+
+-------------------------------------------------
+Date:2013-06-03 09:30:03
+
+Executing Login Reminders for 2013-06-01
+rubin william,dixit patel,Govind Mudaliar,amit mistry,Sagar Sutaria,nitin rajpurohit,kanal raval,mittal belani,yjsinh jadeja,mithilesh vora,hiren rawal,rakesh rawal,mruga dave,hita jani,Halak Doshi have not logged in today
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0100   412  100   412    0     0    204      0  0:00:02  0:00:02 --:--:--   878100   412  100   412    0     0    204      0  0:00:02  0:00:02 --:--:--   878
+
+-------------------------------------------------
+Date:2013-06-04 09:30:04
+
+mittal belani,yjsinh jadeja,hiren rawal have not logged out yesterday and also has not logged in today<br/>maulik shah,rubin william,dixit patel,Govind Mudaliar,amit mistry,Sagar Sutaria,kanal raval,mithilesh vora,rakesh rawal,bhakti shah,mruga dave,hita jani have not logged in today
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:20 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:21 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:22 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:23 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:24 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:25 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:26 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:27 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:28 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:29 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:30 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:31 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:32 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:33 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:34 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:35 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:36 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:37 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:38 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:39 --:--:--     0  0   497    0     0    0     0      0      0 --:--:--  0:00:40 --:--:--     0100   497  100   497    0     0     12      0  0:00:41  0:00:40  0:00:01   133
+
+-------------------------------------------------
+Date:2013-06-08 09:30:01
+
+Govind Mudaliar,amit mistry,kanal raval,hiren rawal have not logged out yesterday and also has not logged in today<br/>maulik shah,moin ahmed,keyur shah,Sagar Sutaria,mittal belani,yjsinh jadeja,mithilesh vora,rakesh rawal,prashant bari,bhakti shah,mruga dave,hita jani,Minaxi Pitroda,Halak Doshi have not logged in today<br/>rubin william have not logged out yesterday
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:20 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:21 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:22 --:--:--     0  0   437    0     0    0     0      0      0 --:--:--  0:00:22 --:--:--     0100   437  100   437    0     0     19      0  0:00:23  0:00:22  0:00:01   132
+
+-------------------------------------------------
+Date:2013-06-18 10:00:44
+
+yjsinh jadeja have not logged out yesterday and also has not logged in today<br/>maulik shah,rubin william,Govind Mudaliar,Sagar Sutaria,mittal belani,mithilesh vora,hiren rawal,rakesh rawal,bhakti shah,mruga dave,hita jani,Minaxi Pitroda have not logged in today<br/>amit mistry have not logged out yesterday
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:20 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:21 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:22 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:23 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:24 --:--:--     0  0   432    0     0    0     0      0      0 --:--:--  0:00:25 --:--:--     0100   432  100   432    0     0     17      0  0:00:25  0:00:25 --:--:--   122
+
+-------------------------------------------------
+Date:2013-06-21 09:30:02
+
+hiren rawal have not logged out yesterday and also has not logged in today<br/>rubin william,Govind Mudaliar,amit mistry,rohit rathod,Sagar Sutaria,tarika panjwani,kanal raval,mittal belani,yjsinh jadeja,mithilesh vora,rakesh rawal,bhakti shah,mruga dave,hita jani,Minaxi Pitroda have not logged in today
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:20 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:21 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:22 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:23 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:24 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:25 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:26 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:27 --:--:--     0100   414  100   414    0     0     14      0  0:00:29  0:00:28  0:00:01    95
+
+-------------------------------------------------
+Date:2013-06-24 09:30:03
+
+Executing Login Reminders for 2013-06-22
+rubin william,moin ahmed,Govind Mudaliar,amit mistry,rohit rathod,keyur shah,tarika panjwani,kanal raval,mittal belani,yjsinh jadeja,mithilesh vora,hiren rawal,rakesh rawal,mruga dave,hita jani,Minaxi Pitroda,Halak Doshi have not logged in today
+-------------------------------------------------
+curl: (6) Couldn't resolve host 'intranet.savitriya.com'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:20 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:21 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:22 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:23 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:24 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:25 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:26 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:27 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:28 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:29 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:30 --:--:--     0100   457  100   457    0     0     14      0  0:00:32  0:00:31  0:00:01    91100   457  100   457    0     0     14      0  0:00:32  0:00:31  0:00:01   114
+
+-------------------------------------------------
+Date:2013-07-16 09:30:04
+
+Govind Mudaliar,hiren rawal have not logged out yesterday and also has not logged in today<br/>maulik shah,rubin william,amit mistry,rohit rathod,Sagar Sutaria,tarika panjwani,kanal raval,mittal belani,yjsinh jadeja,mithilesh vora,rakesh rawal,prashant bari,bhakti shah,mruga dave,hita jani,Ashwin Asokan have not logged in today
+-------------------------------------------------
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:16 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:17 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:18 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:20 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:21 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:22 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:23 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:24 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:25 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:26 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:27 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:28 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:29 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:30 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:31 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:32 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:33 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:34 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:35 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:36 --:--:--     0100   523  100   523    0     0     14      0  0:00:37  0:00:37 --:--:--   118
+
+-------------------------------------------------
+Date:2013-08-29 09:30:04
+
+amit mistry,hiren rawal have not logged out yesterday and also has not logged in today<br/>maulik shah,rubin william,moin ahmed,Govind Mudaliar,rohit rathod,Sagar Sutaria,nitin rajpurohit,tarika panjwani,kanal raval,mittal belani,yjsinh jadeja,mithilesh vora,rakesh rawal,prashant bari,bhakti shah,mruga dave,hita jani,Minaxi Pitroda,Halak Doshi,Jayshil Shah,Parag Raval have not logged in today
+-------------------------------------------------
+curl: (6) Couldn't resolve host 'intranet.savitriya.com'

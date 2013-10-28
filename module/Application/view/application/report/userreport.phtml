@@ -1,0 +1,162 @@
+<?php  
+use IntranetUtils\Common; $common=new Common(); 
+use Zend\Authentication\AuthenticationService; 
+$auth=new AuthenticationService();
+
+?>
+<h2 class="title">User Report</h2><hr/>
+
+<form action="post" id="dashboard" class="form-horizontal">
+	<div class="row-fluid">
+		<div class="span3 control-group">
+		    <label class="control-label">Start Date:</label>
+		    <div class="controls">
+				<input class="input-medium" type="text" id="strdate">
+				<input type="hidden" id="altstrdate">
+			</div>
+		</div>
+		<div class="span3 control-group">
+		    <label class="control-label">End Date:</label>
+		    <div class="controls">
+			    <input class="input-medium" type="text" id="enddate">
+			    <input type="hidden" id="altenddate">
+		    </div>
+		</div>
+		<div class="span3 control-group">
+		    <label class="control-label">User:</label>
+		    <div class="controls">
+			    <select class="input-medium" id="user" name="user">
+					<option value=""></option>
+					<?php if(isset($user) && count($user)>0){ for($i=0;$i<count($user);$i++){ ?>
+						<option value="<?php echo $user[$i]->__get('id');?>" <?php if(isset($user) && $user[$i]->__get('id')!=null && $user[$i]->__get('id')==$auth->getIdentity()->id){echo 'selected="selected"';}?>>
+							<?php echo ucwords($user[$i]->__get('fname')." ".$user[$i]->__get('lname')); ?></option>
+						<?php }?>
+					<?php }?>
+				</select>
+			</div>
+		</div>
+		<div class="span2 control-group">
+			<div class="controls">
+		    	<button id="dashboardreport" class="btn btn-success" name="dashboardreport">Report</button>
+	    	</div>
+		</div>
+	</div>
+</form>
+
+<script>
+$(document).ready(function(){
+    $("#dashboardreport")//.button()
+	.click(function( event ) {
+	    event.preventDefault();
+	barchart();
+	piechart();
+	});
+     $( "#strdate" ).datepicker({dateFormat:"dd/mm/yy",altField:"#altstrdate",  changeMonth: true,
+	       changeYear: true,
+		      altFormat: "yy-mm-dd 00:00:00" });
+	$( "#enddate" ).datepicker({dateFormat:"dd/mm/yy",altField:"#altenddate",  changeMonth: true,
+	       changeYear: true,
+		      altFormat: "yy-mm-dd 00:00:00" });
+    
+});
+
+function barchart(){
+	var strdate = $('#altstrdate').val();
+	var enddate= $('#altenddate').val();
+	var userid= $('#user').val();
+   $.ajax({
+        type: "POST",
+        url: "<?php echo $this->url('userreport');?>",
+        dataType:"json",
+        async: false,
+        data:{"strdate" : strdate,"enddate":enddate,"userid":userid},
+        success: function(response){
+        	//$("#chart1").empty();
+    	    var legends = [];
+   			var lineData = [];
+   			var ticksLabel = [] ;
+   			var pesttime = [];
+   		 	var userspenttime = [];
+   			var useresttime = [];
+   			var mydata = response;
+   			for(var i in mydata.legend) {
+   	   	   	   	legends.push({label : mydata.legend[i]});
+   	   	  	}
+   			for(var i in mydata.pname) {
+	   			ticksLabel.push(mydata.pname[i]);
+   				pesttime.push(parseFloat(mydata.projectest[i]));
+   				userspenttime.push(parseFloat(mydata.userspenttime[i]));
+   				useresttime.push(parseFloat(mydata.userest[i]));
+   	   	  	}
+   			var title=response['title'];
+   	   		var lineOptions = {
+					'divTag':'chart1',
+					'seriesLabel': legends,
+					'ticksLabel' : ticksLabel,
+					'xaxisLabel' : 'Projects',
+					'yaxisLabel' :  'Hours',
+					'legendPlacement' : 'outsideGrid',
+					'legendShow' : 'true',
+					'yFormatString' : '%.2f',
+					'chartTitle' : title,
+					};	
+			if(userspenttime.length>0 && useresttime.length>0){
+				lineData.push(userspenttime);
+				lineData.push(useresttime);
+				barCharts(lineData,lineOptions);
+			}
+	   		
+        	},
+	 	 
+	    });
+ 
+ 	}
+
+function piechart(){
+	var strdate = $('#altstrdate').val();
+	var enddate= $('#altenddate').val();
+	var userid= $('#user').val();
+   $.ajax({
+        type: "POST",
+        url: "<?php echo $this->url('piechart');?>",
+        dataType:"json",
+        async: false,
+        data:{"strdate" : strdate,"enddate":enddate,"userid":userid},
+        success: function(response){
+        //	$("#chart1").empty();
+        	var dataArray=new Array();
+   			for(var i in response.data) {
+	   			var tmp=new Array();			   			
+	   			tmp.push(response.data[i]['categoryname']);
+	   			tmp.push(parseFloat(response.data[i]['userspenttime']));
+	   			dataArray.push(tmp);		   				
+   	   	  	}
+   			var title="Total Time "+response['totalspent'];
+   	   		var lineOptions = {
+					'divTag':'chart2',
+					'dataLabelFormatString' : '%g',
+					'chartTitle' : title,
+					
+					};
+	   	   	if(dataArray.length>0){
+				pieChart(dataArray,lineOptions);
+	   	   	}
+			
+    		},
+	 	 
+	    });
+ 
+ 	}
+
+ 	</script>
+<hr/>
+<div>
+<div id="chart1" style="height:500px;width:500px;float:left "></div>
+<div id="chart2" style="height:500px;width:500px;float:right "></div>
+</div>
+<div style="clear:both;"></div>
+
+
+
+
+

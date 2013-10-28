@@ -1,0 +1,54 @@
+<div id="leaveDialog" title="Leave Details">
+<h2 class="title">Leave Details:</h2><hr/>
+
+<table cellpadding="3" class="table table-striped">
+	<tr>
+		<td width="150px">Subject: </td>
+		<td width="900px"><?php echo $title;?></td>
+	</tr>
+	<tr>
+		<td>Start Date: </td>
+		<td><?php echo $startDate;?></td>
+	</tr>
+	<tr>
+		<td>End Date: </td>
+		<td><?php echo $endDate;?></td>
+	</tr>
+	<tr>
+		<td># Of Days: </td>
+		<td><?php echo $noOfDays;?></td>
+	</tr>
+	<tr>
+		<td>Date Of Application: </td>
+		<td><?php echo $noOfDays;?></td>
+	</tr>
+	<tr>
+		<td>Email Body: </td>
+		<td style="width:600px;height:auto;"><?php echo $description;?></td>
+	</tr>
+	<tr>
+		<td>Approved/Disapproved: </td>
+		<td><?php echo $isSanctioned;?></td>
+	</tr>
+	<tr>
+		<td>To: </td>
+		<td><?php echo $to;?></td>
+	</tr>
+		<tr>
+		<td>Cc: </td>
+		<td><?php echo $cc;?></td>
+	</tr>
+	</table>
+</div><br/>
+	<?php echo  "<b>Email Conversation</b><br/>";?>
+	<div style="border: solid 2px black; clear: both; margin: 3px 0;"></div>
+	<?php foreach ($emailConversations as $rws){?>
+	<?php echo "<b>From</b>=".$rws['from']."<br/>";
+	      echo "<b>Date</b>=".$rws['createdatetime']."<br/>";
+	      echo "<b>Content</b>=".$rws['content'];?>
+	      <div style="border: solid 2px black; clear: both; margin: 3px 0;"></div>
+	      <?php }?>
+	
+	
+	
+	

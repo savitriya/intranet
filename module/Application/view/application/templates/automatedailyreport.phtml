@@ -1,0 +1,98 @@
+<?php
+
+use IntranetUtils\Common;
+$common=new Common();
+?>
+
+	<table width='100%' cellpadding='0' cellspacing='0' border='0'>
+	
+	<?php
+if(isset($response)  && count($response)>0){
+	for ($i=0;$i<count($response);$i++){
+		if($i!=0){
+			echo "<br/><br/>";
+		}
+	?>
+		<tr>
+			<td title="Project Name(Project Estimate Time/Project spent time)" width='80%' valign="top">
+				<b><?php echo ucwords($response[$i]['pname'])."(".$common->convertSpentTime($response[$i]['pestime'])."|".$common->convertSpentTime($response[$i]['totalProjectSpent']).")"; ?></b>
+			</td>
+			<td title="Today activity logtime|Total user spent|Total user estimate" valign="top">
+				<b><?php echo $common->convertSpentTime($response[$i]['todayactivitylogtime'])."|".$common->convertSpentTime($response[$i]['totalCurrentUserSpent'])."|".$common->convertSpentTime($response[$i]['totalCurrentUserEst']); ?></b>
+			</td>
+		</tr>		
+		<?php for($j=0;$j<count($response[$i]['activities']);$j++){?>
+		<tr>
+		<td></td>
+		<td></td>
+		</tr>
+		<tr>
+			<td width="80%" valign="top">
+				<?php echo $response[$i]['activities'][$j]['description'];?>
+			</td>
+			<td width="20%" valign="top">
+				<?php echo $common->convertSpentTime($response[$i]['activities'][$j]['totaltime']); ?>
+			</td>
+		</tr>	
+		<?php }?>
+		<tr>
+			<td></td>
+			<td></td>
+		</tr>
+	<?php }
+	if(isset($activitySpentTime)){ ?>
+		<tr>
+			<td width='80%' valign="top">
+				<b>Total:</b> 
+			</td>
+			<td width='20%'>
+				<b> <?php echo $common->convertSpentTime($activitySpentTime);?> </b>
+			</td>
+		</tr>
+	<?php } ?>
+	<?php } ?>
+	</table>
+	<br/>
+	
+<table width='100%' cellpadding='0' cellspacing='0' border='0'>
+	<?php if(isset($notLoggedInQuery)  && count($notLoggedInQuery)>0 && isset($officeworkingday) ){
+		$notLoggedInQuery=$notLoggedInQuery->current();
+		//$officeworkingday=$officeworkingday->current();
+		$todayLoginTime=$todayLoginTime->current();
+	?>
+	<tr>
+	<?php $cdate=date("Y:m",$notLoggedInQuery[0]['cdate']+19800);?>
+	<td><b>Late count in this month </b>
+	<?php $cdate=explode(":", $cdate);?>
+	
+		<?php echo $latelogin."/".$workingdaycount;?>
+	
+	<?php } ?>
+	</td>
+<td><b>Leave </b>
+		<?php $leaves= $officeworkingday-$workingdaycount;
+		if ($leaves>0){ echo $leaves;}else { echo "0";}?>
+	</td>
+	
+	<td><b>Late By </b>
+	<?php 
+	$time=0;
+	if(isset($todayLoginTime->mindt) && $todayLoginTime->cdate){
+		$time=$todayLoginTime->mindt-(33000+$todayLoginTime->cdate);
+	}
+	if (isset($todayLoginTime) && $time>0){
+		$lateTime= $common->convertSpentTime($time);
+		echo $lateTime;
+	}else{
+     echo "00:00";
+	}?>
+	</td>
+	<td>
+	<b>Avg. Late </b>
+	<?php $avglate=$common->convertSpentTime($avglate);?>
+	<?php echo $avglate;?>
+	</td>
+</tr>
+</table>
+<br/><br/>
+<hr/>

@@ -1,0 +1,16 @@
+<?php
+
+ if(isset($username) && $username!=""){
+	$name=$username;
+	$word="have been assigned";
+	$id=$inserteduserId;
+ }
+if(isset($delusername) && $delusername!=""){
+	$name=$delusername;	
+	$word="are removed from";
+	$id=$linkId;
+}?>
+
+Dear <?php echo($name);?>,
+
+You <?php echo $word;?> new activity by <?php echo  ucwords($assignedBy);?> with subject <?php echo "<b>$subject<b>";?>,Please view activity by clicking <a href="<?php echo "http://".$_SERVER['HTTP_HOST']."/viewactivitydetail/".$id;?>">Here</a>

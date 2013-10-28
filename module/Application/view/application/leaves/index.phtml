@@ -1,0 +1,297 @@
+<script type="text/javascript" src="/js/tinymce/tiny_mce.js"></script>
+<script type="text/javascript"> 
+	$(document).ready(function(){
+		$("#startdate").datetimepicker({	
+			changeMonth: true,
+		    changeYear: true,
+		    showSecond: false,
+		    dateFormat: 'dd/mm/yy',
+		    timeFormat: 'hh:mm:ss',
+		    altField: "#alternate_startdate",
+		    altFormat: "yy-mm-dd",
+		    altFieldTimeOnly:false
+	    });
+		$("#enddate").datetimepicker({	
+			changeMonth: true,
+		    changeYear: true,
+		    showSecond: false,
+		    dateFormat: 'dd/mm/yy',
+		    timeFormat: 'hh:mm:ss',
+		    altField: "#alternate_enddate",
+		    altFormat: "yy-mm-dd",
+		    altFieldTimeOnly:false
+	    });
+		tinyMCE.init({
+			mode : "exact",
+			elements : "emailbody",
+	        theme : "advanced",
+	        plugins : "autolink,lists,style,table,advhr,advimage,advlink,inlinepopups,insertdatetime,contextmenu,paste,noneditable,visualchars,nonbreaking",
+
+	        // Theme options	        
+	        theme_advanced_layout_manager : "SimpleLayout",
+		    theme_advanced_toolbar_location : "bottom",
+    		theme_advanced_buttons1 : "bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,cut,copy,paste,pastetext,pasteword,|,bullist,numlist,|,sub,sup,|,insertdate,inserttime",
+    		theme_advanced_buttons2 : "undo,redo,|,tablecontrols,|,link,unlink,anchor,image,cleanup,help,code",
+			theme_advanced_toolbar_location : "top",
+	        theme_advanced_toolbar_align : "center",
+	        theme_advanced_statusbar_location : "bottom",
+	        theme_advanced_resizing : true,
+			
+	        // Skin options
+	        skin : "o2k7",
+	        skin_variant : "silver",
+
+	        
+	        // Drop lists for link/image/media/template dialogs
+	        template_external_list_url : "js/template_list.js",
+	        external_link_list_url : "js/link_list.js",
+	        external_image_list_url : "js/image_list.js",
+	        media_external_list_url : "js/media_list.js",
+
+	        // Replace values for the template plugin
+	        template_replace_values : {
+                username : "Some User",
+                staffid : "991234"
+	        },
+	        width: "666",
+	        height: "250"
+		});
+
+		$( "#emailcc")
+		//don't navigate away from the field on tab when selecting an item
+		.bind( "keydown", function( event ) {
+		 if ( event.keyCode === $.ui.keyCode.TAB &&
+		         $( this ).data( "autocomplete" ).menu.active ) {
+		      event.preventDefault();
+		 }
+		})
+		.autocomplete({
+		 minLength:1,
+		 source: function( request, response ) {
+		     $.getJSON( "<?php echo $this->url('getmultiuser');?>", {
+		         term: extractLast( request.term )
+		     }, response );
+		 },
+		 search: function() {
+		     
+		     var term = extractLast( this.value );
+		     if ( term.length < 1 ) {
+		         return false;
+		     }
+		 },
+		 focus: function() {
+		     // prevent value inserted on focus
+		     return false;
+		 },
+		 select: function( event, ui ) {
+		     var terms = split( this.value );
+		     // remove the current input
+		     terms.pop();
+		     // add the selected item
+		     terms.push( ui.item.value );
+		     // add placeholder to get the comma-and-space at the end
+		     terms.push( "" );
+		     this.value = terms.join( "," );
+		     //$(this).css("height","150px;")
+		     
+		     return false;
+		 }
+		});
+		$( "#emailbcc")
+		//don't navigate away from the field on tab when selecting an item
+		.bind( "keydown", function( event ) {
+		 if ( event.keyCode === $.ui.keyCode.TAB &&
+		         $( this ).data( "autocomplete" ).menu.active ) {
+		      event.preventDefault();
+		 }
+		})
+		.autocomplete({
+		 minLength:1,
+		 source: function( request, response ) {
+		     $.getJSON( "<?php echo $this->url('getmultiuser');?>", {
+		         term: extractLast( request.term )
+		     }, response );
+		 },
+		 search: function() {
+		     
+		     var term = extractLast( this.value );
+		     if ( term.length < 1 ) {
+		         return false;
+		     }
+		 },
+		 focus: function() {
+		     // prevent value inserted on focus
+		     return false;
+		 },
+		 select: function( event, ui ) {
+		     var terms = split( this.value );
+		     // remove the current input
+		     terms.pop();
+		     // add the selected item
+		     terms.push( ui.item.value );
+		     // add placeholder to get the comma-and-space at the end
+		     terms.push( "" );
+		     this.value = terms.join( "," );
+		     //$(this).css("height","150px;")
+		     
+		     return false;
+		 }
+		});
+
+		$("#submit")//.button()
+		.click(function( event ) {
+			event.preventDefault();
+			send_mail();
+		});
+	});
+	function split( val )
+	{
+		return val.split( /,\s*/ );
+	}
+	function extractLast( term )
+	{
+		return split( term ).pop();
+	}
+
+	function send_mail()
+	{
+		var start_date = $("#alternate_startdate").val();
+		var end_date = $("#alternate_enddate").val();
+		var email_subject = $("#emailsubject").val();
+		var email_to = $("#emailto").val();
+		var email_cc = $("#emailcc").val();
+		var email_bcc = $("#emailbcc").val();
+		var email_body = tinyMCE.get('emailbody').getContent();
+
+		$("#startdate_error").html('');
+		$("#enddate_error").html('');
+		$("#emailsubject_error").html('');
+		$("#emailto_error").html('');
+		$("#emailcc_error").html('');
+		$("#emailbcc_error").html('');
+
+		var form_data = "&start_date="+start_date+"&end_date="+end_date+"&email_subject="+escape(email_subject)+"&email_to="+email_to+"&email_cc="+email_cc+"&email_bcc="+email_bcc+"&email_body="+escape(email_body);
+
+		$.ajax({
+	         type: "POST",
+	         url: "<?php echo $this->url('leave');?>",	
+	         dataType:"json",
+	         data: form_data,
+	         beforeSend: function () {
+	   			$('#mailcontent').mask("Loading...");
+	   	 		 /*loadingmsg('addProjects','addProjects','Add New Project');*/	
+	   	 	 },    
+	         success: function(response)
+	         {
+	              if(response['returnvalue']=="valid")
+	              {
+					alert("Email has been sent successfully");
+					window.location.href="<?php echo $this->url('leave');?>";
+	              }                       
+	              else if(response.returnvalue=="exception")
+	              {
+	                   alert("This Operation Could not be Completed,Please contact administrator");
+	                   return false;
+	              }
+	              else
+	              {
+	                   for(var key in response.data){
+	                       if(response.data[key]=="null")
+	                       {
+	                    	   $("#"+key+"_error").attr("style","color:red");
+	                           $("#"+key+"_error").html($("#"+key).attr("title")+" can not be left empty");                                   
+	                       }
+	                       else if(response.data[key]=="invalid")
+	                       {
+	                    	   $("#"+key+"_error").attr("style","color:red");
+	                    	   $("#"+key+"_error").html("Invalid value for "+$("#"+key).attr("title"));  
+	                       }
+	                    }
+                    }
+	           },
+			   error: function(XMLHttpRequest,textStatus){
+			    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+			   	},
+				complete: function(){
+			    	setTimeout(function(){		    	
+			    		$('#mailcontent').unmask();	
+			    		//unmaskloading('addProjects');
+					},500);
+				},
+	           failure: function(response)
+	         	{
+		         	alert("failure"+response);
+	         	}
+       });
+	}
+</script>
+
+<h2 class="title">Apply For Leave</h2>
+<hr />
+<form action="" method="post" id="leaveform" class="form-horizontal">
+	<div class="row-fluid">
+		<div class="span4 control-group">
+			<label class="control-label">To(Leave Approval):<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<textarea id="emailto" name="emailto" disabled title="To" rows="4" class="input-large"><?php echo $to;?></textarea>
+			</div>
+			<div class="controls"><p id="emailto_error"></p></div>
+		</div>
+		<div class="span4 control-group">
+			<label class="control-label">Cc:</label>
+			<div class="controls">
+				<textarea id="emailcc" name="emailcc" title="Cc" rows="4" class="input-large" tabindex="1"></textarea>
+			</div>
+			<div class="controls"><p id="emailcc_error"></p></div>
+		</div>
+		<div class="span4 control-group">
+			<label class="control-label">Bcc:</label>
+			<div class="controls">
+				<textarea id="emailbcc" name="emailbcc" title="Bcc" tabindex="2" rows="4" class="input-large"></textarea>
+			</div>
+			<div class="controls"><p id="emailbcc_error"></p></div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span4 control-group">
+			<label class="control-label">Email Subject:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" id="emailsubject" name="emailsubject" title="Email Subject" value="" tabindex="3" />
+			</div>
+			<div class="controls"><p id="emailsubject_error"></p></div>
+		</div>
+		<div class="span4 control-group">
+			<label class="control-label">Start Date:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" id="startdate" name="startdate" title="Start Date" tabindex="4" />
+				<input type="hidden" id="alternate_startdate" name="alternate_start_date" />
+			</div>
+			<div class="controls"><p id="startdate_error"></p></div>
+		</div>
+		<div class="span4 control-group">
+			<label class="control-label">End Date:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" id="enddate" name="enddate" title="End Date" tabindex="5" />
+				<input type="hidden" id="alternate_enddate" name="alternate_end_date" />
+			</div>
+			<div class="controls"><p id="enddate_error"></p></div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span9 control-group">
+			<label class="control-label">Reason for leave:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls"><p id="emailbody_error"></p></div>
+			<div class="controls">
+				<textarea id="emailbody" name="emailbody" title="Email Body" cols="40" rows="20" tabindex="6"></textarea>
+				<div id="mailcontent"></div>
+			</div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span4 control-group">
+			<div class="controls">
+				<button id="submit" name="submit" class="btn btn-success" tabindex="7" style="margin:15px 0;">Send Mail</button>
+			</div>
+		</div>
+	</div>
+</form>
