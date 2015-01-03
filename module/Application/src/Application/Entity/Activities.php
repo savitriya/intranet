@@ -8,13 +8,18 @@ use	Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Application\Entity\Activityhistory;
 use Zend\Authentication\AuthenticationService;
+use Doctrine\Common\NotifyPropertyChanged,
+     Doctrine\Common\PropertyChangedListener;
+
 
 /**
  * activities
  *
  * @ORM\Entity
+ * @ORM\ChangeTrackingPolicy("NOTIFY")
  * @ORM\Table(name="activities") 
- * @ORM\ChangeTrackingPolicy("NOTIFY") 
+ *  
+ * 
  * @property int $created_date
  * @property int $created_time
  * @property string $description
@@ -30,7 +35,8 @@ use Zend\Authentication\AuthenticationService;
  * @property int $project_id
  * @property int $id
  */
-/** @ORM\Entity @ORM\HasLifecycleCallbacks 
+/**
+  * @ORM\Entity @ORM\HasLifecycleCallbacks
   * @ORM\Entity(repositoryClass="Application\Repository\ActivitiesRepository")
  * */
  class Activities extends DomainObject

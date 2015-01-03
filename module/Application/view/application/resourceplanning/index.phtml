@@ -1,0 +1,314 @@
+<?php use IntranetUtils\Common as Misc;
+$common =new Misc();
+$currentMonth=date('m');
+$currentYear =date('Y');
+$dayInCurrentMonth= cal_days_in_month(CAL_GREGORIAN,$currentMonth,$currentYear);
+?>
+
+<!-- <script type="text/javascript" src="/js/bootbox.min.js"></script> -->
+<!-- <link rel="stylesheet" href="/css/chosen.css"> -->
+<script type="text/javascript">
+
+var config = {
+	    '.chosen-select': {},
+	    '.chosen-select-deselect': {
+	        allow_single_deselect: true
+	    },
+	    '.chosen-select-no-single': {
+	        disable_search_threshold: 10
+	    },
+	    '.chosen-select-no-results': {
+	        no_results_text: 'Oops, nothing found!'
+	    },
+	    '.chosen-select-width': {
+	        width: "95%"
+	    }
+	}
+
+$("#skills").trigger(".chosen-select");
+for (var selector in config) {
+	
+    $(selector).chosen(config[selector]);
+}
+$(document).ready(function() {
+	initializecalendar();
+	setTimeout(
+			  function() 
+			  {
+			    //do something special
+				    for (var selector in config) {
+					    $(selector).chosen(config[selector]);
+					}
+			  }, 5000);
+	
+	$("#spent").timepicker({timeOnly:true});
+	$("#date").datepicker({
+	       changeMonth: true,
+	       changeYear: true,
+	       showSecond: false,
+	       dateFormat: 'dd/mm/yy',
+	       altField: "#altdate",
+	       altFormat: "yy-mm-dd",
+	    });
+	
+	  $('#projectlist').bind('change', function(ev) {
+		  getallocation();	
+	  });
+	  
+	
+});
+
+
+function initializecalendar(){
+	var s1 = $('#userlist');
+	$('#calendar').fullCalendar({
+		
+		header: {
+			left: 'prev,next',
+			center: 'title',
+			right: 'month'
+				
+		},
+		editable: true,
+		theme: true,
+		events: [
+		 		
+			<?php foreach ($allocationarray as $row){
+				$freeuser=sizeof($row['freeuser'])?>
+				
+			{
+				id:'free',
+				title: 'Free (<?php echo $freeuser;?>)',
+				start: '<?php echo $row['date']; ?>',
+				color: 'green',
+			},
+			<?php $partial=sizeof($row['user']);  ?>
+			{
+				id:'partial',
+				title: 'Partial (<?php echo $partial;?>)',
+				start: '<?php echo $row['date']; ?>',
+				
+			},
+			
+			<?php }?>
+			
+		],
+		eventClick: function(calEvent, jsEvent, view) {
+			var date = moment(date).format('DD/MM/YYYY');
+			var altDate = moment(calEvent.start).format('YYYY-MM-DD');
+			if(calEvent.id == "free"){
+	
+				freeuser(altDate,'free');
+				$(".chosen-select").trigger(".chosen-select");
+				} else if (calEvent.id == "partial") {
+					freeuser(altDate,'partial');
+					$(".chosen-select").trigger(".chosen-select");
+				}			
+			   $( "#resourceAllocationModal" ).modal({show:true});
+			   $(".chosen-select").trigger(".chosen-select");
+
+				 },
+	    dayClick: function (date, jsEvent, view)  {
+			var date = moment(date).format('DD/MM/YYYY');
+			var altDate = moment(date).format('YYYY-MM-DD');
+				   
+	    	freeuser(altDate,'allfree');
+	    	$(".chosen-select").trigger(".chosen-select");
+	    	 $( "#resourceAllocationModal" ).modal({show:true});
+			 $(".chosen-select").trigger(".chosen-select");
+	    	
+		},
+	     eventMouseover:function( calEvent, jsEvent, view ) {
+				//$("#partial").qtip("hello");
+		 	
+			 <?php foreach ($allocationarray as $rw) { ?>
+		
+				var dater= "<?php echo $rw['date'];?>";
+				var datec = moment(calEvent.start).format('YYYY-MM-DD');
+				var date = moment(calEvent.start).format('DD/MM/YYYY');
+				if(dater == datec){
+					 
+// 					$("#userlist").empty();
+					if(calEvent.id == "partial"){
+						<?php foreach ($rw['user'] as $rowu){?>
+						 $("<tr>")
+					        .attr("id", <?php echo $rowu['id'];?>)
+					        .appendTo("#partialallocationlist");
+						 $("<td>")
+					        .attr("id", "<?php echo $rowu['id'];?>")
+							.attr("rowspan", "<?php echo sizeof($rowu['project']);?>")
+					        .html("<?php echo ucwords($rowu['name']);?>")
+					        .appendTo("#<?php echo $rowu['id'];?>");
+						 <?php $i =0;foreach ($rowu['project'] as $rowp){?>
+
+						 <?php if($i == 0){?>
+						 $("<td>")
+					        .html("<?php echo ucwords($rowp['name']);?>")
+					        .appendTo("#<?php echo $rowu['id'];?>");
+						 $("<td>")
+					        .html("<?php echo ucwords($rowp['duration']);?>")
+					        .appendTo("#<?php echo $rowu['id'];?>");
+					        
+						 <?php }else { ?>
+						 $("<tr>")
+					        .attr("id", <?php echo $rowp['id'];?>)
+					        .appendTo("#partialallocationlist");
+						 $("<td>")
+					        .html("<?php echo ucwords($rowp['name']);?>")
+					        .appendTo("#<?php echo $rowp['id'];?>");
+						 $("<td>")
+					        .html("<?php echo ucwords($rowp['duration']);?>")
+					        .appendTo("#<?php echo $rowp['id'];?>");
+
+						 <?php }?>
+
+						<?php $i++; } }?>
+// 						$( "#viewpartialModel" ).modal({show:true});
+
+					}
+				
+					var dateelem = document.getElementById("date");
+					dateelem.value = date;
+					var altdateelem = document.getElementById("altdate");
+					altdateelem.value = datec;
+					
+					}
+					<?php }?>
+
+					var content = $("#viewpartialModel").html();
+
+					try{
+					$('#'.calEvent.id).qtip({
+				 	   	content: content ,
+					 	style:{
+							name : 'green',
+							width: 350,
+							border: {
+						         radius: 5
+						   },
+						   tip: 'topLeft'
+						},
+						position: {
+						      corner: {
+						         tooltip: 'topLeft'
+						      }
+						   },
+					   show: 'mouseover',
+					   hide: 'mouseout'
+				 	});
+					}catch(e){
+					}
+			 
+		},
+		  
+	
+	});
+	 $('.fc-button-prev span').click(function(){
+		 
+		 alert('prev is clicked, do something');
+		});
+
+		$('.fc-button-next span').click(function(){
+			var date=    $('#calendar').fullCalendar('date');
+			var date = moment(date).format('DD/MM/YYYY');
+// 			var altDate = moment(calEvent.start).format('YYYY-MM-DD');
+			 alert("The current date of the calendar is " + date);
+			 alert('nextis clicked, do something');
+		});
+}
+
+
+function freeuser(date,type){
+	
+	var altdate=date;
+	var date = moment(altdate).format('DD/MM/YYYY');
+	$.ajax({
+		type: "POST",
+		url: "<?php echo $this->url('allocation');?>",	         
+		data: {date :altdate,type: type },
+		beforeSend: function () {
+ 			//$('#addResourceAllocation').mask("Loading...");
+ 	 	 },
+		success: function(response)
+		{
+
+			   $("#resourceAllocation").html(response);
+			   var datevalue= document.getElementById("startdate");
+				datevalue.value=date;
+				
+				var altdatevalue= document.getElementById("altstartdate");
+				altdatevalue.value=altdate;
+			   $( "#resourceAllocationModal" ).modal({show:true});
+			   $(".chosen-select").trigger(".chosen-select");
+		},
+		error: function(XMLHttpRequest,textStatus){
+			alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		},
+	});
+}
+
+
+
+
+function adduserskills(userid) {
+
+// 	var userid = $("#userid").val();
+var skills = $("#skills").val();
+if(skills==""){
+	alert("skills cannot be left blank.");
+	return false;
+}	
+$.ajax({
+    type: "POST",
+    url: "<?php echo $this->url('adduserskills');?>",
+    data: {
+        userid: userid,
+        skills: skills
+    },
+//     		dataType:'json',
+    success: function (response) {
+
+    },
+    error: function (XMLHttpRequest, textStatus) {
+    	alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+    },
+});
+
+} 
+
+function openaddresourceallocationdialog(userid,date){
+
+	$( "#addResourceAllocationModal" ).modal({show:true});
+	var uservalue= document.getElementById("userlist");
+	uservalue.value=userid;
+		
+}
+function openSkillsDilog() {
+    	$( "#addskillsdilog" ).modal({show:true});
+}
+
+</script>
+
+
+
+<div id="resourceAllocationModal"  class="modal hide fade" tabindex="-1" data-focus-on="input:first">
+	<div class="modal-header">
+    	<h6 class="title" style="margin-bottom:1px;">Allocations </h6>
+    </div>
+    <div class="modal-body">
+<div id="resourceAllocation" >
+</div>
+</div>	
+ <div class="modal-footer">
+    	  <button type="button" data-dismiss="modal" class="btn btn-success">Close</button>
+	  </div>
+</div>
+
+
+<h2 class="title">Resource Planner</h2><hr />
+<div class="row-fluid">
+	<div class="span4">
+		<div id="calendar" style="width: 1000px;"></div>
+	</div>
+</div>
+

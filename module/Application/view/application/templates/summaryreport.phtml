@@ -25,7 +25,7 @@ if(isset($responce)  && count($responce)>0){
 				</tr>
 				<?php for($k=0;$k<count($responce[$i]['user'][$j]['description']);$k++){ ?>
 					<tr>
-						<td width="90%"><span style="text-align:justify;"><?php echo ucwords($responce[$i]['user'][$j]['description'][$k]['activity']);?></span></td>
+						<td width="90%"><span style="text-align:justify;"><?php echo ucfirst($responce[$i]['user'][$j]['description'][$k]['activity']);?></span></td>
 						<td><span style="margin-left: 10px;"><?php echo $common->convertSpentTime($responce[$i]['user'][$j]['description'][$k]['spent']); ?></span></td>
 					</tr>
 				<?php }

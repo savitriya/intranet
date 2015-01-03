@@ -1,6 +1,6 @@
 <h2 class="title">Company-Wise Employees</h2><hr/>
-<div class="row" id="gridContainer" style="margin-left: 0px !important;">
-<div id="grid" style="min-height: 500px;"><table id="list"> <div id="subgrid" >
+<div class="row" id="gridContainer" style="height:100%; margin-left: 0px !important;">
+<div id="grid" style="height:100%;"><table id="list"> <div id="subgrid" >
 <table id="subgridtable"></table>
 </div> </table>
       <div id="pager"></div>
@@ -17,7 +17,7 @@ $(document).ready(function(){
         {name:'company',index:'company'},
        ],
     rowNum:20,
-    rowList:[10,20,25],
+    rowList:[100,200,500],
     navigator:true,
     pager: '#pager',
     viewrecords: true,

@@ -9,8 +9,7 @@ use Zend\Authentication\AuthenticationService;
 /**
  * assignee
  *
- * @ORM\Entity
- * @ORM\Entity @ORM\HasLifecycleCallbacks 
+ * @ORM\Entity 
  * @ORM\Table(name="assignee")
  * @property int $id
  * @property int $project_id 
@@ -18,10 +17,9 @@ use Zend\Authentication\AuthenticationService;
  * @property int $user_id
  * @property int activity_id 
  */
-/** @ORM\Entity @ORM\HasLifecycleCallbacks
- * 
- * */
-
+/**
+ * @ORM\Entity @ORM\HasLifecycleCallbacks
+ */
 class Assignee extends DomainObject
 {
 

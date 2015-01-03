@@ -248,7 +248,7 @@ function filter(){
 		            //document.getElementById("contenthtml").value= response['html'];
 	        	}
 	        	else if(response.returnvalue=="exception"){
-	                   alert("This Operation Could not be Completed,Please contact administrator");
+	        		alert("This Operation Could not be Completed,Please contact administrator");
 	                   return false;
 	            }
 	        	else{
@@ -269,7 +269,7 @@ function filter(){
 	            }
         	},
 	 	 	error: function(XMLHttpRequest,textStatus){
-		    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+	 	 		alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 		   	},
 	    });
 	}

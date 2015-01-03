@@ -1,0 +1,77 @@
+
+<h2 class="title">Overrun Projects</h2><hr/>
+
+<form action="" method="post" id="frmFilter">
+		<div class="row-fluid">
+			<div class="span4 control-group">
+			<label class="control-label">Company:</label>
+			<div class="controls">
+				<select id="company"  name="company">
+					<option value='0' <?php if($selectedcompanyid==0){?>selected="selected"<?php }?>>All</option>
+					<?php for ($c=0;$c<count($viewCompanies);$c++){?>		
+					<option value='<?php echo $viewCompanies[$c]['cid'];?>'
+					<?php if($selectedcompanyid==$viewCompanies[$c]['cid']){?>selected="selected"<?php }?>>
+						<?php echo $viewCompanies[$c]['name'];?>
+					</option>
+					<?php }?>
+				</select>
+			</div>
+		</div>
+		<div class="span4 control-group">
+		<input id="allocatedHours" type="radio" name="radiobutton" value="allocatedHours" >Allocated Hours wise
+		<input id="estimatedEndDate" type="radio" name="radiobutton" value="estimatedEndDate"> Estimated Enddate
+		<input id="estimatedHours" type="radio" name="radiobutton" value="estimatedHours" >Estimated Hours wise
+		
+		
+<!-- 		<input id="both" type="radio" name="radiobutton" value="both">Both -->
+		</div>
+		</div>
+</form>
+
+<table id="projecttable" class="table table-striped table-bordered">
+
+<tr>
+
+		<td style="width:10%;text-align:center;">Company Name</td>
+		<td style="width:10%;text-align:center;">Project Name</td>
+		<td style="width:10%;text-align:center;">Project Coordinator</td>
+		<td style="width:10%;text-align:center;">BD</td>
+		<td style="width:8%;text-align:center;">Start Date</td>
+		<td style="width:8%;text-align:center;">End Date</td>
+				
+		<td style="width:8%;text-align:center;">Estimated Hours</td>
+		<td style="width:8%;text-align:center;">Allocated Hours</td>
+		<td style="width:8%;text-align:center;">Spent Hours</td>
+		<td style="width:15%;text-align:center;">Overun by</td>
+	</tr>
+
+<?php use IntranetUtils\Common as Misc;
+	      $common =new Misc();?>
+	<?php foreach($projects as $p){
+		echo '<tr><td>'.ucfirst($p['companyName']).'</td>';
+		echo  	'<td>'.'<a href=/projectreportbyuser/'.$p['projectId'].'>'.ucfirst($p['projectName']).'</a></td>';
+		echo 	'<td>'.ucfirst($p['coordinator']).'</td>';
+		echo 	'<td>'.ucfirst($p['bd']).'</td>';
+		echo  	'<td>'.$common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",$p['estimatedStartDate']), 'Asia/Calcutta',"d/m/Y").'</td>';
+		echo  	'<td>'.$common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",$p['estimatedEndDate']), 'Asia/Calcutta',"d/m/Y").'</td>';
+		echo 	'<td>'.$p['estimatedhours'].'</td>';
+		echo 	'<td>'.$p['allocated'].'</td>';
+		echo	 '<td>'.$p['totalspenttime'].'</td>';
+		echo	 '<td>'.$p['overrunby'].'</td></tr>';
+	}?>
+
+</table>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		document.getElementById("<?php echo $selectedradiobutton;?>").checked = true;
+		$("input[name='radiobutton']").bind('change', function(ev) {
+			$("#frmFilter").submit();
+		   });
+		
+		$("#company").change(function(){
+			$("#frmFilter").submit();
+		});
+	});
+
+</script>

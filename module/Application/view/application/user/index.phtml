@@ -1,6 +1,7 @@
+<button id="btnAddUser" style="float:right;" class="btn btn-success" name="btnAddUser" style="margin-bottom:1em;">Add New User</button>
+
 <h2 class="title">Users</h2><hr>
-<div style="min-height: 500px;" id="gridContainer">
-<button id="btnAddUser" class="btn btn-success" name="btnAddUser" style="margin-bottom:1em;">Add New User</button>
+<div style="height: 100%;" id="gridContainer">
 	<table id="list">
 	</table>
 	<div id="pager"></div>
@@ -18,9 +19,10 @@ $(document).ready(function(){
 		url:"<?php echo $this->url('griduser');?>",
 		datatype: "json",
 		mtype: 'POST',
-		colNames:['Name','Email','Mobile','Dob','Active','Admin','Action'],
+		colNames:['Name','Designation','Email','Mobile','Dob','EmployeeId','Active','Admin','Action'],
 		colModel :[
 		{name:'name', index:'name',align:'right', editrules:{required:true}, editable:true},		
+		{name:'designation', index:'designation',align:'right', editrules:{required:true}, editable:true},		
 		{name:'email', index:'email',align:'right', editrules:{required:true}, editable:true},		
 		{name:'mobile', index:'mobile', editable:true},
 		{ name:'dob', index:'dob', label: 'Date', width: 80,
@@ -32,19 +34,21 @@ $(document).ready(function(){
 		      }
 		    }
 		  },		
+		{name:'employeeid', index:'employeeid',align:'right', editrules:{required:true}, editable:true},		
 		{name:'isactive', index:'isactive', editable:true,edittype:'checkbox', editoptions: { value:"1:0"},formatter: "checkbox",sortable:false},
 		{name:'isadmin', index:'isadmin', editable:true,edittype:'checkbox', editoptions: { value:"1:0"},formatter: "checkbox",sortable:false},
 		{name:'action', index:'action'},
 		],
-	  rowNum:20,
-	    rowList:[10,20,25],
+	  rowNum:100,
+	    rowList:[100,200,500],
 	    navigator:true,
 	    pager: '#pager',
 	    sortname: 'name',
 	    viewrecords: true,
 	    sortorder: "desc",
-	    height:"400px"
-	    //width:"1100",
+	    height:"auto",
+	    width:"auto"
+	    
 	});
 	   jQuery("#list").jqGrid('navGrid',"#pager",{add:false,edit:false,del:false, search:false, refresh:false},
 	           {reloadAfterSubmit:true,url:"<?php echo $this->url('adduser');?>"}, // edit options
@@ -65,11 +69,24 @@ function deleteUser(id){
 	     data: {id: id },
 	     dataType:'json',
 	     success: function(response)
-	     {   $("#list").trigger('reloadGrid');
+	     {   
+		     $("#list").trigger('reloadGrid');
 		             },
  	 	
 	   });
 	}
 }
+
+
+function filterdata(reporttype) {
+	var reporttype=$("#type123").val();
+	//console.log(reporttype);return;
+	jQuery("#list").jqGrid('setPostDataItem',"reporttype",reporttype);
+	jQuery("#list").trigger("reloadGrid"); 
+	jQuery("#list").jqGrid('removePostDataItem',"reporttype"); 
+}
+
+</script>
+
 </script>
 

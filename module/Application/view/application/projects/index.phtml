@@ -1,3 +1,8 @@
+<?php use IntranetUtils\Common;
+	  $common=new Common();
+	  ?>
+<button id="btnAddprojects" style="float: right;" class="btn btn-success" name="btnAddprojects" style="margin-bottom:1em;">Add New Project</button>
+	  
 <div id="addProjectsModal" title="Add Project" class="modal hide fade" data-backdrop="static" 
 	data-toggle="modal" tabindex="-1" role="dialog" 
 	aria-labelledby="myModalLabel" aria-hidden="true">
@@ -7,18 +12,15 @@
     </div>
     <!-- dialog contents -->
 	<div class="modal-body">
-		<div id="addProjects" name="addProjects" title="Add Projects"></div>
+		<div id="addProjects">
+		
+</div>
     </div>
-    <div class="modal-footer">
-    	<button class="btn btn-success" data-toggle="modal" style="margin-left:33px;" 
-			type="button" id="closemodeldilog" data-dismiss="modal" >Close</button>
-	    <button class="btn btn-success" data-toggle="modal" style="margin-left:33px" 
-	    	type="button" value="Ok" id="ok" name="ok">Submit</button>
-    </div>
+    
+    
 </div>
 <h2 class="title">Projects</h2><hr />
-<button id="btnAddprojects" class="btn btn-success" name="btnAddprojects" style="margin-bottom:1em;">Add New Project</button>
-<div style="min-height: 500px;" id="gridContainer">
+<div style="height: 100%;" id="gridContainer">
 
 	<table id="list">
 	</table>
@@ -32,8 +34,9 @@ $(document).ready(function(){
 		url:"<?php echo $this->url('gridprojects');?>",
 		datatype: "json",
 		mtype: 'POST',
-		colNames:['Name','Status','Type','Estimated Start Date','Estimated End Date','Actual Start Date','Actual End Date','Estimated Hours','Spent Time','Action'],
+		colNames:['Company','Name','Status','Type','Estimated Start Date','Estimated End Date','Actual Start Date','Actual End Date','Estimated Hours','Spent Time','Action'],
 		colModel :[
+		{name:'company',index:'company'},
 		{name:'name',index:'name'},
 		{name:'status',index:'status',sortable:false},
 		{name:'type',index:'type',sortable:false},
@@ -45,8 +48,8 @@ $(document).ready(function(){
 		{name:'pst', index:'pst',editable: true,sortable:false},
 		{name:'action', index:'action',editable: false}
 		],
-	  	rowNum:20,
-	    rowList:[10,20,25],
+	  	rowNum:100,
+	    rowList:[100,200,500],
 	    navigator:true,
 	    pager: '#pager',
 	    sortname: 'esd',
@@ -74,7 +77,7 @@ function addProject(id){
 		success: function(response)
 		{ 
 			$("#addProjects").html(response);
-			$("#list").trigger("reloadGrid");
+// 			$("#list").trigger("reloadGrid");
 		},
 		error: function(XMLHttpRequest,textStatus){
 			alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
@@ -96,7 +99,7 @@ function deleteProjects(id){
 	 	 },
 	     success: function(response)
 	     {   
-	        alert("record deleted");
+	    	 alert("record deleted");
 	        $("#list").trigger('reloadGrid');
 	     },
 	     error: function(XMLHttpRequest,textStatus){
@@ -113,4 +116,5 @@ function deleteProjects(id){
 }	
 
 	</script>
+
 

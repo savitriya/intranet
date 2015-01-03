@@ -1,0 +1,31 @@
+<?php
+use IntranetUtils\Common;
+use Zend\Authentication\AuthenticationService;
+$common=new Common();
+$auth = new AuthenticationService();
+?>
+
+		
+		<div class="form-group">
+			<label for="title" class="col-md-2 col-sm-3 col-xs-10 control-label">Profile Pic *</label>
+			<div class="col-lg-5 col-md-4 col-sm-5 col-xs-10">
+			<span class="btn btn-file">
+				<input type="file" name="user_logo" accept="image/*" placeholder="Select Logo"   id="user_logo" required="required">
+			</span>
+			
+			<output id="user_logoInfo" >
+			<?php 
+			if (isset($this->customer))
+			{
+				$imageContent = $this->customer->getLogo();
+				if ($imageContent != null && $imageContent != '')
+				{
+			?>	 
+				<img src="<?php echo $common->resizeimage($imageContent, 150, 160); ?>" alt="" />
+			<?php
+				}
+			} 
+			?>
+			</output> 
+			</div>
+		</div>

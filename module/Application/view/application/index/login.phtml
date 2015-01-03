@@ -121,12 +121,12 @@ function forgotpassword(){    $('#myModal').on('show', function (e) {
         success: function(response)
         {   
              if(response['returnvalue']=="valid"){
-                    alert("Password has been send on your mail Successfully");                    
+            	 alert("Password has been send on your mail Successfully");                    
                     $( "#forgotpassword" ).modal( "hide" );
                     return false;
              }		               
              else if(response.returnvalue=="exception"){
-                  alert("This Operation Could not be Completed,Please contact administrator");
+            	 alert("This Operation Could not be Completed,Please contact administrator");
                   return false;
              }
             else{

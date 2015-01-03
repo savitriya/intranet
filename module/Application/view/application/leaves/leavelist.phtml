@@ -15,8 +15,8 @@ $(document).ready(function(){
 		{name:'is_sanctioned', index:'is_sanctioned', editable:false},
 		{name:'action', index:'action',align:'left',editable: false},		
 		],
-	  	rowNum:20,
-	    rowList:[10,20,25],
+	  	rowNum:100,
+	    rowList:[100,200,500],
 	    navigator:true,
 	    pager: '#pager',
 	    sortname: 'created_date',
@@ -35,7 +35,7 @@ function leavedetail(id)
 
 <h2 class="title">List Of Applied Leaves</h2>
 <hr/>
-<div style="min-height: 500px;" id="gridContainer">
+<div style="height: 100%;" id="gridContainer">
 	<table id="list">
 	</table>
 	<div id="pager"></div>

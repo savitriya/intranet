@@ -1,7 +1,8 @@
+
 <script type="text/javascript" src="/js/bootbox.min.js"></script>
+<button id="btnAddmilestones" style="float: right;" class="btn btn-success" name="btnAddmilestones" style="margin-bottom:1em;">Add New Milestone</button>
 <h2 class="title">Milestones</h2><hr />
-<button id="btnAddmilestones" class="btn btn-success" name="btnAddmilestones" style="margin-bottom:1em;">Add New Milestone</button>
-<div style="min-height: 500px;" id="gridContainer">
+<div style="height: 100%;" id="gridContainer">
 	<table id="list">
 	</table>
 	<div id="pager"></div>
@@ -59,16 +60,16 @@ function deletemilestone(id){
 	         success: function(response)
 	         {    
 	        	 if(response['returnvalue']=="valid"){
-	        	 bootbox.alert("Milestones deleted");
+	        	 alert("Milestones deleted");
 	        	 }
 	        	 else if(response['returnvalue']=="relatedactivityspresent"){
-	        		 bootbox.alert("There are activites associated with this milestone. Pls delete associated activites first.");
+	        		 alert("There are activites associated with this milestone. Pls delete associated activites first.");
 		        	 }
 	        	 
 	       	 $("#list").trigger("reloadGrid");
             },
 	 	 	error: function(XMLHttpRequest,textStatus){
-	 	 		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+	 	 		alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 		   	},
 			complete: function(){
 		    	setTimeout(function(){		    	
@@ -79,7 +80,7 @@ function deletemilestone(id){
 		}
 	}
 	else{
-		bootbox.alert("Isdefault mileston ");
+		alert("Isdefault mileston ");
 	}
 }	
 </script>

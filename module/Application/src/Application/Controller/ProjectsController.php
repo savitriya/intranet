@@ -15,10 +15,13 @@ use Zend\Authentication\AuthenticationService;
 use Application\Entity\Milestones;
 use Application\Entity\Projects;
 use Application\Entity\Projecttypes;
+use Application\Entity\Company;
+
 use Application\Entity\MilestonesAssignee;
 use Zend\Validator\EmailAddress;
 use Application\Entity\ActivityLog;
 use Application\Entity\Activities;
+use Application\Entity\ResourceAllocation;
 use Zend\View\Renderer\PhpRenderer;
 use Zend\View\Resolver;
 /**
@@ -61,9 +64,10 @@ class ProjectsController extends AbstractActionController
 		if($auth->getIdentity()->isadmin!=1){
 			return $this->redirect()->toRoute('home');
 		}
-		$status=$em->createQuery('Select ps from Application\Entity\Projectstatuses ps')->getArrayResult();
-		$ptype=$em->createQuery('Select pt from Application\Entity\Projecttypes pt')->getArrayResult();
+		$status=$em->createQuery('Select ps from Application\Entity\Projectstatuses ps Order by ps.name ASC')->getArrayResult();
+		$ptype=$em->createQuery('Select pt from Application\Entity\Projecttypes pt Order by pt.name ASC')->getArrayResult();
 		return new ViewModel(array('status' =>$status,'ptype'=>$ptype));
+		
 	}
 
 	public function gridprojectsAction(){
@@ -100,6 +104,9 @@ class ProjectsController extends AbstractActionController
 		else if($sidx=="aed"){
 			$sidx="p.actual_enddate";
 		}
+		else if($sidx=="company"){
+			$sidx="p.company_id";
+		}
 
 		$em = $this->getEntityManager();
 		$projectCountQuery = $em->createQuery('SELECT p.id as id FROM Application\Entity\Projects p JOIN Application\Entity\Projectstatuses ps WITH p.status_id=ps.id JOIN Application\Entity\Projecttypes pt WITH p.type_id=pt.id');
@@ -112,7 +119,13 @@ class ProjectsController extends AbstractActionController
 		$response['page'] = $page;
 		$response['total'] = $totalPages;
 		$response['records'] = count($totalRecords);
-		$projectsQuery = $em->createQuery("SELECT p.id as id,p.name as name,p.estimated_hours as estimatedhours,p.estimated_startdate as esd,p.estimated_enddate as eed,p.actual_startdate as asd,p.actual_enddate as aed,ps.id as statusid,ps.name as statusname,ps.color as statuscolor,pt.id as typeid,pt.name as typename,pt.color as typecolor FROM Application\Entity\Projects p LEFT JOIN Application\Entity\Projectstatuses ps WITH p.status_id=ps.id JOIN Application\Entity\Projecttypes pt WITH p.type_id=pt.id order by $sidx $sord")
+		$projectsQuery = $em->createQuery("SELECT p.id as id,p.name as name,p.estimated_hours as estimatedhours,
+				      p.estimated_startdate as esd,p.estimated_enddate as eed,p.actual_startdate as asd,p.actual_enddate as aed,
+				      ps.id as statusid,ps.name as statusname,ps.color as statuscolor,pt.id as typeid,pt.name as typename,
+				      pt.color as typecolor,c.name as companyName 
+				      FROM Application\Entity\Projects p LEFT JOIN Application\Entity\Projectstatuses ps WITH p.status_id=ps.id 
+				      JOIN Application\Entity\Projecttypes pt WITH p.type_id=pt.id
+				      LEFT JOIN Application\Entity\Company c WITH p.company_id=c.id order by $sidx $sord")
 		->setFirstResult( $start )
 		->setMaxResults( $limit );
 		$totalrows = $projectsQuery->getResult();		
@@ -161,7 +174,7 @@ class ProjectsController extends AbstractActionController
 			}
 			$action="<a href='/viewprojectsdetail/".$rws['id']."'><i class='icon-file'></i></a>&nbsp;&nbsp&nbsp;<a href='javascript:addProject(".$rws['id'].')'."'><i class='icon-edit'></i></a>&nbsp;&nbsp&nbsp;<a href='javascript:deleteProjects(".$rws['id'].')'."'><i class='icon-trash'></i></a>";
 			$response['rows'][$i]['id'] = $rws['id'];
-			$response['rows'][$i]['cell']=array(ucwords($rws['name']),ucwords($rws['statusname']),ucwords($rws['typename']),$esd,$eed,$asd,$aed,$esthours,$projectspenttime,$action);
+			$response['rows'][$i]['cell']=array(ucwords($rws['companyName']),ucwords($rws['name']),ucwords($rws['statusname']),ucwords($rws['typename']),$esd,$eed,$asd,$aed,$esthours,$projectspenttime,$action);
 
 			$i++;
 		}
@@ -173,14 +186,14 @@ class ProjectsController extends AbstractActionController
 	public function addprojectsAction(){
 		$common=new Common();
 		$offset = $common->get_timezone_offset('Asia/Calcutta','GMT');
-		if($this->getRequest()->isPost()){
 			$em=$this->getEntityManager();
 			$flag=$this->getRequest()->getPost('flag');
 			$id=$this->getRequest()->getPost('id');
-		
+			if($this->getRequest()->isPost()){
 			if($flag!="view"){
 				$response=array();
 				$name=$this->getRequest()->getPost('name');
+				$companyId=$this->getRequest()->getPost('company');
 				$name=strtolower($name);
 				$typeid=$this->getRequest()->getPost('type');
 				$esd=$this->getRequest()->getPost('altesd');
@@ -190,8 +203,14 @@ class ProjectsController extends AbstractActionController
 				$esthours=$this->getRequest()->getPost('esthours');
 				$statusid=$this->getRequest()->getPost('status');
 				$mid=$this->getRequest()->getPost('milestone');
-				if ($id=='' && $id==""){
-					$duplicateproject=$em->createQuery("SELECT p.id as id from Application\Entity\Projects p Where p.name='$name' ")->getResult();
+				
+				$bDeveloper=$this->getRequest()->getPost('bussinessDeveloper');
+				$manager=$this->getRequest()->getPost('escalationManager');
+				$pCoordinator=$this->getRequest()->getPost('projectCoordinator');
+				
+				if($id==""){
+					$duplicateproject=$em->createQuery("SELECT p.id as id from Application\Entity\Projects p Where p.name='$name' AND p.company_id='$companyId' ")->getResult();
+					
 				}else {
 					$duplicateproject=array();
 				}
@@ -206,6 +225,28 @@ class ProjectsController extends AbstractActionController
 					{
 						//$response['data']['spent']="invalid";
 					}
+				}
+				
+				if($companyId==""){
+					$response['data']['company']="null";
+				}else {
+					$response['data']['company']="valid";
+				}
+				
+				if($bDeveloper==""){
+					$response['data']['bussinessDeveloper']="null";
+				}else {
+					$response['data']['bussinessDeveloper']="valid";
+				}
+				if($manager==""){
+					$response['data']['escalationManager']="null";
+				}else {
+					$response['data']['escalationManager']="valid";
+				}
+				if($pCoordinator==""){
+					$response['data']['projectCoordinator']="null";
+				}else {
+					$response['data']['projectCoordinator']="valid";
 				}
 				if($name==""){
 					$response['data']['name']="null";
@@ -266,11 +307,15 @@ class ProjectsController extends AbstractActionController
 						$newRecord->setEstimated_hours($spentTime);
 					}
 					$newRecord->setEntityManager($em);
+					$newRecord->setCompany_id($companyId);
 					$newRecord->setName($name);
 					$newRecord->setEstimated_startdate($esd);
 					$newRecord->setStatus_id($statusid);
 					$newRecord->setType_id($typeid);
-
+					$newRecord->setBd($bDeveloper);
+					$newRecord->setManager($manager);
+					$newRecord->setCoordinator($pCoordinator);
+					
 					if($eed!=""){
 						$eed=strtotime($eed)+$offset;
 						$newRecord->setEstimated_enddate($eed);
@@ -336,20 +381,24 @@ class ProjectsController extends AbstractActionController
 				exit;
 			}
 			else{
+			
+				$comanys = $em->createQuery("SELECT c.id as id,c.name as name FROM Application\Entity\Company c order by c.name ASC")->getArrayResult();
 				$status=$em->createQuery('Select ps from Application\Entity\Projectstatuses ps Order by ps.name ASC')->getArrayResult();
+				$defaultStatus=$em->createQuery("Select ps.id as status_id from Application\Entity\Projectstatuses ps WHERE ps.name='Open'")->getResult();
 				$ptype=$em->createQuery('Select pt from Application\Entity\Projecttypes pt Order by pt.name ASC')->getArrayResult();
-				$valuesToSend=array('status' =>$status,'ptype'=>$ptype);
+				$users=$em->getRepository('Application\Entity\User')->getUserByName('ASC');
+				$valuesToSend=array('comanys'=>$comanys,'status' =>$status,'ptype'=>$ptype,'users'=>$users,'defaultStatus'=>$defaultStatus);
 				if(isset($id) && $id>0){
 					$project=$em->find('Application\Entity\Projects',$id);
 					$valuesToSend['project']=$project;
-
+			
 				}
 				$viewModel=new ViewModel($valuesToSend);
-				$viewModel->setTerminal(true);
+			    $viewModel->setTerminal(true);
 				return $viewModel;
 			}
-		}
-
+			}
+	
 	}
 	
 	public function deleteprojectsAction(){
@@ -363,6 +412,24 @@ class ProjectsController extends AbstractActionController
 				$this->getEntityManager()->remove($delmilestone);
 				$this->getEntityManager()->flush();
 				}
+			}
+			$activity=$em->getRepository('Application\Entity\Activities')->findBy(array('project_id' => $id));
+			if ($activity) {
+				foreach($activity as $activity){
+					$activitylog=$em->getRepository('Application\Entity\ActivityLog')->findBy(array('project_id' => $id));
+
+					if ($activitylog) {
+						foreach($activitylog as $activitylog){
+						
+								
+							$this->getEntityManager()->remove($activitylog);
+							$this->getEntityManager()->flush();
+						}
+					}
+					
+					$this->getEntityManager()->remove($activity);
+					$this->getEntityManager()->flush();
+				}
 			}			
 			$delete =$em->find('Application\Entity\Projects', $id);
 			if ($delete) {
@@ -370,6 +437,25 @@ class ProjectsController extends AbstractActionController
 				$this->getEntityManager()->flush();
 			}
 		}exit;
+	}
+	
+	public function getProjectByCompanyAction(){
+		$em=$this->getEntityManager();
+		$companyId=$this->getRequest()->getPost('companyid');
+		$projects =$em->CreateQuery("Select p.id as id,p.name as name FROM Application\Entity\Projects p JOIN Application\Entity\Projectstatuses ps  WITH p.status_id =ps.id WHERE p.company_id='$companyId' AND ps.name LIKE '%Open%' ORDER BY p.name ASC")->getArrayResult();
+		$response=array();
+		if(count($projects)>0){
+			for($i=0;$i<count($projects);$i++){
+				$response['data'][$i]['id']=$projects[$i]['id'];
+				$response['data'][$i]['name']=$projects[$i]['name'];
+			}
+			$response['returnvalue']="valid";
+		}
+		else{
+			$response['returnvalue']="invalid";
+		}
+		echo json_encode($response);
+		exit;		
 	}
 
 
@@ -843,8 +929,9 @@ class ProjectsController extends AbstractActionController
 				JOIN Application\Entity\Projectstatuses ps
 				WITH ps.id=p.status_id
 				JOIN Application\Entity\Projecttypes pt
-				WITH pt.id=p.status_id
+				WITH pt.id=p.type_id
 				WHERE p.id =". $projectId);
+		
 		$getProjectQueryResult = $getProjectQuery->getResult();		
 		if(isset($getProjectQueryResult[0]['estartdate']) && $getProjectQueryResult[0]['estartdate'] > 0){
 			$getProjectQueryResult[0]['estartdate'] = $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s", $getProjectQueryResult[0]['estartdate']),"Asia/Calcutta");
@@ -907,20 +994,6 @@ class ProjectsController extends AbstractActionController
 	}
 	public function getspenthoursbyprojectAction() {
 		$em = $this->getEntityManager();
-		/*$phpRenderer=new PhpRenderer();
-		$resolver = new Resolver\AggregateResolver();
-		$phpRenderer->setResolver($resolver);
-		
-		$map = new Resolver\TemplateMapResolver(array(
-				'templates/getspenthoursbyproject' => __DIR__ .DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'view'.DIRECTORY_SEPARATOR.'application'.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'getspenthoursbyproject.phtml',
-		));
-		$stack = new Resolver\TemplatePathStack(array(
-				'script_paths' => array(
-						__DIR__ . '/../../view',
-				)
-		));
-		$resolver->attach($map)    // this will be consulted first
-		->attach($stack);*/
 		$common=new Common();
 		$response=array();
 		$projectId=$this->getRequest()->getPost('projectid');
@@ -976,5 +1049,62 @@ class ProjectsController extends AbstractActionController
 		/*header("Content-type: application/json");
 		echo json_encode($response);
 		exit;*/
+	}
+	public function getprojectallocationdetailAction(){
+		
+		$em = $this->getEntityManager();
+		$common=new Common();
+		$response=array();
+		$projectId=$this->getRequest()->getPost('projectid');
+		
+
+		$projectResult = $em->createQuery(
+				"SELECT al.project_id,SUM(al.seconds_spent) as total_seconds, p.estimated_hours as estimatedHours
+				FROM Application\Entity\Projects p
+				LEFT JOIN Application\Entity\ActivityLog al
+				WITH al.project_id=p.id
+				WHERE al.project_id ='$projectId'")->getArrayResult();
+		$resourceAllocation=$em->CreateQuery("SELECT SUM(ra.duration) as allocated FROM Application\Entity\ResourceAllocation ra WHERE ra.project_id=$projectId")->getArrayResult();
+		
+	 foreach ($projectResult as $row){
+	 	$response['returnvalue']="valid";
+	 	$response['data']=$row;
+	 	$response['allocated']=$resourceAllocation[0]['allocated'];
+	 	$response['estimatedHours']=$common->convertSpentTime($row['estimatedHours']);
+	 	$response['totalSpent']=$common->convertSpentTime($row['total_seconds']);
+	 }
+	 echo json_encode($response);
+	 exit;
+	}
+	
+	public function getuserallocationdetailbyprojectAction(){
+		$em = $this->getEntityManager();
+		$common=new Common();
+		$response=array();
+		$projectId=$this->getRequest()->getPost('projectid');
+		$userId=$this->getRequest()->getPost('userid');
+		
+
+		$projectResult = $em->createQuery(
+				"SELECT al.project_id,SUM(al.seconds_spent) as total_seconds, p.estimated_hours as estimatedHours
+				FROM Application\Entity\ActivityLog al
+				JOIN Application\Entity\Projects p
+				WITH p.id=al.project_id
+				WHERE al.project_id =".$projectId." AND al.user_id='$userId'
+				GROUP BY al.user_id")->getArrayResult();
+		
+		$resourceAllocation=$em->CreateQuery("SELECT SUM(ra.duration) as allocated FROM Application\Entity\ResourceAllocation ra WHERE ra.project_id=$projectId AND ra.user_id=$userId")->getArrayResult();
+		if(count($resourceAllocation)>0)
+		$response['allocated']=$resourceAllocation[0]['allocated'];
+	 foreach ($projectResult as $row){
+	 	
+	 	$response['data']=$row;
+	 
+	 	$response['estimatedHours']=$common->convertSpentTime($row['estimatedHours']);
+	 	$response['totalSpent']=$common->convertSpentTime($row['total_seconds']);
+	 }
+	 $response['returnvalue']="valid";
+	 echo json_encode($response);
+	 exit;
 	}
 }

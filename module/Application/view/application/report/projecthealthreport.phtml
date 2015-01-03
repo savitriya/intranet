@@ -1,0 +1,77 @@
+<h2 class="title">Project Health Report</h2><hr/>
+
+	<form action="" method="post" id="frmFilter">
+	<label>Filter</label>	
+			<label style="display:inline;">Project Status: </label>
+						<select id="projectstatus" name="projectstatus" style="display:inline;" data-placeholder='Choose a Skills' class='chosen-select' multiple='multiple'  style='width:350px;' tabindex='4';>
+							
+							<?php foreach($project_status as $status){
+								if($status['status_id'] == $current_status){
+									$selected='selected';
+								}
+								else{
+									$selected='';
+								}
+								echo "<option value='".$status['status_id']."' ".$selected.">".$status['status_name']."</option>";
+							}?>
+						</select>
+				   
+				   <label style="display:inline;"> Project Type: </label>
+						<select id="projecttype" name="projecttype" style="display:inline;" data-placeholder='Choose a Skills' class='chosen-select' multiple='multiple'  style='width:350px;' tabindex='4';>
+							
+							<?php foreach($project_types as $type){
+								if($type['type_id'] == $current_type){
+									$selected='selected';
+								}
+								else{
+									$selected='';
+								}
+								echo "<option value='".$type['type_id']."' ".$selected.">".$type['project_type']."</option>";
+							}?>
+						</select>
+				   <button class="btn btn-success" type="button"  id="filter" style="display:inline;" >Filter</button>
+				   <div class="controls"><div id="projectstatus_error"></div></div>
+	  <script type="text/javascript">
+    var config = {
+      '.chosen-select' : {},
+      '.chosen-select-deselect' : {allow_single_deselect:true},
+      '.chosen-select-no-single' : {disable_search_threshold:10},
+      '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+      '.chosen-select-width' : {width:"95%"}
+    }
+    for (var selector in config) {
+      $(selector).chosen(config[selector]);
+    }
+  </script>
+  </form>	
+  
+ <div id="projectreport"></div> 
+<script type="text/javascript" >
+
+$(document).ready(function(){
+// 	$("#filter").click(function(){
+// 		$("#frmFilter").submit();
+// 	});
+});
+
+
+$("#filter").click(function(){
+	 var projectstatus = $("#projectstatus").val();
+	 var projecttype = $("#projecttype").val();   
+	    $.ajax({
+	        type: "POST",
+	        url: "<?php echo $this->url('filterprojecthealthreport');?>",
+	        data: {
+	        	projectstatus: projectstatus,
+	        	projecttype :projecttype,
+	        },
+//	         		dataType:'json',
+	        success: function (response) {
+	        	 $("#projectreport").html(response);
+	        },
+	        error: function (XMLHttpRequest, textStatus) {
+	        	bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+	        },
+	    });
+});
+</script>

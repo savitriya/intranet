@@ -23,11 +23,14 @@ use Application\Entity\Milestones;
 use Application\Entity\Login;
 use Application\Entity\ActivityLog;
 use Application\Entity\Activitycategories;
+use Application\Entity\Projectstatuses;
+use Application\Entity\Projecttypes;
+use Application\Entity\Company;
 use Application\Repository\ProjectsRepository;
 use Zend\Config\Reader\Ini;
 use Zend\Json\Decoder;
 use IntranetUtils\Common as Misc;
-
+use Application\Entity\ResourceAllocation;
 /**
  * Zend Framework (http://framework.zend.com/)
  *
@@ -793,6 +796,11 @@ class ReportController extends AbstractActionController
 		if($this->getRequest()->isPost()){
 			$user=$this->getRequest()->getPost('userid');
 			$strDate=$this->getRequest()->getPost('strdate');
+			$project_id=$this->getRequest()->getPost('project_id');
+			$where="";
+			if($project_id>0){
+				$where="AND al.project_id=$project_id";
+			}
 			$month=date("m");	$year=date("Y");
 			$offset = $common->get_timezone_offset('Asia/Calcutta','GMT');
 			$num= cal_days_in_month(CAL_GREGORIAN,$month,$year);
@@ -807,7 +815,7 @@ class ReportController extends AbstractActionController
 			}
 			$endDate=strtotime($endDate)+$offset;
 			$activitytotaltime = $em->createQuery("SELECT p.id as pid,p.estimated_hours as pesttime,p.name as pname,sum(al.seconds_spent) as userspent FROM Application\Entity\ActivityLog al
-					JOIN Application\Entity\Projects p WITH al.project_id=p.id  WHERE al.user_id=$user and al.activity_date BETWEEN $strDate AND $endDate  group by al.project_id")->getResult();
+					JOIN Application\Entity\Projects p WITH al.project_id=p.id  WHERE al.user_id=$user $where and al.activity_date BETWEEN $strDate AND $endDate  group by al.project_id")->getResult();
 			$totalSpentTime='';
 			$totalEstimateTime='';
 			$pName=array();$pEstTime=array();$userSpent=array();$userEst=array();
@@ -856,7 +864,10 @@ class ReportController extends AbstractActionController
 
 		}else {
 			$user=$em->getRepository('Application\Entity\User')->getUserByName("ASC");
-			$viewModel=new ViewModel(array('user'=>$user));
+			$projects=$em->getRepository('Application\Entity\Projects')->getProjectsByName();
+			$comanys = $em->createQuery("SELECT c.id as id,c.name as name FROM Application\Entity\Company c order by c.name ASC")->getArrayResult();
+				
+			$viewModel=new ViewModel(array('user'=>$user,'project'=>$projects,'comanys'=>$comanys));
 			return $viewModel;
 		}
 
@@ -1295,5 +1306,553 @@ class ReportController extends AbstractActionController
 		$pStatusQuery = $pStatusQuery->getResult();
 		return new ViewModel(array('projects'=>$totalrows,'project_status'=>$pStatusQuery,
 			'current_status'=>$projectStatusId));
+	}
+	
+	public function  projecthealthreportAction(){
+// 		echo "in projecthealthreportAction";exit;
+		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity() || $auth->getIdentity()->isadmin!=1){
+			return $this->redirect()->toRoute('home');
+		}
+		$em = $this->getEntityManager();
+		
+		$pStatusQuery = $em->createQuery("SELECT ps.id as status_id, ps.name as status_name from 
+			Application\Entity\Projectstatuses ps");
+		$pStatusQuery = $pStatusQuery->getResult();
+		$pTypeQuery = $em->createQuery("SELECT pt.id as type_id, pt.name as project_type from
+			Application\Entity\Projecttypes pt");
+		$pTypeQuery = $pTypeQuery->getResult();
+		return new ViewModel(array('project_status'=>$pStatusQuery,'project_types'=>$pTypeQuery));
+	}
+	
+	public function filterprojecthealthreportAction(){
+	
+		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity() || $auth->getIdentity()->isadmin!=1){
+			return $this->redirect()->toRoute('home');
+		}
+		$em = $this->getEntityManager();
+		$common = new Misc();
+		$where="";
+		$projectStatusId=0;
+		$projectStatusIds = $this->getRequest()->getPost('projectstatus');
+		$projecttypeIds = $this->getRequest()->getPost('projecttype');
+		$projectStatusId="";
+		if(isset($projectStatusIds) && $projectStatusIds != null){
+			foreach ($projectStatusIds as $prw){
+				if( $projectStatusId =="" ){
+					$projectStatusId = "'$prw'";
+				}else {
+					$projectStatusId  .= ",'$prw'";
+				}
+			}
+		}
+		
+		$projecttypeId="";
+		if(isset($projecttypeIds) &&  $projecttypeIds != null){
+			foreach ($projecttypeIds as $ptrw){
+				if( $projecttypeId =="" ){
+					$projecttypeId = "'$ptrw'";
+				}else {
+					$projecttypeId  .= ",'$ptrw'";
+				}
+			}
+		}
+		$common =new Misc();
+		$offset = $common->get_timezone_offset('Asia/Calcutta','GMT');
+		$date=date("Y-m-d");
+		$strDate=strtotime($date) + $offset;
+		if(isset($projectStatusId) && $projectStatusId != null){
+			$where = "WHERE p.status_id IN ($projectStatusId)";
+		}
+		if (isset($projecttypeId) && $projecttypeId != null){
+			if($where != null){
+			$where .= " AND p.type_id IN ($projecttypeId)";
+			}else {
+				$where = " WHERE p.type_id IN ($projecttypeId)";
+			}
+		}
+
+			$projectsQuery = $em->createQuery("SELECT p.id as id,pt.name as projecttype,pt.color as color,p.name as name,p.actual_startdate as minDate,p.actual_enddate as maxDate,p.estimated_hours
+						as estimatedhours,sum(a.seconds_spent) as totalspenttime, ps.name as projectstatus
+						 FROM Application\Entity\Projects p JOIN Application\Entity\ActivityLog a WITH p.id=a.project_id JOIN Application\Entity\Projectstatuses ps WITH p.status_id=ps.id
+						 JOIN Application\Entity\Projecttypes pt WITH pt.id=p.type_id $where GROUP BY a.project_id ORDER BY p.name");
+		
+				$totalrows = $projectsQuery->getResult();
+		
+				
+				for($r=0;$r<sizeof($totalrows);$r++){
+					$totalrows[$r]['estimatedhours'] = $common->convertSpentTime($totalrows[$r]['estimatedhours']);
+					$totalrows[$r]['totalspenttime'] = $common->convertSpentTime($totalrows[$r]['totalspenttime']);
+					if($totalrows[$r]['projectstatus']=="Client Feedback"){
+						$totalrows[$r]['color'] = "#FFFF00";
+					}else{
+						$totalrows[$r]['color'] = $totalrows[$r]['color'];
+					}
+				}
+		
+		$pStatusQuery = $em->createQuery("SELECT ps.id as status_id, ps.name as status_name from
+			Application\Entity\Projectstatuses ps");
+		$pStatusQuery = $pStatusQuery->getResult();
+		
+		$valuesToSend=array('projects'=>$totalrows,'project_status'=>$pStatusQuery,'current_status'=>$projectStatusIds);
+		$viewModel=new ViewModel($valuesToSend);
+		$viewModel->setTerminal(true);
+		return $viewModel;
+		
+	}
+	
+	
+	public function overrunprojectsAction(){
+		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity() || $auth->getIdentity()->isadmin!=1){
+			return $this->redirect()->toRoute('home');
+		}
+			$em=$this->getEntityManager();
+			$common = new Misc();
+			$viewCompanies=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id group by u.company_id")->getResult();
+			$selectedRadioButton='allocatedHours';
+			$selectedCompanyId = '0';
+			$response = array();
+			
+			if($this->getRequest()->isPost())
+			{
+				$selectedCompanyId=$this->getRequest()->getPost('company');
+				$selectedRadioButton=$this->getRequest()->getPost('radiobutton');
+			}
+			
+			
+			$where="";
+			$whereAllocation="";
+			if(isset($selectedCompanyId) && $selectedCompanyId != null){
+				if($selectedCompanyId==0){
+					$where = " AND c.id !=0";
+					$whereAllocation="WHERE p.company_id !=0";
+				}
+				elseif ($selectedCompanyId>0){
+					$where = " AND c.id = $selectedCompanyId";
+					$whereAllocation="WHERE p.company_id =$selectedCompanyId";
+				}
+			}
+			
+			
+			if($where==""){
+				$where="1=1";
+				$whereAllocation="WHERE 1=1";
+			}
+
+			$allUsers = $em->createQuery("SELECT u.id as uid, u.fname as fname, u.lname as lname FROM Application\Entity\User u where u.isactive = 1")->getArrayResult();
+			
+			$projectsQuery = $em->createQuery("SELECT p.id as pid,al.project_id as alpid,p.name as projectName,p.actual_startdate as actualStartDate,p.actual_enddate as actualEndDate,p.estimated_hours as estimatedhours
+					,p.estimated_startdate as estimatedStartDate,p.estimated_enddate as estimatedEndDate,p.bd as bd,p.manager as manager,p.coordinator as coordinator
+					,sum(al.seconds_spent) as totalspenttime,c.name as companyName 
+					FROM Application\Entity\Projects p 
+					LEFT JOIN Application\Entity\ActivityLog al WITH al.project_id=p.id
+					LEFT JOIN Application\Entity\Company c WITH c.id=p.company_id
+					LEFT JOIN Application\Entity\Projectstatuses ps WITH ps.id=p.status_id
+					WHERE ps.name LIKE '%Open%' $where GROUP BY p.id ORDER BY p.name ASC");
+			
+			$totalrows = $projectsQuery->getArrayResult();
+			
+			
+			
+			$allocationQuery=$em->CreateQuery("SELECT ra.project_id as pid,sum(ra.duration) as allocated FROM Application\Entity\ResourceAllocation ra 
+								JOIN Application\Entity\Projects p WITH p.id=ra.project_id $whereAllocation GROUP BY ra.project_id")->getArrayResult();
+			
+			$projects =array();
+			$offset = $common->get_timezone_offset('Asia/Calcutta','GMT');
+			$today=date("Y-m-d");
+			$todayStr=strtotime($today) +$offset;
+			
+	for($r=0;$r<sizeof($totalrows);$r++){
+				$overrunby="";
+				$totalspenttime=trim($common->convertSpentTime($totalrows[$r]['totalspenttime']));
+				$allocated=0;
+				$totalrows[$r]['allocated']="0";
+			  foreach ($allocationQuery as $rrow){
+					if($rrow['pid']==$totalrows[$r]['pid']){
+						$allocated=$rrow['allocated'];
+// 						$totalrows[$r]['allocated'] = $rrow['allocated'];
+					}
+				}
+				$allocatedstr=$allocated*60*60;
+				if (isset($selectedRadioButton) && $selectedRadioButton != null){
+					if ($selectedRadioButton=='estimatedEndDate'){
+						$overrunby=$common->seconds2human($todayStr-$totalrows[$r]['estimatedEndDate']);
+							
+						if( $todayStr < $totalrows[$r]['estimatedEndDate']){
+							continue;
+						}
+					}	
+					
+					if ($selectedRadioButton=='estimatedHours'){
+								if($totalrows[$r]['totalspenttime']=="" || $totalrows[$r]['totalspenttime']==0){
+									$totalrows[$r]['totalspenttime']=1;}
+								if($totalrows[$r]['estimatedhours']==0){
+									$totalrows[$r]['estimatedhours']=1;
+								}	
+									
+							$overrunby=(($totalrows[$r]['totalspenttime']/(60*60))/($totalrows[$r]['estimatedhours']/(60*60)))*100;
+
+								if($overrunby==0){
+									$overrunby=100;
+								}
+								$overrunby=$overrunby-100;
+								$overrunby=round($overrunby, 2, PHP_ROUND_HALF_DOWN)."%";
+							if($totalrows[$r]['estimatedhours'] > $totalrows[$r]['totalspenttime']){
+								continue;
+							}
+							}
+						
+						if ($selectedRadioButton=='allocatedHours'){
+							$allocatedcal=$allocated;
+							if($allocated==0)
+								$allocatedcal=1;
+							$overrunby=(($totalrows[$r]['totalspenttime']/(60*60))/$allocatedcal)*100;
+						
+							if($overrunby==0){
+								$overrunby=100;
+							}
+								$overrunby=$overrunby-100;
+								$overrunby=round($overrunby, 2, PHP_ROUND_HALF_DOWN)."%";
+
+							if($allocatedstr > $totalrows[$r]['totalspenttime']){
+								continue;
+							}
+						}
+					}
+				
+					$projects[$r]['allocated']=$allocated;
+					$projects[$r]['totalspenttime'] = $totalspenttime;
+					$projects[$r]['companyName'] =$totalrows[$r]['companyName'];
+					$projects[$r]['projectId'] =$totalrows[$r]['pid'];
+					$projects[$r]['projectName'] =$totalrows[$r]['projectName'];
+					 
+					$projects[$r]['coordinator'] ="";
+					$projects[$r]['manager'] ="";
+					$projects[$r]['bd'] ="";
+					foreach ($allUsers as $row){
+						if($row['uid']==$totalrows[$r]['coordinator']){
+							$projects[$r]['coordinator'] =ucfirst($row['fname']." ".$row['lname']);
+						}
+						
+						if($row['uid']==$totalrows[$r]['manager']){
+							$projects[$r]['manager'] =ucfirst($row['fname']." ".$row['lname']);
+						}
+						
+						if($row['uid']==$totalrows[$r]['bd']){
+							$projects[$r]['bd'] =ucfirst($row['fname']." ".$row['lname']);
+						}
+					}
+					
+					$projects[$r]['estimatedStartDate'] =$totalrows[$r]['estimatedStartDate'];
+					$projects[$r]['estimatedEndDate'] =$totalrows[$r]['estimatedEndDate'];
+					$projects[$r]['estimatedhours'] = $common->convertSpentTime($totalrows[$r]['estimatedhours']);
+					$projects[$r]['overrunby'] =$overrunby;
+			
+			}
+			$valuesToSend=array('projects'=>$projects,'viewCompanies'=>$viewCompanies,'selectedradiobutton'=>$selectedRadioButton,'selectedcompanyid'=>$selectedCompanyId);
+			$viewModel=new ViewModel($valuesToSend);
+			return $viewModel;
+			
+	}
+	
+	public function projectreportbyuserAction(){
+		
+		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity() || $auth->getIdentity()->isadmin!=1){
+			return $this->redirect()->toRoute('home');
+		}
+		
+		$em=$this->getEntityManager();
+		$common = new Misc();
+		$projectid=$this->params('id');
+		
+		$report=$em->createQuery("Select p.id as pid,al.milestone_id as mid,u.id as userId,al.id as alid
+				,p.name as projectName,u.fname as fname,u.lname as lname,al.seconds_spent as spent
+				,al.description as description,al.activity_date as activity_date
+				FROM Application\Entity\ActivityLog as al
+				JOIN Application\Entity\Projects p WITH p.id=al.project_id
+				JOIN Application\Entity\User u WITH u.id=al.user_id
+			    where al.project_id=$projectid  group By al.project_id,al.id")->getResult();
+		
+		$userArray=array();
+		$reportarray=array();
+		$reportarray['time']=0;
+		foreach ($report as $rw){
+			
+			if(!in_array($rw['userId'], $userArray)){
+				array_push($userArray, $rw['userId']);
+				$userRecordIndex=array_search($rw['userId'], $userArray);
+							$reportarray['projectName']=$rw['projectName'];
+							$reportarray['projectId']=$rw['pid'];
+							$reportarray['user'][$userRecordIndex]['time']=0;
+							$reportarray['user'][$userRecordIndex]['id']=$rw['userId'];
+							$reportarray['user'][$userRecordIndex]['userName']=ucwords($rw['fname'])." ".ucwords($rw['lname']);
+							}
+			$userRecordIndex=array_search($rw['userId'], $userArray);
+			
+			if(!isset($reportarray['user'][$userRecordIndex]['description'])){
+				$reportarray['user'][$userRecordIndex]['description']=array();
+			}
+			$data1=(array)$reportarray['user'][$userRecordIndex]['description'];
+			$activityRecordIndex=-1;
+			/*for($i=0;$i<count($data1);$i++){
+			 if($data[$i]['id']==$rw['uid']){
+			$activityRecordIndex=$i;
+			break;
+			}
+			}*/
+			$reportarray['time']+=$rw['spent'];
+			$reportarray['user'][$userRecordIndex]['time']+=$rw['spent'];
+			//if($activityRecordIndex==-1){
+			$activityRecordIndex=count($data1);
+			$reportarray['user'][$userRecordIndex]['description'][$activityRecordIndex]['activityDate']=$rw['activity_date'];
+			$reportarray['user'][$userRecordIndex]['description'][$activityRecordIndex]['activity']=$rw['description'];
+			$reportarray['user'][$userRecordIndex]['description'][$activityRecordIndex]['spent']=$rw['spent'];
+		
+		}
+		
+		$valuesToSend=array('reportarray'=>$reportarray);
+		$viewModel=new ViewModel($valuesToSend);
+		return $viewModel;
+	}
+	
+	public function userefficiencyreportAction(){
+		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity() || $auth->getIdentity()->isadmin!=1){
+			return $this->redirect()->toRoute('home');
+		}
+		$em=$this->getEntityManager();
+		$common = new Misc();
+		$selectedCompanyId = '0';
+// 		$selectedYear =date("Y");
+// 		$selectedMonth =date('m');
+		
+		$viewCompanies=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u LEFT JOIN Application\Entity\Company c WITH u.company_id=c.id group by u.company_id")->getResult();
+		
+		if($this->getRequest()->isPost())
+		{
+			$selectedCompanyId=$this->getRequest()->getPost('company');
+			$selectedYear=$this->getRequest()->getPost('year');
+			$selectedMonth=$this->getRequest()->getPost('month');
+		}
+		if(isset($selectedYear) && $selectedYear>0 && isset($selectedMonth) && $selectedMonth>0){
+		$fromdate=$selectedYear."-".$selectedMonth."-1";
+		$todate=$selectedYear."-".$selectedMonth."-".cal_days_in_month(CAL_GREGORIAN,$selectedMonth,$selectedYear);
+		
+		$fromdate=$common->ConvertLocalTimezoneToGMT($fromdate,"Asia/Calcutta","Y-m-d H:i:s");
+		$todate=$common->ConvertLocalTimezoneToGMT($todate,"Asia/Calcutta","Y-m-d H:i:s");
+		
+		$fromdate=strtotime($fromdate);
+		$todate=strtotime($todate);
+		}elseif (isset($selectedYear) && $selectedYear>0 && $selectedMonth==""){
+			$fromdate=$selectedYear."-01-1";
+			$todate=$selectedYear."-12-31";
+			
+			$fromdate=$common->ConvertLocalTimezoneToGMT($fromdate,"Asia/Calcutta","Y-m-d H:i:s");
+			$todate=$common->ConvertLocalTimezoneToGMT($todate,"Asia/Calcutta","Y-m-d H:i:s");
+			
+			$fromdate=strtotime($fromdate);
+			$todate=strtotime($todate);
+			
+		}
+		
+		$whereUser='u.isactive = 1 AND u.needallocation = 1 AND u.needdailyreport =1';
+		$whereAllocation='u.isactive = 1 AND u.needallocation = 1 AND u.needdailyreport =1';
+		$whereActivity='u.isactive = 1 AND u.needallocation = 1 AND u.needdailyreport =1';
+		
+			
+		if (isset($selectedCompanyId) && $selectedCompanyId!=""){
+				if ($whereUser==""){
+					if($selectedCompanyId==0){
+						$whereUser="u.company_id != $selectedCompanyId";
+					}else{
+						$whereUser="u.company_id = $selectedCompanyId";
+					}
+				}else{
+					if($selectedCompanyId==0){
+						$whereUser .=" AND u.company_id != $selectedCompanyId";
+					}else{
+						$whereUser .=" AND u.company_id = $selectedCompanyId";
+					}
+				}
+			
+				if($whereAllocation==""){
+						if($selectedCompanyId==0){
+							$whereAllocation .=" AND u.isactive = 1 AND u.needallocation = 1 AND u.company_id != $selectedCompanyId";
+						}else{
+							$whereAllocation .=" AND u.isactive = 1 AND u.needallocation = 1 AND u.company_id = $selectedCompanyId";
+						}
+					}else {
+						if($selectedCompanyId==0){
+							$whereAllocation .="  AND u.company_id != $selectedCompanyId";
+						}else{
+							$whereAllocation .="  AND  u.company_id = $selectedCompanyId";
+						}
+					}
+			
+				if($whereActivity==""){
+					if($selectedCompanyId==0){
+						$whereActivity .=" AND u.company_id != $selectedCompanyId";
+					}else{
+						$whereActivity .=" AND u.company_id = $selectedCompanyId";
+					}
+				}else{
+					if($selectedCompanyId==0){
+						$whereActivity .=" AND  u.company_id != $selectedCompanyId";
+					}else{
+						$whereActivity .=" AND  u.company_id = $selectedCompanyId";
+					}
+				}			
+		}
+		
+		if(isset($selectedYear) && $selectedYear>0){
+			if ($whereAllocation==""){
+				$whereAllocation="ra.allocation_date BETWEEN $fromdate AND $todate";
+			}else {
+				$whereAllocation.=" AND ra.allocation_date BETWEEN $fromdate AND $todate";
+			}
+			
+			if ($whereActivity==""){
+				$whereActivity="al.activity_date BETWEEN $fromdate AND $todate";
+			}else {
+				$whereActivity.=" AND al.activity_date BETWEEN $fromdate AND $todate";
+			}
+		}
+		
+	
+		$allUsers = $em->createQuery("SELECT u.id as uid,u.company_id as company_id, u.fname as fname, u.lname as lname 
+				FROM Application\Entity\User u where  $whereUser ORDER BY u.fname ASC")->getArrayResult();
+		
+		$allocationQuery=$em->CreateQuery("SELECT ra.user_id as user_id,u.company_id as company_id
+				,ra.duration as allocated,ra.project_id as project_id,p.name as project_name
+				FROM Application\Entity\User u
+				LEFT JOIN Application\Entity\ResourceAllocation ra WITH u.id=ra.user_id
+				LEFT JOIN Application\Entity\Projects as p WITH p.id=ra.project_id
+				WHERE $whereAllocation GROUP BY ra.user_id,ra.project_id,ra.id ")->getArrayResult();
+		
+		$activityReport=$em->createQuery("Select u.id as user_id,u.company_id as company_id,u.fname as fname
+				,u.lname as lname,al.id as alid,al.seconds_spent as spenttime,al.project_id as project_id
+				,al.description as description,p.name as project_name
+				FROM Application\Entity\User u
+				LEFT JOIN Application\Entity\ActivityLog as al WITH u.id=al.user_id
+				LEFT JOIN Application\Entity\Projects as p WITH p.id=al.project_id
+				where $whereActivity  group By al.user_id,al.project_id,al.id")->getResult();
+		
+		
+		$efficiencyArray=array();
+		$companyArray=array();
+		$userArray=array();
+		$projectArray=array();
+		foreach ($viewCompanies as $crow){
+		if(!in_array($crow['cid'], $companyArray)){
+				array_push($companyArray, $crow['cid']);
+				$companyRecordIndex=array_search($crow['cid'], $companyArray);
+				$efficiencyArray[$companyRecordIndex]['id']=$crow['cid'];
+				$efficiencyArray[$companyRecordIndex]['name']=ucwords($crow['name']);
+			}
+		}
+		
+		foreach ($allUsers as $urow){
+			if(!in_array($urow['uid'], $userArray)){
+				array_push($userArray, $urow['uid']);
+				$userRecordIndex=array_search($urow['uid'], $userArray);
+			}
+			$companyRecordIndex=array_search($urow['company_id'], $companyArray);
+			$userRecordIndex=array_search($urow['uid'], $userArray);
+			
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['id']=$urow['uid'];
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['name']=ucfirst($urow['fname']." ".$urow['lname']);
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['totalspent']=0;
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['totalallocated']=0;
+		}
+		
+		foreach ($activityReport as $spent){
+			$companyRecordIndex=array_search($spent['company_id'], $companyArray);
+			$userRecordIndex=array_search($spent['user_id'], $userArray);
+			
+			if(!isset($efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'])){
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project']=array();
+			}
+			$projectdata=(array)$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'];
+			$projectRecordIndex=-1;
+			for($i=0;$i<count($projectdata);$i++){
+				if($projectdata[$i]['id']==$spent['project_id']){
+					$projectRecordIndex=$i;
+					break;
+				}
+			}
+
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['totalspent'] += $spent['spenttime'];
+			if ($projectRecordIndex==-1){
+				$projectRecordIndex=count($projectdata);
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['id']=$spent['project_id'];
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['name']=ucfirst($spent['project_name']);
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['spenttime'] =0;
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['allocated'] =0;
+			}
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['spenttime'] +=$spent['spenttime'];
+				
+		
+			if(!isset($efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['description'])){
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['description']=array();
+			}
+			$descriptiondata=(array)$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['description'];
+			$descriptionRecordIndex=-1;
+			$descriptionRecordIndex=count($descriptiondata);
+		
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['description'][$descriptionRecordIndex]['spent']=$spent['spenttime'];
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['description'][$descriptionRecordIndex]['description']=$spent['description'];
+		
+		}
+		
+		foreach ($allocationQuery as $allocated){
+			if(!isset($allocated['project_id'])){
+				continue;
+			}
+			$companyRecordIndex=array_search($allocated['company_id'], $companyArray);
+			$userRecordIndex=array_search($allocated['user_id'], $userArray);
+
+			if(!isset($efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'])){
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project']=array();
+			}
+			$projectdata=(array)$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'];
+			$projectRecordIndex=-1;
+			for($i=0;$i<count($projectdata);$i++){
+				if($projectdata[$i]['id']==$allocated['project_id']){
+					$projectRecordIndex=$i;
+					break;
+				}
+			}
+			$allocatedstr=$allocated['allocated']*60*60;
+			
+			if($allocatedstr=="" || $allocatedstr==0){
+				$allocatedstr=1;
+			}
+		if ($projectRecordIndex==-1){
+				$projectRecordIndex=count($projectdata);
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['id']=$allocated['project_id'];
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['name']=ucfirst($allocated['project_name']);
+				$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['allocated'] = 0;
+			}
+			
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['project'][$projectRecordIndex]['allocated'] +=$allocatedstr;
+			$efficiencyArray[$companyRecordIndex]['user'][$userRecordIndex]['totalallocated'] += $allocatedstr;
+		}
+		
+		
+		if(!isset($selectedYear) || $selectedYear==""){
+			$selectedYear=0;
+		}
+		if(!isset($selectedMonth) || $selectedMonth==""){
+			$selectedMonth=0;
+		}
+		
+		$valuesToSend=array('efficiencyArray'=>$efficiencyArray,'viewCompanies'=>$viewCompanies,'selectedcompanyid'=>$selectedCompanyId,'selectedYear'=>$selectedYear,'selectedMonth'=>$selectedMonth);
+		$viewModel=new ViewModel($valuesToSend);
+		return $viewModel;
+		
+		
 	}
 }

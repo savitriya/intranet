@@ -185,12 +185,12 @@
 	         {
 	              if(response['returnvalue']=="valid")
 	              {
-					alert("Email has been sent successfully");
+	            	  bootbox.alert("Email has been sent successfully");
 					window.location.href="<?php echo $this->url('leave');?>";
 	              }                       
 	              else if(response.returnvalue=="exception")
 	              {
-	                   alert("This Operation Could not be Completed,Please contact administrator");
+	            	  bootbox.alert("This Operation Could not be Completed,Please contact administrator");
 	                   return false;
 	              }
 	              else
@@ -210,7 +210,7 @@
                     }
 	           },
 			   error: function(XMLHttpRequest,textStatus){
-			    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+				   bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 			   	},
 				complete: function(){
 			    	setTimeout(function(){		    	
@@ -220,7 +220,7 @@
 				},
 	           failure: function(response)
 	         	{
-		         	alert("failure"+response);
+	        	   bootbox.alert("failure"+response);
 	         	}
        });
 	}

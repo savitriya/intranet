@@ -69,6 +69,10 @@ $common=new Common();
      $("#spent").timepicker({timeOnly:true}); 
      $("#btnaddactivitylog").unbind('click');   
      $("#btnaddactivitylog").bind('click',function(){add('<?php if(isset($activityLog) && $activityLog->getId()!="" && $activityLog->getId()!=null){ echo $activityLog->getId();}?>');});
+
+     $('#assigneduser').bind('change', function(ev) {
+		  getactivity();	
+	  });
 });
  
 function add(id){ 
@@ -119,7 +123,7 @@ function add(id){
                     }}
            },
        	error: function(XMLHttpRequest,textStatus){
-	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+       		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 	   	},
 		complete: function(){
 	    	setTimeout(function(){		    	

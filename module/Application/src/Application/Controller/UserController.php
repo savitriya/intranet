@@ -20,6 +20,7 @@ use DoctrineModule\Authentication\Adapter as DoctrineAuthAdapter;
 use Zend\Authentication\Result;
 use Doctrine\ORM\Query\Expr;
 use Application\Entity\Login;
+use Application\Entity\Loginbydoor;
 use Application\Entity\Holiday;
 use Application\Entity\Preferences;
 use Zend\Authentication\Storage;
@@ -31,6 +32,8 @@ use IntranetUtils\Common as IntraCommon;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Adapter\Adapter as Adapter;
 use Application\Entity\TimingSlot;
+use Application\Entity\ResourceAllocation;
+
 
 /**
  * Zend Framework (http://framework.zend.com/)
@@ -122,7 +125,8 @@ class UserController extends AbstractActionController
 		$response['total'] = $totalPages;
 		$response['records'] = count($totalRecords);
 		$em = $this->getEntityManager();
-		$usersQuery = $em->createQuery("SELECT u.id as id,u.fname as fname,u.lname as lname,u.email as email,u.password as password,u.mobile as mobile,u.dob as dob,u.isactive as active,u.isadmin as admin  FROM Application\Entity\User u WHERE $where order by $sidx $sord")
+		$usersQuery = $em->createQuery("SELECT u.id as id,u.fname as fname,u.lname as lname,u.email as email,u.password as password,u.mobile as mobile,u.dob as dob,u.isactive as active,u.isadmin as admin,
+				                              u.employeeid as employeeid,u.designation as designation FROM Application\Entity\User u WHERE $where order by $sidx $sord")
 		->setFirstResult( $start )
 		->setMaxResults( $limit );
 		$totalrows = $usersQuery->getResult();
@@ -138,7 +142,7 @@ class UserController extends AbstractActionController
 			}
 			$action="<a href='/editcontact/userid/".$rws['id']."'><i class='icon-edit'></i>&nbsp;<a href='javascript:deleteUser(".$rws['id'].')'."'><i class='icon-trash'></i>";
 			$response['rows'][$i]['id'] = $rws['id'];
-			$response['rows'][$i]['cell']=array(ucwords($rws['fname']." ".$rws['lname']),$rws['email'],$rws['mobile'],$db,$rws['active'],$rws['admin'],$action);
+			$response['rows'][$i]['cell']=array(ucwords($rws['fname']." ".$rws['lname']),ucfirst($rws['designation']),$rws['email'],$rws['mobile'],$db,$rws['employeeid'],$rws['active'],$rws['admin'],$action);
 			$i++;
 		}
 		header("Content-type: application/json");
@@ -250,8 +254,292 @@ class UserController extends AbstractActionController
 			}
 		}exit;
 	}
-	public function attendancereportAction()
+	
+	public function attendancereporttestAction(){
+		
+		$em = $this->getEntityManager();
+		$auth = new AuthenticationService();
+		$companyIndex=0;
+		if(!$auth->hasIdentity()){
+			return $this->redirect()->toRoute('login');
+		}
+		$month=$this->getRequest()->getPost('month');
+		
+		$year=$this->getRequest()->getPost('year');
+		if($month==""){
+			$month=date("m");
+		}
+		if($year==""){
+			$year=date("Y");
+		}
+		if($month==date('m') && $year==date('Y')){
+			$numc=date('d');
+		}else{
+			$numc=31;
+		}
+		
+		$common =new Misc();
+		$offset = $common->get_timezone_offset('Asia/Calcutta','GMT');
+		$aa = date($year."-".$month."-01");
+		$strDate = strtotime($aa)+$offset;
+		$num= cal_days_in_month(CAL_GREGORIAN,$month,$year);
+		$bb = date($year."-".$month.'-'.$num);
+		
+		$endDate = strtotime($bb)+$offset;
+		$slectedCompany= $auth->getIdentity()->company_id;
+		
+
+		$whereCompany="u.company_id=$slectedCompany";
+		if($auth->getIdentity()->isadmin==1){
+			$companyId=$this->getRequest()->getPost('company');
+			if(isset($companyId) && $companyId!=""){
+				if($companyId == "0"){
+					$slectedCompany="0";
+					$whereCompany="u.company_id!=0";
+				}else{
+					$slectedCompany=$companyId;
+					$whereCompany="u.company_id=$companyId";
+				}
+			}
+			$viewCompanies=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id group by u.company_id")->getResult();
+		}
+		else{
+			$viewCompanies=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id and $whereCompany group by u.company_id")->getResult();
+		}
+		$user=$em->CreateQuery("Select u from Application\Entity\User u where $whereCompany AND (( $strDate < u.leavingdate  OR u.leavingdate IS NULL) AND (u.isactive=1))   ORDER BY u.fname ASC")->getResult();
+		
+	
+		
+		$company=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id and $whereCompany group by u.company_id")->getResult();
+		
+		//$companyqueru=$em->CreatQuery("Select c.id as cid,c.name as cname from Application\Entity\Company c")->getResult();
+		$response=array();
+		$userMapper=array();
+		$companyMapper=array();
+		$i=0;
+		
+		$monthDays = cal_days_in_month(CAL_GREGORIAN,$month, $year); // 31
+		
+		foreach ($user as $uorder){
+			if(!in_array($uorder->__get('company_id'), $companyMapper)){
+				array_push($companyMapper,$uorder->__get('company_id'));
+				$companyRecordIndex=array_search($uorder->__get('company_id'), $companyMapper);
+				$response[$companyRecordIndex]['company_id']=$uorder->__get('company_id');
+			}
+			$companyRecordIndex=array_search($uorder->__get('company_id'), $companyMapper);
+				
+			if(!in_array($uorder->__get('id'), $userMapper)){
+				array_push($userMapper, $uorder->__get('id'));
+				$userRecordIndex=array_search($uorder->__get('id'), $userMapper);
+			}
+			$userRecordIndex=array_search($uorder->__get('id'), $userMapper);
+		
+				
+			$slotTimingId = $uorder->__get('timing_slot_id');
+			$slotTime = $em->createQuery("SELECT ts.slot_login_time as login_time FROM Application\Entity\TimingSlot ts WHERE ts.slot_id = $slotTimingId")->getResult();
+				
+				
+			$response[$companyRecordIndex]['cname']='';
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['user_id']=$uorder->__get('id');
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['user_name']=ucwords($uorder->__get('fname') . " ".$uorder->__get('lname'));
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['needallocation']=$uorder->__get('needallocation');
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['companyid']=$uorder->__get('company_id');
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['totalspenttime']=0;
+			if(isset($slotTime[0]['login_time'])){
+				$response[$companyRecordIndex]['user'][$userRecordIndex]['login_slot']=$slotTime[0]['login_time'];
+			}else{
+				$response[$companyRecordIndex]['user'][$userRecordIndex]['login_slot']="09:30";
+		
+			}
+			$response[$companyRecordIndex]['totalspenttime']=0;
+			for ($j=1;$j<=$monthDays;$j++){
+				$formatedMonthDay=sprintf('%02d', $j);
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]=array();
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['duration']=array();
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['intime']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['outtime']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['spenttime']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['loginByResult']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['logoutByResult']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['totalallocated']='';
+			}
+			
+			
+			for ($j=1;$j<=$monthDays;$j++){
+				$formatedMonthDay=sprintf('%02d', $j);
+				$userId=$uorder->__get('id');
+			
+				$createdDate= date($year."-".$month.'-'.$formatedMonthDay);
+			
+				$allocationDate= strtotime($createdDate)+$offset;
+			
+				$allocation = $em->createQuery("SELECT ra.duration as duration,ra.project_id as project_id,p.name as project_name from Application\Entity\ResourceAllocation ra JOIN Application\Entity\Projects p WITH p.id=ra.project_id where ra.user_id=$userId AND ra.allocation_date=$allocationDate ")->getArrayResult();
+			
+				// $response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']=array();
+				if (isset($allocation) && count($allocation)>0){
+					$totalDuration="";
+					$a=0;
+					foreach ($allocation as $arow){
+						$totalDuration +=$arow['duration'];
+						$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['duration'][$a]=$arow;
+						$a++;
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_id']=$arow['project_id'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_name']=$arow['project_name'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['duration']=$arow['duration'];
+			
+					}
+					$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['totalallocated']=+$totalDuration;
+				}
+					
+			}
+			
+			
+			
+			
+			
+			
+			
+				
+		}
+		
+		$reader = new Ini();
+		$data =$reader->fromFile(__DIR__."/../../../../../config/application.ini");
+		$to2=Decoder::decode($data['allowedIpAddresses']);
+		$ip= $to2->data->ipaddress;
+		$ipexplode=explode(",",$ip);
+		
+		$ipaddresses="";
+		foreach ($ipexplode as $ipa){
+			if($ipaddresses==""){
+				$ipaddresses="'".$ipa."'";
+			}
+			else{
+				$ipaddresses.=","."'".$ipa."'";
+			}
+		}
+		
+		//$userQuery=$em->createQuery("SELECT l.user_id as uid,l.created_date as cdate,l.loggedinby as inby,l.loggedoutby as outby,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Login l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND u.isactive=1 AND l.ipaddress In($ipaddresses) group by u.id,l.created_date");
+		//echo "SELECT l.user_id as uid,l.created_date as cdate,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Login l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND u.isactive=1 AND u.id=11	group by u.id,l.created_date";exit;
+		
+		$holiday=$em->createQuery("SELECT h.id as id,h.date as date from Application\Entity\Holiday h WHERE h.date BETWEEN $strDate AND $endDate ")->getResult();
+		$userQuery=$em->createQuery("SELECT u.company_id as cid,l.user_id as uid,l.created_date as cdate,l.loggedinby as inby,l.loggedoutby as outby,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Login l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND  $whereCompany AND (( $strDate < u.leavingdate OR u.leavingdate IS NULL) AND (u.isactive=1)) group by u.id,l.created_date ");
+		$uQuery = $userQuery->getArrayResult();
+		
+		foreach ($uQuery as $rwi){
+			
+			if($rwi['cid']=="" ){
+				continue;
+			}
+				
+			$companyMapperIndex=array_search($rwi['cid'], $companyMapper);
+			$data=$response[$companyRecordIndex]['user'];
+			$userMapperIndex=array_search($rwi['uid'],$userMapper);
+				
+				
+			$min=$rwi['mindt'];
+			$max=$rwi['maxdt'];
+			$cdate=$rwi['cdate'];
+			$inBy=$rwi['inby'];
+			$outBy=$rwi['outby'];
+			$timediff="00:00";
+			$secondsDiff=0;
+			$maxdt="";
+			$mindt="";
+			if($min!="" && $min>0)
+			{
+				$mindt = date("Y-m-d H:i:s", $min);
+			}
+			if($max!="" && $max>0)
+			{
+				$maxdt = date("Y-m-d H:i:s", $max);
+			}
+			if($maxdt!=''){
+				$timediff = $common->getTimeDiff($maxdt, $mindt,'H:i');
+				if(($max>0 && $max!="") && ($min>0 && $min!="")){
+					$secondsDiff=$max-$min;
+					/*echo $max."  ";
+					 echo $min;
+					echo "<br/>";*/
+				}
+			}
+			//echo $maxdt."($max) ".$mindt."($min) ".$timediff	." <br/>";
+			$response[$companyMapperIndex]['user'][$userMapperIndex]['user_id']=$rwi['uid'];
+				
+			if($mindt !=""){
+				$mindt=$common->ConvertGMTToLocalTimezone($mindt,"Asia/Calcutta","Y-m-d H:i");
+				$dateString=explode("-",$mindt);
+				if(count($dateString)>0){
+					$separateBySpace=explode(" ",$dateString[2]);
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['login']=$rwi['mindt'];
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['cdate']=$rwi['cdate'];
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['intime']=$separateBySpace[1];
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['loginByResult']=$inBy;
+		
+						
+				}
+			}
+			if($maxdt!=""){
+				$maxdt=$common->ConvertGMTToLocalTimezone($maxdt,"Asia/Calcutta","Y-m-d H:i");
+				$dateString=explode("-",$maxdt);
+				if(count($dateString)>0){
+		
+					$separateBySpace=explode(" ",$dateString[2]);
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['outtime']=$separateBySpace[1];
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['logoutByResult']=$outBy;
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['spenttime']=$timediff;
+					$response[$companyMapperIndex]['user'][$userMapperIndex]['totalspenttime']=$response[$companyMapperIndex]['user'][$userMapperIndex]['totalspenttime']+$secondsDiff;
+				}
+			}
+				
+			for ($j=1;$j<=$monthDays;$j++){
+				$formatedMonthDay=sprintf('%02d', $j);
+				$userId=$rwi['uid'];
+				
+				$createdDate= date($year."-".$month.'-'.$formatedMonthDay);
+		
+				$allocationDate= strtotime($createdDate)+$offset;
+		
+				$allocation = $em->createQuery("SELECT ra.duration as duration,ra.project_id as project_id,p.name as project_name from Application\Entity\ResourceAllocation ra JOIN Application\Entity\Projects p WITH p.id=ra.project_id where ra.user_id=$userId AND ra.allocation_date=$allocationDate ")->getArrayResult();
+				
+				// $response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']=array();
+				if (isset($allocation) && count($allocation)>0){
+					$totalDuration="";
+					$a=0;
+					foreach ($allocation as $arow){
+						$totalDuration +=$arow['duration'];
+						$response[$companyMapperIndex]['user'][$userMapperIndex][$formatedMonthDay]['duration'][$a]=$arow;
+						$a++;
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_id']=$arow['project_id'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_name']=$arow['project_name'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['duration']=$arow['duration'];
+		
+					}
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$formatedMonthDay]['totalallocated']=+$totalDuration;
+				}
+					
+			}
+				
+		
+		}
+		
+		
+		
+			
+		$listHoliday=array();
+		foreach ($holiday as $rw){
+			$hDate=$common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",$rw['date']),"Asia/Calcutta","Y-m-d");
+			$dateString=explode("-",$hDate);
+			if(count($dateString)>0){
+				array_push($listHoliday,$dateString[2]);
+			}
+		}
+		return new ViewModel(array('slectedCompany'=>$slectedCompany,'company'=>$company,'response' => $response,'selectedMonth'=>$month,'selectedYear'=>$year,'numc'=>$numc,'holiday'=>$listHoliday,'companyIndex'=>$companyIndex,"viewCompanies"=>$viewCompanies));
+		
+	}
+	
+	public function timesheetAction()
 	{
+		
 		$em = $this->getEntityManager();
 		$auth = new AuthenticationService();
 		$companyIndex=0;
@@ -280,7 +568,7 @@ class UserController extends AbstractActionController
 		$bb = date($year."-".$month.'-'.$num);
 
 		$endDate = strtotime($bb)+$offset;
-		$cidLoginUser= $auth->getIdentity()->company_id;
+		$slectedCompany= $auth->getIdentity()->company_id;
 		/*
 		 if($auth->getIdentity()->isadmin!=1){
 		$user=$em->CreateQuery("Select u from Application\Entity\User u where u.company_id=$cidLoginUser")->getResult();
@@ -300,80 +588,112 @@ class UserController extends AbstractActionController
 		$company=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id group by u.company_id")->getResult();
 		}
 		*/
-
+		$whereCompany="u.company_id=$slectedCompany";
 		if($auth->getIdentity()->isadmin==1){
 			$companyId=$this->getRequest()->getPost('company');
 			if(isset($companyId) && $companyId!=""){
-				$cidLoginUser=$companyId;
+				if($companyId == "0"){
+					$slectedCompany="0";
+					$whereCompany="u.company_id!=0";
+				}else{
+				$slectedCompany=$companyId;
+				$whereCompany="u.company_id=$companyId";
+				}
 			}
 			$viewCompanies=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id group by u.company_id")->getResult();
 		}
 		else{
-			$viewCompanies=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id and u.company_id=$cidLoginUser group by u.company_id")->getResult();
+			$viewCompanies=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id and $whereCompany group by u.company_id")->getResult();
 		}
-		$user=$em->CreateQuery("Select u from Application\Entity\User u where u.company_id=$cidLoginUser AND (( $strDate < u.leavingdate  OR u.leavingdate IS NULL) AND (u.isactive=1)) ")->getResult();
-		//echo $user;exit;
-		$userQuery=$em->createQuery("SELECT u.company_id as cid,l.user_id as uid,l.created_date as cdate,l.loggedinby as inby,l.loggedoutby as outby,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Login l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND u.isactive=1 AND u.company_id=$cidLoginUser AND ( $strDate < u.leavingdate OR u.leavingdate IS NULL) group by u.id,l.created_date");
-		$uQuery = $userQuery->getResult();
-		$company=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id and u.company_id=$cidLoginUser group by u.company_id")->getResult();
+		$user=$em->CreateQuery("Select u from Application\Entity\User u where $whereCompany AND (( $strDate < u.leavingdate  OR u.leavingdate IS NULL) AND (u.isactive=1))   ORDER BY u.fname ASC")->getResult();
+
+		$userQuery=$em->createQuery("SELECT u.company_id as cid,l.user_id as uid,l.created_date as cdate,l.loggedinby as inby,l.loggedoutby as outby,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Login l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND  $whereCompany AND (( $strDate < u.leavingdate OR u.leavingdate IS NULL) AND (u.isactive=1)) group by u.id,l.created_date ");
+		$uQuery = $userQuery->getArrayResult();
+
+		$company=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id and $whereCompany group by u.company_id")->getResult();
 
 		//$companyqueru=$em->CreatQuery("Select c.id as cid,c.name as cname from Application\Entity\Company c")->getResult();
 		$response=array();
 		$userMapper=array();
 		$companyMapper=array();
 		$i=0;
-		$z=0;
+		
 		$monthDays = cal_days_in_month(CAL_GREGORIAN,$month, $year); // 31
 
 		foreach ($user as $uorder){
-			// 			$leavingdate=$uorder->__get('leavingdate');
-			// 			if ($strDate<$leavingdate || !isset($leavingdate)){
-			array_push($userMapper, $uorder->__get('id'));
-
 			if(!in_array($uorder->__get('company_id'), $companyMapper)){
 				array_push($companyMapper,$uorder->__get('company_id'));
-				$response[$z]=array();
-				$i=0;
-				$response[$z]['id']=$uorder->__get('company_id');
-				$z++;
+				$companyRecordIndex=array_search($uorder->__get('company_id'), $companyMapper);
+				$response[$companyRecordIndex]['company_id']=$uorder->__get('company_id');
 			}
-			$recordIndex=-1;
-			for($k=0;$k<sizeof($response);$k++){
-				if($uorder->__get('company_id')==$response[$k]['id']){
-					$recordIndex=$k;
-				}
+			$companyRecordIndex=array_search($uorder->__get('company_id'), $companyMapper);
+			
+			if(!in_array($uorder->__get('id'), $userMapper)){
+				array_push($userMapper, $uorder->__get('id'));
+				$userRecordIndex=array_search($uorder->__get('id'), $userMapper);
 			}
-			if($uorder->__get('id')==$auth->getIdentity()->id){
-				$companyIndex=$recordIndex;
-			}
-			if($recordIndex==-1){
-				continue;
-			}
+			$userRecordIndex=array_search($uorder->__get('id'), $userMapper);
+				
+			
 			$slotTimingId = $uorder->__get('timing_slot_id');
 			$slotTime = $em->createQuery("SELECT ts.slot_login_time as login_time FROM Application\Entity\TimingSlot ts WHERE ts.slot_id = $slotTimingId")->getResult();
 			
-			$response[$recordIndex]['cname']='';
-			$response[$recordIndex]['user'][$i]['user_id']=$uorder->__get('id');
-			$response[$recordIndex]['user'][$i]['user_name']=ucwords($uorder->__get('fname') . " ".$uorder->__get('lname'));
-			$response[$recordIndex]['user'][$i]['user_id']=$uorder->__get('id');
-			$response[$recordIndex]['user'][$i]['companyid']=$uorder->__get('company_id');
-			$response[$recordIndex]['user'][$i]['totalspenttime']=0;
-			$response[$recordIndex]['user'][$i]['login_slot']=$slotTime[0]['login_time'];
-			$response[$recordIndex]['totalspenttime']=0;
+			
+			$response[$companyRecordIndex]['cname']='';
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['user_id']=$uorder->__get('id');
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['user_name']=ucwords($uorder->__get('fname') . " ".$uorder->__get('lname'));
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['needallocation']=$uorder->__get('needallocation');
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['companyid']=$uorder->__get('company_id');
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['totalspenttime']=0;
+			if(isset($slotTime[0]['login_time'])){
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['login_slot']=$slotTime[0]['login_time'];
+		}else{
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['login_slot']="09:30";
+				
+		}
+			$response[$companyRecordIndex]['totalspenttime']=0;
 			for ($j=1;$j<=$monthDays;$j++){
 				$formatedMonthDay=sprintf('%02d', $j);
-				$response[$recordIndex]['user'][$i][$formatedMonthDay]=array();
-				$response[$recordIndex]['user'][$i][$formatedMonthDay]['intime']='';
-				$response[$recordIndex]['user'][$i][$formatedMonthDay]['outtime']='';
-				$response[$recordIndex]['user'][$i][$formatedMonthDay]['spenttime']='';
-				$response[$recordIndex]['user'][$i][$formatedMonthDay]['loginByResult']='';
-				$response[$recordIndex]['user'][$i][$formatedMonthDay]['logoutByResult']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]=array();
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['duration']=array();
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['intime']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['outtime']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['spenttime']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['loginByResult']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['logoutByResult']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['totalallocated']='';
+			}
+			
+			for ($j=1;$j<=$monthDays;$j++){
+				$formatedMonthDay=sprintf('%02d', $j);
+				$userId=$uorder->__get('id');
+					
+				$createdDate= date($year."-".$month.'-'.$formatedMonthDay);
+					
+				$allocationDate= strtotime($createdDate)+$offset;
+					
+				$allocation = $em->createQuery("SELECT ra.duration as duration,ra.project_id as project_id,p.name as project_name from Application\Entity\ResourceAllocation ra JOIN Application\Entity\Projects p WITH p.id=ra.project_id where ra.user_id=$userId AND ra.allocation_date=$allocationDate ")->getArrayResult();
+					
+				// $response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']=array();
+				if (isset($allocation) && count($allocation)>0){
+					$totalDuration="";
+					$a=0;
+					foreach ($allocation as $arow){
+						$totalDuration +=$arow['duration'];
+						$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['duration'][$a]=$arow;
+						$a++;
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_id']=$arow['project_id'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_name']=$arow['project_name'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['duration']=$arow['duration'];
+							
+					}
+					$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['totalallocated']=+$totalDuration;
+				}
 					
 			}
-			$i++;
-			// 			}
+			
 		}
-
+		
 		$reader = new Ini();
 		$data =$reader->fromFile(__DIR__."/../../../../../config/application.ini");
 		$to2=Decoder::decode($data['allowedIpAddresses']);
@@ -395,22 +715,16 @@ class UserController extends AbstractActionController
 
 		$holiday=$em->createQuery("SELECT h.id as id,h.date as date from Application\Entity\Holiday h WHERE h.date BETWEEN $strDate AND $endDate ")->getResult();
 
-		//print_r($uQuery);exit;
 		foreach ($uQuery as $rwi){
 			if($rwi['cid']=="" ){
 				continue;
 			}
-			//$userMapperIndex=array_search($rwi['uid'], $userMapper);
+			
 			$companyMapperIndex=array_search($rwi['cid'], $companyMapper);
-			$data=$response[$companyMapperIndex]['user'];
-			$userMapperIndex=0;
-			for($u=0;$u<count($data);$u++){
-				if($data[$u]['user_id']==$rwi['uid']){
-					$userMapperIndex=$u;
-				}
-
-			}
-			//	echo $userMapperIndex."/".$companyMapperIndex;exit();
+			$data=$response[$companyRecordIndex]['user'];
+			$userMapperIndex=array_search($rwi['uid'],$userMapper);
+			
+			
 			$min=$rwi['mindt'];
 			$max=$rwi['maxdt'];
 			$cdate=$rwi['cdate'];
@@ -438,6 +752,8 @@ class UserController extends AbstractActionController
 				}
 			}
 			//echo $maxdt."($max) ".$mindt."($min) ".$timediff	." <br/>";
+			$response[$companyMapperIndex]['user'][$userMapperIndex]['user_id']=$rwi['uid'];
+			
 			if($mindt !=""){
 				$mindt=$common->ConvertGMTToLocalTimezone($mindt,"Asia/Calcutta","Y-m-d H:i");
 				$dateString=explode("-",$mindt);
@@ -447,14 +763,15 @@ class UserController extends AbstractActionController
 					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['cdate']=$rwi['cdate'];
 					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['intime']=$separateBySpace[1];
 					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['loginByResult']=$inBy;
+				
+					
 				}
 			}
 			if($maxdt!=""){
 				$maxdt=$common->ConvertGMTToLocalTimezone($maxdt,"Asia/Calcutta","Y-m-d H:i");
 				$dateString=explode("-",$maxdt);
 				if(count($dateString)>0){
-					//echo $userMapperIndex;
-
+	
 					$separateBySpace=explode(" ",$dateString[2]);
 					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['outtime']=$separateBySpace[1];
 					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['logoutByResult']=$outBy;
@@ -462,8 +779,38 @@ class UserController extends AbstractActionController
 					$response[$companyMapperIndex]['user'][$userMapperIndex]['totalspenttime']=$response[$companyMapperIndex]['user'][$userMapperIndex]['totalspenttime']+$secondsDiff;
 				}
 			}
+			
+			for ($j=1;$j<=$monthDays;$j++){
+				$formatedMonthDay=sprintf('%02d', $j);
+				$userId=$rwi['uid'];
+				$createdDate= date($year."-".$month.'-'.$formatedMonthDay);
+				
+				$allocationDate= strtotime($createdDate)+$offset;
+				
+				$allocation = $em->createQuery("SELECT ra.duration as duration,ra.project_id as project_id,p.name as project_name from Application\Entity\ResourceAllocation ra JOIN Application\Entity\Projects p WITH p.id=ra.project_id where ra.user_id=$userId AND ra.allocation_date=$allocationDate ")->getArrayResult();
+				// $response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']=array();
+				if (isset($allocation) && count($allocation)>0){
+					$totalDuration="";
+					$a=0;
+					foreach ($allocation as $arow){
+						$totalDuration +=$arow['duration'];
+						$response[$companyMapperIndex]['user'][$userMapperIndex][$formatedMonthDay]['duration'][$a]=$arow;
+						$a++;
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_id']=$arow['project_id'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_name']=$arow['project_name'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['duration']=$arow['duration'];
+				
+					}
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$formatedMonthDay]['totalallocated']=+$totalDuration;
+				}
+			
+			}
+			
 
 		}
+		
+		
+		
 			
 		$listHoliday=array();
 		foreach ($holiday as $rw){
@@ -473,22 +820,278 @@ class UserController extends AbstractActionController
 				array_push($listHoliday,$dateString[2]);
 			}
 		}
+		return new ViewModel(array('slectedCompany'=>$slectedCompany,'company'=>$company,'response' => $response,'month'=>$month,'year'=>$year,'numc'=>$numc,'holiday'=>$listHoliday,'companyIndex'=>$companyIndex,"viewCompanies"=>$viewCompanies));
 
-		//print_r($response[2])."</br>";exit;
-		//echo count($response);exit();
-		//print_r($response);exit();
-		return new ViewModel(array('company'=>$company,'response' => $response,'month'=>$month,'year'=>$year,'numc'=>$numc,'holiday'=>$listHoliday,'companyIndex'=>$companyIndex,"viewCompanies"=>$viewCompanies));
-
+	}
+	
+	
+	public function doorentryAction()
+	{
+		
+		$em = $this->getEntityManager();
+		$auth = new AuthenticationService();
+		$companyIndex=0;
+		if(!$auth->hasIdentity()){
+			return $this->redirect()->toRoute('login');
+		}
+		$month=$this->getRequest()->getPost('month');
+	
+		$year=$this->getRequest()->getPost('year');
+		if($month==""){
+			$month=date("m");
+		}
+		if($year==""){
+			$year=date("Y");
+		}
+		if($month==date('m') && $year==date('Y')){
+			$numc=date('d');
+		}else{
+			$numc=31;
+		}
+		$common =new Misc();
+		$offset = $common->get_timezone_offset('Asia/Calcutta','GMT');
+		$aa = date($year."-".$month."-01");
+		$strDate = strtotime($aa)+$offset;
+		$num= cal_days_in_month(CAL_GREGORIAN,$month,$year);
+		$bb = date($year."-".$month.'-'.$num);
+	
+		$endDate = strtotime($bb)+$offset;
+		$slectedCompany= $auth->getIdentity()->company_id;
+		/*
+		 if($auth->getIdentity()->isadmin!=1){
+		$user=$em->CreateQuery("Select u from Application\Entity\User u where u.company_id=$cidLoginUser")->getResult();
+		$userQuery=$em->createQuery("SELECT u.company_id as cid,l.user_id as uid,l.created_date as cdate,l.loggedinby as inby,l.loggedoutby as outby,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Login l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND u.isactive=1 AND u.company_id=$cidLoginUser  group by u.id,l.created_date");
+		$uQuery = $userQuery->getResult();
+		$company=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id and u.company_id=$cidLoginUser group by u.company_id")->getResult();
+	
+		}else{
+		//	echo $auth->getIdentity()->isadmin;exit();
+		$companyId=$this->getRequest()->getPost('company');
+		if(isset($companyId) && $companyId!=""){
+		$cidLoginUser=$companyId;
+		}
+		$user=$em->getRepository('Application\Entity\User')->getUserGroupByCompany();
+		$userQuery=$em->createQuery("SELECT u.company_id as cid,l.user_id as uid,l.created_date as cdate,l.loggedinby as inby,l.loggedoutby as outby,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Login l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND u.isactive=1 group by u.id,l.created_date");
+		$uQuery = $userQuery->getResult();
+		$company=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id group by u.company_id")->getResult();
+		}
+		*/
+		$whereCompany="u.company_id=$slectedCompany";
+		if($auth->getIdentity()->isadmin==1){
+			$companyId=$this->getRequest()->getPost('company');
+			if(isset($companyId) && $companyId!=""){
+				if($companyId == "0"){
+					$slectedCompany="0";
+					$whereCompany="u.company_id!=0";
+				}else{
+					$slectedCompany=$companyId;
+					$whereCompany="u.company_id=$companyId";
+				}
+			}
+			$viewCompanies=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id group by u.company_id")->getResult();
+		}
+		else{
+			$viewCompanies=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id and $whereCompany group by u.company_id")->getResult();
+		}
+		$user=$em->CreateQuery("Select u from Application\Entity\User u where $whereCompany AND (( $strDate < u.leavingdate  OR u.leavingdate IS NULL) AND (u.isactive=1))   ORDER BY u.fname ASC")->getResult();
+	
+		$userQuery=$em->createQuery("SELECT u.company_id as cid,l.user_id as uid,l.created_date as cdate,l.loggedinby as inby,l.loggedoutby as outby,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Loginbydoor l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND  $whereCompany AND (( $strDate < u.leavingdate OR u.leavingdate IS NULL) AND (u.isactive=1)) group by u.id,l.created_date ");
+		$uQuery = $userQuery->getArrayResult();
+	
+		$company=$em->createQuery("Select c.id as cid,c.name as name from Application\Entity\User u JOIN Application\Entity\Company c WITH u.company_id=c.id and $whereCompany group by u.company_id")->getResult();
+	
+		//$companyqueru=$em->CreatQuery("Select c.id as cid,c.name as cname from Application\Entity\Company c")->getResult();
+		$response=array();
+		$userMapper=array();
+		$companyMapper=array();
+		$i=0;
+	
+		$monthDays = cal_days_in_month(CAL_GREGORIAN,$month, $year); // 31
+	
+		foreach ($user as $uorder){
+			if(!in_array($uorder->__get('company_id'), $companyMapper)){
+				array_push($companyMapper,$uorder->__get('company_id'));
+				$companyRecordIndex=array_search($uorder->__get('company_id'), $companyMapper);
+				$response[$companyRecordIndex]['company_id']=$uorder->__get('company_id');
+			}
+			$companyRecordIndex=array_search($uorder->__get('company_id'), $companyMapper);
+				
+			if(!in_array($uorder->__get('id'), $userMapper)){
+				array_push($userMapper, $uorder->__get('id'));
+				$userRecordIndex=array_search($uorder->__get('id'), $userMapper);
+			}
+			$userRecordIndex=array_search($uorder->__get('id'), $userMapper);
+	
+				
+			$slotTimingId = $uorder->__get('timing_slot_id');
+			$slotTime = $em->createQuery("SELECT ts.slot_login_time as login_time FROM Application\Entity\TimingSlot ts WHERE ts.slot_id = $slotTimingId")->getResult();
+				
+				
+			$response[$companyRecordIndex]['cname']='';
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['user_id']=$uorder->__get('id');
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['user_name']=ucwords($uorder->__get('fname') . " ".$uorder->__get('lname'));
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['needallocation']=$uorder->__get('needallocation');
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['companyid']=$uorder->__get('company_id');
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['totalspenttime']=0;
+			if(isset($slotTime[0]['login_time'])){
+			$response[$companyRecordIndex]['user'][$userRecordIndex]['login_slot']=$slotTime[0]['login_time']; }
+			else {
+				$response[$companyRecordIndex]['user'][$userRecordIndex]['login_slot']="9:30";
+			}
+			$response[$companyRecordIndex]['totalspenttime']=0;
+			for ($j=1;$j<=$monthDays;$j++){
+				$formatedMonthDay=sprintf('%02d', $j);
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]=array();
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['duration']=array();
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['intime']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['outtime']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['spenttime']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['loginByResult']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['logoutByResult']='';
+				$response[$companyRecordIndex]['user'][$userRecordIndex][$formatedMonthDay]['totalallocated']='';
+			}
+				
+		}
+	
+		$reader = new Ini();
+		$data =$reader->fromFile(__DIR__."/../../../../../config/application.ini");
+		$to2=Decoder::decode($data['allowedIpAddresses']);
+		$ip= $to2->data->ipaddress;
+		$ipexplode=explode(",",$ip);
+	
+		$ipaddresses="";
+		foreach ($ipexplode as $ipa){
+			if($ipaddresses==""){
+				$ipaddresses="'".$ipa."'";
+			}
+			else{
+				$ipaddresses.=","."'".$ipa."'";
+			}
+		}
+	
+		//$userQuery=$em->createQuery("SELECT l.user_id as uid,l.created_date as cdate,l.loggedinby as inby,l.loggedoutby as outby,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Login l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND u.isactive=1 AND l.ipaddress In($ipaddresses) group by u.id,l.created_date");
+		//echo "SELECT l.user_id as uid,l.created_date as cdate,min(l.logintime) as mindt,max(l.logouttime) as maxdt,u.fname as fname,u.lname as lname FROM Application\Entity\Login l JOIN Application\Entity\User u Where l.user_id=u.id AND l.created_date BETWEEN $strDate AND $endDate AND u.isactive=1 AND u.id=11	group by u.id,l.created_date";exit;
+	
+		$holiday=$em->createQuery("SELECT h.id as id,h.date as date from Application\Entity\Holiday h WHERE h.date BETWEEN $strDate AND $endDate ")->getResult();
+	
+		foreach ($uQuery as $rwi){
+			if($rwi['cid']=="" ){
+				continue;
+			}
+				
+			$companyMapperIndex=array_search($rwi['cid'], $companyMapper);
+			$data=$response[$companyRecordIndex]['user'];
+			$userMapperIndex=array_search($rwi['uid'],$userMapper);
+				
+				
+			$min=$rwi['mindt'];
+			$max=$rwi['maxdt'];
+			$cdate=$rwi['cdate'];
+			$inBy=$rwi['inby'];
+			$outBy=$rwi['outby'];
+			$timediff="00:00";
+			$secondsDiff=0;
+			$maxdt="";
+			$mindt="";
+			if($min!="" && $min>0)
+			{
+				$mindt = date("Y-m-d H:i:s", $min);
+			}
+			if($max!="" && $max>0)
+			{
+				$maxdt = date("Y-m-d H:i:s", $max);
+			}
+			if($maxdt!=''){
+				$timediff = $common->getTimeDiff($maxdt, $mindt,'H:i');
+				if(($max>0 && $max!="") && ($min>0 && $min!="")){
+					$secondsDiff=$max-$min;
+					/*echo $max."  ";
+					 echo $min;
+					echo "<br/>";*/
+				}
+			}
+			//echo $maxdt."($max) ".$mindt."($min) ".$timediff	." <br/>";
+			$response[$companyMapperIndex]['user'][$userMapperIndex]['user_id']=$rwi['uid'];
+				
+			if($mindt !=""){
+				$mindt=$common->ConvertGMTToLocalTimezone($mindt,"Asia/Calcutta","Y-m-d H:i");
+				$dateString=explode("-",$mindt);
+				if(count($dateString)>0){
+					$separateBySpace=explode(" ",$dateString[2]);
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['login']=$rwi['mindt'];
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['cdate']=$rwi['cdate'];
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['intime']=$separateBySpace[1];
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['loginByResult']=$inBy;
+	
+						
+				}
+			}
+			if($maxdt!=""){
+				$maxdt=$common->ConvertGMTToLocalTimezone($maxdt,"Asia/Calcutta","Y-m-d H:i");
+				$dateString=explode("-",$maxdt);
+				if(count($dateString)>0){
+	
+					$separateBySpace=explode(" ",$dateString[2]);
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['outtime']=$separateBySpace[1];
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['logoutByResult']=$outBy;
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['spenttime']=$timediff;
+					$response[$companyMapperIndex]['user'][$userMapperIndex]['totalspenttime']=$response[$companyMapperIndex]['user'][$userMapperIndex]['totalspenttime']+$secondsDiff;
+				}
+			}
+				
+			for ($j=1;$j<=$monthDays;$j++){
+				$formatedMonthDay=sprintf('%02d', $j);
+				$userId=$rwi['uid'];
+				$createdDate= date($year."-".$month.'-'.$formatedMonthDay);
+	
+				$allocationDate= strtotime($createdDate)+$offset;
+				$allocation = $em->createQuery("SELECT ra.duration as duration,ra.project_id as project_id,p.name as project_name from Application\Entity\ResourceAllocation ra JOIN Application\Entity\Projects p WITH p.id=ra.project_id where ra.user_id=$userId AND ra.allocation_date=$allocationDate ")->getArrayResult();
+				// $response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']=array();
+				if (isset($allocation) && count($allocation)>0){
+					$totalDuration="";
+					$a=0;
+					foreach ($allocation as $arow){
+						$totalDuration +=$arow['duration'];
+						$response[$companyMapperIndex]['user'][$userMapperIndex][$formatedMonthDay]['duration'][$a]=$arow;
+						$a++;
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_id']=$arow['project_id'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['project_name']=$arow['project_name'];
+						// 						$response[$companyMapperIndex]['user'][$userMapperIndex][$separateBySpace[0]]['duration']['duration']=$arow['duration'];
+	
+					}
+					$response[$companyMapperIndex]['user'][$userMapperIndex][$formatedMonthDay]['totalallocated']=+$totalDuration;
+				}
+					
+			}
+				
+	
+		}
+	
+	
+	
+			
+		$listHoliday=array();
+		foreach ($holiday as $rw){
+			$hDate=$common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",$rw['date']),"Asia/Calcutta","Y-m-d");
+			$dateString=explode("-",$hDate);
+			if(count($dateString)>0){
+				array_push($listHoliday,$dateString[2]);
+			}
+		}
+		return new ViewModel(array('slectedCompany'=>$slectedCompany,'company'=>$company,'response' => $response,'month'=>$month,'year'=>$year,'numc'=>$numc,'holiday'=>$listHoliday,'companyIndex'=>$companyIndex,"viewCompanies"=>$viewCompanies));
+	
 	}
 
 	public function reportnotfilledAction(){
+		
+		$day=$this->params('day');
 		$common =new Misc();
 		$em=$this->getEntityManager();
 		$dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
 		//$projectTable = new TableGateway('user', $dbAdapter);
 		$user=$dbAdapter->query("select * from user where isactive=1 AND needdailyreport=1",Adapter::QUERY_MODE_EXECUTE);
 		//$rowset = $projectTable->select(array('isactive'=>"1"));
-
+		
 		$senderUserMapper=array();
 		$senderList=array();
 		$reportNotFilledList=array();
@@ -500,7 +1103,11 @@ class UserController extends AbstractActionController
 			$userid=$userRow->id;
 			$where="al.user_id=$userid";
 			$preferences=$dbAdapter->query("Select * from preferences p where p.user_id=$userid",Adapter::QUERY_MODE_EXECUTE);
-			$yesterday=gmdate("Y-m-d", time() - 60 * 60 * 24);
+			if($day=="today"){
+				$yesterday=gmdate("Y-m-d", time());
+			}else{
+				$yesterday=gmdate("Y-m-d", time() - 60 * 60 * 24);
+			}
 			$activityDate= $common->ConvertLocalTimezoneToGMT($yesterday,'Asia/Calcutta','Y-m-d H:i:s');
 			$templateActivityDate=date("d/m/Y",strtotime($yesterday));
 			$tempDate=explode(" ",$activityDate);
@@ -555,9 +1162,11 @@ class UserController extends AbstractActionController
 	}
 
 	public function automatereportAction(){
+		$day=$this->params('day');
+	
 		$common =new Misc();
 		$em=$this->getEntityManager();		
-
+		
 		$dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
 		$user=$dbAdapter->query("select * from user where isactive=1",Adapter::QUERY_MODE_EXECUTE);
 
@@ -567,14 +1176,26 @@ class UserController extends AbstractActionController
 		$reportNotFilledList=array();
 		set_time_limit(0);
 		$templateActivityDate="";
+		if($day=="today"){
+			$yesterday=gmdate("Y-m-d", time());
+			$templateActivityDate=date("d/m/Y");
+		
+		}else{
+			$yesterday=gmdate("Y-m-d", time() - 60 * 60 * 24);
+			$templateActivityDate=date("d/m/Y", time() - 60 * 60 * 24);
+		}
+		
 		foreach ($user as $userRow) {
 			$where="";
 			$userid=$userRow->id;
 			$where="al.user_id=$userid";
 			$preferences=$dbAdapter->query("Select * from preferences p where p.user_id=$userid ",Adapter::QUERY_MODE_EXECUTE);
-			$yesterday=gmdate("Y-m-d", time() - 60 * 60 * 24);
+// 			$datefortest="2013-05-09";
+// 			$yesterday=gmdate($datefortest, time() - 60 * 60 * 24);
+			
+		
 			$activityDate= $common->ConvertLocalTimezoneToGMT($yesterday,'Asia/Calcutta','Y-m-d H:i:s');
-			$templateActivityDate=date("d/m/Y",strtotime($yesterday));
+			
 			$tempDate=explode(" ",$activityDate);
 			$date=explode("-", $tempDate[0]);
 			
@@ -583,7 +1204,6 @@ class UserController extends AbstractActionController
 		
 			$activityDate= strtotime($activityDate);
 			$where.=" AND al.activity_date=$activityDate";
-			
 			$count=count($senderUserMapper);
 			$senderUserMapper[$count]['id']=$userRow->id;
 			$senderUserMapper[$count]['name']=$userRow->fname." ".$userRow->lname;
@@ -656,17 +1276,20 @@ class UserController extends AbstractActionController
 				}
 				$meregedSenderList=array_merge($toarray,$ccarray);
 			}
-			else{
+			
 				$reader = new Ini();
 				$data = $reader->fromFile(__DIR__."/../../../../../config/application.ini");
 				$emailAddresses = Decoder::decode($data['automate_report_to']);
 				$emailAddresses = $emailAddresses->data;
-				$senderList = array();
 				foreach ($emailAddresses as $mailAddr){
-					array_push($meregedSenderList, $mailAddr->email);
-					array_push($senderList, $mailAddr->email);
+					
+					if (!in_array($mailAddr->email, $meregedSenderList)){
+						array_push($meregedSenderList, $mailAddr->email);
+					}
+					if(!in_array($mailAddr->email, $senderList)){
+						array_push($senderList, $mailAddr->email);
+					}					
 				}
-			}
 			
 			$senderUserMapper[$count]['senderlist'] = $meregedSenderList;
 			unset($emailAddresses);
@@ -780,14 +1403,13 @@ class UserController extends AbstractActionController
 
 				$todayLoginTime=$dbAdapter->query("SELECT min(l.logintime) as mindt,l.created_date as cdate FROM login l  WHERE l.user_id=$userid AND l.created_date=$activityDate",Adapter::QUERY_MODE_EXECUTE);
 				$workingday=$dbAdapter->query("SELECT count(l.id) as lid FROM login l  WHERE l.user_id=$userid AND l.created_date BETWEEN $strDate AND $endDate group by l.created_date",Adapter::QUERY_MODE_EXECUTE);
-				$lateLoggedInQuery = $dbAdapter->query("SELECT l.id as lid,min(l.logintime) as mindt,l.created_date as cdate FROM login l  WHERE l.user_id=$userid AND l.created_date BETWEEN $strDate AND $endDate group by l.created_date having mindt > l.created_date+33000",Adapter::QUERY_MODE_EXECUTE);
+				$lateLoggedInQuery = $dbAdapter->query("SELECT l.id as lid,min(l.logintime) as mindt,l.created_date as cdate FROM login l  WHERE l.user_id=$userid AND l.created_date BETWEEN $strDate AND $endDate group by l.created_date having mindt > l.created_date+35100",Adapter::QUERY_MODE_EXECUTE);
 				$holiday=$dbAdapter->query("SELECT h.id FROM Holiday h  WHERE h.date BETWEEN $strDate AND $endDate",Adapter::QUERY_MODE_EXECUTE);
 				$avglate=0;
 				$latelogin=0;
 				$lateLoggedIn=$lateLoggedInQuery->count();
-
 				foreach ($lateLoggedInQuery as $rws){
-					$avglate+=$rws['mindt']-(33000+$rws['cdate']);
+					$avglate+=$rws['mindt']-(35100+$rws['cdate']);
 					$latelogin++;
 				}
 
@@ -851,6 +1473,7 @@ class UserController extends AbstractActionController
 		}
 		foreach ($senderList as $mail){
 			$finalContent="";
+			$finalContentForAdmin="";
 			$reportNotFilledString="";
 			$templateData=array();
 			foreach ($senderUserMapper as $userRecord){
@@ -867,6 +1490,7 @@ class UserController extends AbstractActionController
 						}
 					}
 				}
+			
 			}
 
 			if($reportNotFilledString!=""){
@@ -882,14 +1506,17 @@ class UserController extends AbstractActionController
 					else if($mail==$userRecord['mail']){
 						$finalContent.="<b>".ucwords($userRecord['name'])."</b><br/>".$userRecord['content'];
 					}
+					
 				}
 			}
-			if($finalContent!=""){
+			
+			if($finalContent!="" || $finalContentForAdmin!="" ){
 				if (APPLICATION_ENV == "development")
 				{
-					$common->sendEmail("Testing Purpose Status Report For $templateActivityDate",html_entity_decode($finalContent),$mail,'',null,null,null);
+						$common->sendEmail("Testing Purpose Status Report For $templateActivityDate",html_entity_decode($finalContent),$mail,'',null,null,null);
 				}else{
-					$common->sendEmail("Status Report For $templateActivityDate",html_entity_decode($finalContent),$mail,'',null,null,null);
+					
+						$common->sendEmail("Status Report For $templateActivityDate",html_entity_decode($finalContent),$mail,'',null,null,null);
 				}
 			}
 		}
@@ -956,14 +1583,19 @@ class UserController extends AbstractActionController
 				$cdate=explode(" ", $convertdate);
 				$stampcdate = strtotime($cdate[0])+$offset;
 				$user=$em->find("Application\Entity\User",$userId);
+							
 				if($logAction == "logintime")
 				{
+					$loggedinby=$auth->getIdentity()->id;
+					if($user==$loggedinby){
+						$loggedinby=0;
+					}
 					$login = new Login;
 					$login->setUser($user);
 					$login->setLogintime($stampconvert);
 					$login->setCreated_date($stampcdate);
 					$login->setCreated_time(0);
-					$login->setLoggedinby($auth->getIdentity()->id);
+					$login->setLoggedinby($loggedinby);
 					try{
 						$em->persist($login);
 						$em->flush();
@@ -975,6 +1607,8 @@ class UserController extends AbstractActionController
 						$nofifyResponse['returnvalue']="exception";
 					}
 				}elseif ($logAction == "logouttime" && count($nofifyResponse)==0){
+					$logoutby=$auth->getIdentity()->id;
+					
 					$em = $this->getEntityManager();
 					$countQuery = $em->createQuery("SELECT l.id as lid,max(l.logintime) as maxlogintime,l.logouttime as outtime,l.user_id as userid FROM Application\Entity\Login l Where l.user_id=$userId AND l.created_date=$stampcdate");
 					$totalRecords = $countQuery->getResult();
@@ -982,8 +1616,12 @@ class UserController extends AbstractActionController
 					if(count($totalRecords)>0 && $maxlogintime < $stampconvert){
 						$logouttimerow = $totalRecords[0]['lid'];
 						$log = $em->find('Application\Entity\Login',$logouttimerow);
+						
+						if($log->getUser_id()==$logoutby){
+							$logoutby=0;
+						}
 						$log->setLogouttime($stampconvert);
-						$log->setLoggedoutby($auth->getIdentity()->id);
+						$log->setLoggedoutby($logoutby);
 						$em->persist($log);
 						$em->flush();
 						$nofifyResponse['returnvalue']="valid";
@@ -1004,6 +1642,10 @@ class UserController extends AbstractActionController
 	}
 
 	public function updatecreateddateAction(){
+		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity()){
+			return $this->redirect()->toRoute('home');
+		}
 		$em = $this->getEntityManager();
 		$loginRecords=$em->getRepository('Application\Entity\Login')->findAll();
 		//print_r($date[0]->getCreated_date());exit;
@@ -1027,6 +1669,10 @@ class UserController extends AbstractActionController
 		}
 	}
 	public function gridpreferencesAction(){
+		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity()){
+			return $this->redirect()->toRoute('home');
+		}
 		$page = $this->getRequest()->getPost('page');
 		$limit =$this->getRequest()->getPost('rows');
 		$sidx = $this->getRequest()->getPost('sidx');
@@ -1173,6 +1819,47 @@ class UserController extends AbstractActionController
 		echo json_encode($response);
 		exit;
 	}
+	
+	
+	function uploadFileAction(){
+		$misc = new Misc();
+		$common = new IntraCommon();
+		$em = $this->getEntityManager();
+		$auth = new AuthenticationService();
+		
+		if(!$auth->hasIdentity()){
+			return $this->redirect()->toRoute('home');
+		}
+		$id=$this->params('id');
+		
+		if (isset($id) && $id!=""){
+		
+			if($auth->getIdentity()->isadmin == 1){
+				$id = $this->params('id');
+			}
+			else{
+				$id = $auth->getIdentity()->id;
+			}
+		}
+		else{
+			if($auth->getIdentity()->isadmin != 1){
+				return $this->redirect()->toRoute('home');
+			}
+		}
+		
+		$uid = $this->getRequest()->getpost('userid');
+		$fileId=$_FILES["file"]["userid"];
+		$fileName=$_FILES["file"]["name"];// - the name of the uploaded file
+		$fileType=$_FILES["file"]["type"];// - the type of the uploaded file
+		$fileSize=$_FILES["file"]["size"];// - the size in bytes of the uploaded file
+		$fileTmpName=$_FILES["file"]["tmp_name"];// - the name of the temporary copy of the file stored on the server
+		$fileError=$_FILES["file"]["error"];//
+		
+		echo "id==$fileId////$uid Image Name ===$fileName///type==$fileType//size==$fileSize//tmpName==$fileTmpName";
+	exit;
+	}
+	
+	
 
 	public function editcontactAction(){
 		$misc = new Misc();
@@ -1194,15 +1881,19 @@ class UserController extends AbstractActionController
 				$id = $auth->getIdentity()->id;
 			}
 		}
-		else{
-			if($auth->getIdentity()->isadmin != 1){
-				return $this->redirect()->toRoute('home');
-			}
-		}
+		
+		
 			
 		if($this->getRequest()->isPost()){
+			if($auth->getIdentity()->isadmin != 1){
+				$userid = $this->getRequest()->getPost('userid');
+				if($auth->getIdentity()->id != $userid){
+				return $this->redirect()->toRoute('home');
+				}
+			}
+			
 			$response = array();
-			$loginSlotId = $this->getRequest()->getPost('loginslot');
+			
 			$companyid = $this->getRequest()->getPost('companyid');
 			if($companyid == ""){
 				$response['data']['companyid'] = "null";
@@ -1249,11 +1940,25 @@ class UserController extends AbstractActionController
 			else{
 				$response['data']['dob'] = "valid";
 			}
-
+			if($auth->getIdentity()->isadmin == 1){
 			$isactive = $this->getRequest()->getPost('isactive');
-
 			$isadmin = $this->getRequest()->getPost('isadmin');
-
+			$needdailyreport = $this->getRequest()->getPost('needdailyreport');
+			$needallocation = $this->getRequest()->getPost('needallocation');
+			$loginSlotId = $this->getRequest()->getPost('loginslot');
+			$designation = $this->getRequest()->getPost('designation');
+			}else{
+				$designation = $auth->getIdentity()->designation;
+				$loginSlotId = $auth->getIdentity()->timing_slot_id;
+				$isactive = $auth->getIdentity()->isactive;
+				$isadmin = $auth->getIdentity()->isadmin;
+				$needdailyreport = $auth->getIdentity()->needdailyreport;
+				$needallocation = $auth->getIdentity()->needallocation;
+			}
+			
+			if($needallocation == ""){
+				$needallocation=0;
+			}
 			$joindate = $this->getRequest()->getPost('joiningdate');
 
 			if($joindate == ""){
@@ -1263,6 +1968,18 @@ class UserController extends AbstractActionController
 				$response['data']['joiningdate'] = "valid";
 			}
 
+			if($auth->getIdentity()->isadmin == 1){
+			
+			
+			if($designation == ""){
+				$response['data']['designation'] = "null";
+			}
+			else{
+				$response['data']['designation'] = "valid";
+			}
+				
+			}
+			
 			$altjoindate = $this->getRequest()->getPost('alternate_joining_date');
 			$altjoindate = $common->ConvertLocalTimezoneToGMT($altjoindate,'Asia/Calcutta','Y-m-d H:i:s');
 			$altjoindate = strtotime($altjoindate);
@@ -1313,7 +2030,7 @@ class UserController extends AbstractActionController
 				$response['data']['raddress'] = "valid";
 			}
 
-			$needdailyreport = $this->getRequest()->getPost('needdailyreport');
+			
 			$altcontactnumber = $this->getRequest()->getPost('altcontactnumber');
 
 			if(isset($response['data']) && (in_array("null", $response['data']) || in_array("emailinvalid", $response['data']) || in_array("invalid", $response['data']) || in_array("emailduplicate", $response['data']))){
@@ -1350,6 +2067,9 @@ class UserController extends AbstractActionController
 
 				$updateUser->__set('fname',$fname);
 				$updateUser->__set('lname',$lname);
+				if($auth->getIdentity()->isadmin == 1){
+				$updateUser->__set('designation',$designation);
+				}
 				$updateUser->__set('company_id',$companyid);
 				$updateUser->__set('email',$email);
 				$updateUser->__set('dob',$altdob);
@@ -1365,6 +2085,10 @@ class UserController extends AbstractActionController
 					$updateUser->__set('leavingdate',null);
 				}
 				$updateUser->__set('needdailyreport',$needdailyreport);
+				if(!isset($needallocation) && $needallocation==""){
+					$needallocation=0;
+				}
+				$updateUser->__set('needallocation',$needallocation);
 				$updatecontact->__set('paddress',$paddress);
 				$updatecontact->__set('raddress',$raddress);
 				$updatecontact->__set('altcontactnumber',$altcontactnumber);
@@ -1402,8 +2126,8 @@ class UserController extends AbstractActionController
 				$slots[$slot['slot_id']] = $slot['slot_time'];
 			}
 			if ($id != '' && $id > 0){
-				$contact = $em->createQuery("Select cm.id as companyid,co.id as contactid,u.id as uid,
-					u.needdailyreport as needdailyreport,u.fname as fname,u.lname as lname,u.email as 
+				$contact = $em->createQuery("Select cm.id as companyid,co.id as contactid,u.id as uid,u.designation as designation,
+					u.needdailyreport as needdailyreport,u.needallocation as needallocation,u.fname as fname,u.lname as lname,u.email as 
 					email,u.mobile as mobile,u.joiningdate as joindate,u.leavingdate as leavedate,
 					u.dob as dob,u.isactive as isactive,u.isadmin as isadmin,u.timing_slot_id as 
 					login_slot,cm.name as companyname,co.paddress as paddress,co.raddress as 
@@ -1423,6 +2147,9 @@ class UserController extends AbstractActionController
 
 	public function addcontactAction(){
 		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity()){
+			return $this->redirect()->toRoute('home');
+		}
 		if($auth->getIdentity()->isadmin!=1){
 			return $this->redirect()->toRoute('home');
 		}
@@ -1449,14 +2176,17 @@ class UserController extends AbstractActionController
 	public function myprofileAction(){
 		$em = $this->getEntityManager();
 		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity()){
+			return $this->redirect()->toRoute('home');
+		}
 		$common = new Misc();
 		$userid = $auth->getIdentity()->id;
 		$company = $em->createQuery("Select c.id as id,c.name as name from 
 			Application\Entity\Company c")->getResult();
 			
-		$contact = $em->createQuery("Select  cm.id as companyid,co.id as contactid,u.id as uid,
+		$contact = $em->createQuery("Select  cm.id as companyid,co.id as contactid,u.id as uid,u.designation as designation,
 			u.fname as fname,u.lname as lname,u.email as email,u.mobile as mobile,u.joiningdate 
-			as joindate,u.dob as dob,u.isactive as isactive,u.isadmin as isadmin,u.timing_slot_id 
+			as joindate,u.employeeid as employeeid,u.dob as dob,u.isactive as isactive,u.isadmin as isadmin,u.timing_slot_id 
 			as login_slot,cm.name as companyname,co.paddress as paddress,co.raddress as raddress,
 			co.altcontactnumber as altcontactnumber from Application\Entity\User as u 
 			LEFT JOIN  Application\Entity\Contact as co WITH  co.user_id=u.id 
@@ -1466,7 +2196,11 @@ class UserController extends AbstractActionController
 		$slotTime = $em->createQuery("SELECT ts.slot_login_time as login_time FROM 
 			Application\Entity\TimingSlot ts WHERE ts.slot_id = ".$contact[0]['login_slot'])
 			->getResult();
+		if(isset($slotTime[0]['login_time'])){
 		$slotTime = $common->convertSpentTime($slotTime[0]['login_time']);
+		}else{
+			$slotTime="00:00";
+		}
 		$contact[0]['login_slot'] = $slotTime;
 		$valuesToSend = array('contact' =>$contact,'company'=>$company);
 			
@@ -1569,6 +2303,7 @@ class UserController extends AbstractActionController
 	}
 	
 	public function addloginslotsAction(){
+		
 		$auth = new AuthenticationService();
 		$common = new Misc();
 		if($auth->getIdentity()->isadmin != 1){
@@ -1638,5 +2373,28 @@ class UserController extends AbstractActionController
 			echo json_encode($response);
 			exit;
 		}
+	}
+	
+	public function getUserByCompanyAction(){
+		$em=$this->getEntityManager();
+		$companyId=$this->getRequest()->getPost('companyid');
+		
+		
+		$users=$em->CreateQuery("SELECT u.id as id,u.fname as fname,u.lname as lname,u.needallocation as needallocation FROM Application\Entity\User u  Where u.isactive=1  AND u.company_id='$companyId'  Order by u.fname ASC")->getArrayResult();
+		
+		$response=array();
+		if(count($users)>0){
+			for($i=0;$i<count($users);$i++){
+				$response['data'][$i]['needallocation']=$users[$i]['needallocation'];
+				$response['data'][$i]['id']=$users[$i]['id'];
+				$response['data'][$i]['name']=ucfirst($users[$i]['fname']." ".$users[$i]['lname']);
+			}
+			$response['returnvalue']="valid";
+		}
+		else{
+			$response['returnvalue']="invalid";
+		}
+		echo json_encode($response);
+		exit;
 	}
 }

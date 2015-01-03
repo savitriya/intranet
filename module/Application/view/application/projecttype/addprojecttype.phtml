@@ -41,6 +41,8 @@ $common=new Common();
 
 	<script type="text/javascript">
 	function add(id){ 
+
+		var id =<?php echo $projecttype->getId();?>;
 	     $.ajax({
 	         type: "POST",
 	         url:  "<?php echo $this->url('addprojecttype'); ?>",
@@ -50,15 +52,15 @@ $common=new Common();
 	              if(response['returnvalue']=="valid"){
 	                   $("#addprojecttype").dialog("close");
 	               	<?php  if(isset($projecttype) && $projecttype->getId()!=""){?>
-	                     alert("Project type has been updated Successfully");
+	               	alert("Project type has been updated Successfully");
 	               	<?php    } else{?>
-                    alert("Project type has been added Successfully");
+	               	alert("Project type has been added Successfully");
                     <?php }?>
 	                     window.location.reload();
 	                     return false;
 	              }                       
 	              else if(response.returnvalue=="exception"){
-	                   alert("This Operation Could not be Completed,Please contact administrator");
+	            	 alert("This Operation Could not be Completed,Please contact administrator");
 	                   return false;
 	              }
 	             
@@ -73,11 +75,11 @@ $common=new Common();
 	                       }
 	                       else if(response.data[key]=="invalid"){
 	                    	   $("#"+key+"_error").attr("style","color:red");
-	                           alert("some error has occured while performing operation,please try again later after some time");
+	                    	   alert("some error has occured while performing operation,please try again later after some time");
 	                           
 	                       }
 	                       else if(response.data[key]=="duplicate"){
-	                           alert("Project type aleady exist");
+	                    	   alert("Project type aleady exist");
 	                          }
 	                    }}
 	           }

@@ -6,7 +6,7 @@ $auth = new AuthenticationService();
 ?>
 <h2 class="title">Login Report</h2><hr/>
 <div class="row" id="gridContainer" style="margin-left: 0px !important;">
-<div style="min-height: 500px;"><table id="list">  </table>
+<div style="height: 100%;"><table id="list">  </table>
       <div id="pager"></div>
 </div>
 </div>
@@ -26,8 +26,8 @@ $(document).ready(function(){
         {name:'ipaddress',index:'ipaddress',align:"right"},  
         {name:'userid',index:'userid',align:"right",hidden:true},    
        ],
-    rowNum:20,
-    rowList:[10,20,25],
+    rowNum:100,
+    rowList:[100,200,500],
     navigator:true,
     pager: '#pager',
     sortname: 'cdate',
@@ -75,16 +75,16 @@ function deletesubrow(id){
 	         success: function(response)
 	         {    
 	        	 if(response['returnvalue']=="valid"){
-	        	 bootbox.alert("Deleted successfully");
+	        	 alert("Deleted successfully");
 	        	 }
 	        	 else if(response['returnvalue']=="invalid"){
-	        		 bootbox.alert("Operation invalid");
+	        		 alert("Operation invalid");
 		        	 }
 	        	 
 	       	 $("#list").trigger("reloadGrid");
             },
 	 	 	error: function(XMLHttpRequest,textStatus){
-	 	 		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+	 	 		alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 		   	},
 			complete: function(){
 		    	setTimeout(function(){		    	
@@ -95,7 +95,7 @@ function deletesubrow(id){
 	}
 	}
 	<?php }else{?>
-		bootbox.alert("Admin have autority to delete.");
+		alert("Admin have autority to delete.");
 		<?php } ?> 
 }	
 

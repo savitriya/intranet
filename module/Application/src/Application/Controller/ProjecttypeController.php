@@ -110,7 +110,10 @@ class ProjecttypeController extends AbstractActionController
 			$em=$this->getEntityManager();
 			$flag=$this->getRequest()->getPost('flag');
 			$id=$this->getRequest()->getPost('id');
+		
+			
 			if($flag!="view"){
+			
 				$response=array();		
 				$name=$this->getRequest()->getPost('name');
 				
@@ -171,6 +174,7 @@ class ProjecttypeController extends AbstractActionController
 				$valuesToSend=array();
 				if(isset($id) && $id>0){
 					$projecttype=$em->find('Application\Entity\Projecttypes',$id);
+				
 					$valuesToSend['projecttype']=$projecttype;
 				}
 				$viewModel=new ViewModel($valuesToSend);

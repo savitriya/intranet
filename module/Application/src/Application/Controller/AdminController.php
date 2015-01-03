@@ -21,6 +21,7 @@ use Zend\Authentication\AuthenticationService;
 use Zend\Authentication\Result;
 use Doctrine\ORM\Query\Expr;
 use Application\Entity\Login;
+use Application\Entity\Loginbydoor;
 use Zend\Authentication\Storage;
 use Zend\Authentication\Storage\Session as SessionStorage;
 
@@ -403,7 +404,7 @@ class AdminController extends AbstractActionController
 			$flag=$this->getRequest()->getPost('flag');
 			$em=$this->getEntityManager();
 
-			if($flag!="view"){
+			if($flag!="view" && !isset($flag)){
 				$response=array();
 				$holiday=$this->getRequest()->getPost('holidayname');
 				$holidaydate =$this->getRequest()->getPost('altholidaydate');
@@ -494,10 +495,23 @@ class AdminController extends AbstractActionController
 			$sidx="h.date";
 		}
 		$em=$this->getEntityManager();
-		$query = $em->createQuery("SELECT h.id as id,h.holidayname as holiday,h.date as date FROM Application\Entity\Holiday h order by $sidx $sord");
+		$query = $em->createQuery("SELECT h.id as id,h.holidayname as holiday,h.date as date FROM Application\Entity\Holiday h order by $sidx $sord")
+				->setFirstResult( $start )
+				->setMaxResults( $limit );
 		$holidayquery= $query->getResult();
+		
+		$totalrows = $em->createQuery("SELECT h.id as id,h.holidayname as holiday,h.date as date FROM Application\Entity\Holiday h order by $sidx $sord")->getResult();
+		$totalPages = 0;
+		
+		if (count($totalrows)>0){
+			$totalPages = ceil(count($totalrows)/ $limit);
+		}
+		$response = array();
+		$response['page'] = $page;
+		$response['total'] = $totalPages;
+		$response['records'] = count($totalrows);
 		$i=0;
-		$response=array();
+		
 		foreach ($holidayquery as $rws){
 			$response['rows'][$i]['id'] = $rws['id'];
 			$date=$rws['date'];
@@ -511,6 +525,8 @@ class AdminController extends AbstractActionController
 		echo json_encode($response);
 		exit;
 	}
+	
+	
 	public function deleteholidayAction(){
 		$auth = new AuthenticationService();
 		if($auth->getIdentity()->isadmin!=1){
@@ -527,4 +543,258 @@ class AdminController extends AbstractActionController
 		}exit;
 	}
 
+	public function addsundayasholidayAction(){
+		$auth = new AuthenticationService();
+		$em=$this->getEntityManager();
+		$common=new Misc();
+		$offset = $common->get_timezone_offset('Asia/Calcutta','GMT');
+		$auth = new AuthenticationService();
+		if($auth->getIdentity()->isadmin!=1){
+			return $this->redirect()->toRoute('home');
+		}
+		
+		$month=$this->params('month');
+		$year=$this->params('year');
+		
+		if(!isset($month) || $month==""){
+			$month=date("M");
+		}
+		if(!isset($year) || $year==""){
+			$year=date("Y");
+		}
+		$num= cal_days_in_month(CAL_GREGORIAN,$month,$year);
+		
+			for($i=1;$i<=$num;$i++){
+				$date = "$i-$month-$year";
+				$weekday = date('D', strtotime($date));
+				if ($weekday=="Sun") {
+				$holiday="$date.Sun";
+				$holidaydate="$year-$month-$i";
+				$altholidaydate=strtotime($holidaydate)+$offset;
+				
+				$duplicate=$em->CreateQuery("SELECT h FROM Application\Entity\Holiday h where h.date=$altholidaydate")->getArrayResult();
+				
+				if(count($duplicate)>0){
+				$leave=new Holiday();
+				$leave->setEntityManager($em);
+				$leave->setHolidayname($holiday);
+				$leave->setDate($altholidaydate);
+				try{
+					$em->persist($leave);
+					$em->flush();
+// 					$response['returnvalue']="valid";
+					$duplicate=array();
+				}
+				catch (Exception $e)
+				{
+					$response['returnvalue']="exception";
+					echo $e->getMessage();exit;
+				}
+				}
+			}
+			}
+		
+		}
+		
+		public function loginbydoorAction(){
+		
+			$auth = new AuthenticationService();
+			if($auth->getIdentity()->isadmin!=1){
+				return $this->redirect()->toRoute('home');
+			}
+			$common =new Misc();
+			$em=$this->getEntityManager();
+				
+			$response=array();
+			$filePath="";
+			$arrTimeKey="";
+			$depTimeKey="";
+			$totalBreakKey="";
+			$empCodeKey="";
+			if($this->getRequest()->isPost()){
+				if(isset($_FILES["file"])){
+			
+					$mimes = array('application/vnd.ms-excel','text/plain','text/csv','text/tsv');
+					if(in_array($_FILES['file']['type'],$mimes)){
+						if ($_FILES["file"]["error"] > 0) {
+							echo "Error: " . $_FILES["file"]["error"] . "<br>";
+							$response['returnvalue']="Invalid fil formate";
+						} else {
+							$destinationpath =APPLICATION_PATH;
+// 										$filePath="$destinationpath/public/uploads/dailyattendancedetail22nd.csv";
+							$filePath="$destinationpath/public/uploads/".basename( $_FILES["file"]["name"]);
+							move_uploaded_file($_FILES["file"]["tmp_name"],$filePath);
+						
+							$employeeList = $em->createQuery("SELECT u.id as userid,u.email as email,u.fname as fname,u.lname as lname,u.employeeid as employeeid FROM Application\Entity\User u ");
+							$employeeList=$employeeList->getResult();
+								
+							$destinationpath =APPLICATION_PATH;
+							$csvData = file_get_contents("$filePath");
+							$lines = explode(PHP_EOL, $csvData);
+							$array = array();
+							foreach ($lines as $line) {
+								$array[] = str_getcsv($line);
+							}
+								
+							$date="";
+							$report=array();
+							$userArray=array();
+							$createdDate="";
+							$u=0;
+						
+							
+							
+							foreach ($array as $rws){
+									
+								for($i=0;$i<count($rws); $i++){
+									
+									if($rws[0]=="" || $rws[$i]=="Department :" || $rws[$i]=="Company :" || $rws[$i]=="Arr. Time" || $rws[$i]=="Dep. Time" || $rws[$i]=="Total  Break" || $rws[$i]=="Emp Code" ) {
+									
+										if ($rws[$i] == "Arr. Time"){
+											$arrTimeKey=$i;
+										}elseif ($rws[0]==""){
+											break;
+										}
+										elseif ($rws[$i]=="Department :"){
+											break;
+										}
+										elseif ($rws[$i]=="Company :"){
+											break;
+										}
+										elseif ($rws[$i]=="Dep. Time"){
+											$depTimeKey=$i;
+										}elseif ($rws[$i]=="Emp Code"){
+											$empCodeKey=$i;
+										}
+										elseif ($rws[$i]=="Total  Break"){
+											$totalBreakKey=$i;
+											break;
+										}
+										
+									}
+									elseif (strpos($rws[$i],"Daily In & Out Report For") !== false) {
+										$date = str_replace("Daily In & Out Report For ", "", $rws[$i]);
+										$loginDateYmd=date("Y-m-d", strtotime($date));
+										$loginDate=$common->ConvertLocalTimezoneToGMT($loginDateYmd,'Asia/Calcutta',"Y-m-d H:i:s");
+										$createdDate= strtotime($loginDate);
+										break;
+							
+									}
+									elseif ($rws[0] > 0){
+										
+										$report[$u]=$rws;
+										$u++;
+										break;
+											}
+										}
+										
+										}
+						
+							
+							unset($u);
+							unset($i);
+							$i=0;
+							
+							if(isset($report) && count($report)==0){
+								$response['returnvalue']="Data formate issue";
+								return new ViewModel(array('response' => $response));
+							}
+							
+							$ip = $common->getRealIpAddr();
+							$offset = $common->get_timezone_offset('Asia/Calcutta','GMT');
+							$date=date("Y-m-d H:i:s");
+							$d=$common->ConvertGMTToLocalTimezone($date,'Asia/Calcutta',"Y-m-d H:i:s");
+							$exdate=explode(" ",$d);
+							$cdate=strtotime($exdate[0]." 00:00:00")+$offset;
+							$common =new Misc();
+							
+							$datetime = strtotime($date);
+							$explodedDate=explode(" ",$date);
+							$cdate1=strtotime($explodedDate[0]);
+							$ctime = ($datetime - $cdate);
+							
+							
+							$userid="";
+							$employeeid="";
+							foreach ($report as $rws){
+								
+								foreach ($employeeList as $list){
+										if(isset($empCodeKey) && $rws[$empCodeKey]==$list['employeeid']){
+													$userid=$list['userid'];
+													$employeeid = $list['employeeid'];
+													break;									
+										}}
+										
+								 		
+									
+										$logintime=number_format((float)$rws[$arrTimeKey], 2, ':', '');
+										
+										$login=$common->ConvertLocalTimezoneToGMT("$loginDateYmd $logintime:00",'Asia/Calcutta',"Y-m-d H:i:s");
+										if($logintime == "0:00"){
+											continue;
+											
+										}else{
+											$loginStr=strtotime($login);
+										}
+										
+										$logouttime=number_format((float)$rws[$depTimeKey], 2, ':', '');
+										
+										
+										$logout=$common->ConvertLocalTimezoneToGMT("$loginDateYmd $logouttime:00",'Asia/Calcutta',"Y-m-d H:i:s");
+										if($logouttime != "0:00"){
+											$logoutStr=strtotime($logout);
+										}else{
+											$logoutStr="";
+										}
+								
+							if(isset($userid) && $userid>0){
+											$login = new Loginbydoor;
+											
+											$login->setUser_employeeid($employeeid);
+											$login->setUser_id($userid);
+											$login->setLogintime($loginStr);
+											
+										if( $logoutStr != ""  && $logoutStr>0){
+												$login->setLogouttime($logoutStr);
+											}
+											$login->setipaddress($ip);
+											$login->setCreated_date($createdDate);
+											$login->setCreated_time($ctime);
+											$login->setLoggedinby($userid);
+											$login->setLoggedoutby($userid);
+											try{
+												
+												$em->persist($login);
+												$em->flush();
+												$response['returnvalue']="validentry";
+											}
+											catch (Exception $e)
+											{
+												echo $e->getMessage();
+												$response['returnvalue']="invalid";
+												exit;
+											}
+							}
+										
+									}
+							
+							if($response['returnvalue']=="validentry"){
+								return $this->redirect()->toRoute('doorentry');
+							}
+						}
+						
+					}else{
+						$response['returnvalue']="Invalid file formate";
+					}
+				}else{
+					$response['file']="empty";
+				}
+			}
+			return new ViewModel(array('response' => $response));
+			
+		}
+		
+		public function deletedoorentryAction(){
+			
+		}
 	}

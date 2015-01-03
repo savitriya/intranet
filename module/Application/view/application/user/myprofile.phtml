@@ -11,24 +11,35 @@ $id=$auth->getIdentity()->id;
 		<table id="editcontact" class="table table-striped table-condensed">
 			<tr>
 				<td style="width:15%;">First Name :</td><td>
-				<label name="fname" id="fname" title="First Name"> <?php if(isset($contact) && $contact['0']['fname']!=""){?> <?php echo $contact['0']['fname'];}?></label>
+				<label name="fname" id="fname" title="First Name"> <?php if(isset($contact) && $contact['0']['fname']!=""){?> <?php echo ucfirst($contact['0']['fname']);}?></label>
 				</tr>
 			<tr>
 				<td>Last Name :</td>
-				<td><label name="lname" id="lname" title="Last Name"> <?php if(isset($contact) && $contact['0']['lname']!=""){?> <?php echo $contact['0']['lname'];}?></label>
+				<td><label name="lname" id="lname" title="Last Name"> <?php if(isset($contact) && $contact['0']['lname']!=""){?> <?php echo ucfirst($contact['0']['lname']);}?></label>
 				</td>
 			</tr>
+			
+			<tr>
+				<td>Company :</td>
+				<td><label id="companyid" name="companyid" title="Company Name" >
+					<?php if(isset($contact) && $contact['0']['companyname']!=""){?> <?php echo ucfirst($contact['0']['companyname']);} ?>
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<td>Employeeid :</td><td>
+				<label name="employeeid" id="employeeid" title="employeeid"> <?php if(isset($contact) && $contact['0']['employeeid']!=""){?> <?php echo ucfirst($contact['0']['employeeid']);}else{ echo "Not Generated";}?></label>
+					</tr>	
+			
+			<tr>
+				<td>Designation :</td><td>
+				<label name="designation" id="designation" title="Designation"> <?php if(isset($contact) && $contact['0']['designation']!=""){?> <?php echo ucfirst($contact['0']['designation']);}else{ echo "Not Define";}?></label>
+					</tr>		
+		
 			<tr>
 				<td>Email :</td><td>
 				<label name="email" id="email" title="Email"> <?php if(isset($contact) && $contact['0']['email']!=""){?> <?php echo $contact['0']['email'];}?></label>
 					</tr>
-			<tr>
-				<td>Company :</td>
-				<td><label id="companyid" name="companyid" title="Company Name" >
-					<?php if(isset($company)  && $company[0]['id']!=null ){?><?php echo $company[0]['name']; }?>
-					</label>
-				</td>
-			</tr>
 			<tr>
 				<td>Joining Date :</td><td>
 				<label name="joiningdate" id="joiningdate" Title="Joining Date"> <?php if(isset($contact) && $contact['0']['joindate']!=""){ ?> <?php echo $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",$contact['0']['joindate']),"Asia/Calcutta","d/m/Y");}?> </label>
@@ -70,20 +81,8 @@ $id=$auth->getIdentity()->id;
 				<td><label name="altcontactnumber" id="altcontactnumber" title="Alt. Contact No."> <?php if(isset($contact)){ ?> <?php echo $contact['0']['altcontactnumber'];}?></label>
 				 </td>
 			</tr>
-			<tr>
-				<td>IsActive :</td><td>
-				<label name="isactive" id="isactive" title="IsActive"> <?php if(isset($contact) && $contact['0']['isactive']==1){?><?php echo "Yes";}else {
-				echo "No";
-				}?></label>
-				</td>
-			</tr>
-         	<tr>
-				<td>IsAdmin :</td><td>
-				<label name="isadmin" id="isadmin" title="IsAdmin" > <?php if(isset($contact) && $contact['0']['isadmin']==1){?><?php echo "Yes";}else {
-				echo "No";
-				}?></label>
-				</td>
-			</tr>
+			
+         
          	<tr>
 				<td>
 				</td>

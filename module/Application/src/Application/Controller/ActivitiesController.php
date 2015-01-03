@@ -28,6 +28,7 @@ use Application\Entity\Activityhistory;
 use Application\Entity\User;
 use Application\Entity\Assignee;
 use Application\Entity\Sentmail;
+use Application\Entity\Activityfilter;
 
 /**
  * Zend Framework (http://framework.zend.com/)
@@ -71,11 +72,13 @@ class ActivitiesController extends AbstractActionController
 			return $this->redirect()->toRoute('home');
 		}
 		$em=$this->getEntityManager();
+		$saveFilters=$em->createQuery("SELECT af.id as id,af.name as name,af.user_id as userid,u.fname as fname,u.lname as lname FROM Application\Entity\Activityfilter af JOIN Application\Entity\User u WITH u.id=af.user_id order by af.name ASC")->getArrayResult();
+		$comanys = $em->createQuery("SELECT c.id as id,c.name as name FROM Application\Entity\Company c order by c.name ASC")->getArrayResult();
 		$users=$em->getRepository('Application\Entity\User')->getUserByName('ASC');
 		$project=$em->getRepository('Application\Entity\Projects')->getProjectsByName('ASC');
 		$activityStatuse=$em->getRepository('Application\Entity\Activitystatuses')->getActivitystatuses();
 		$currentLoggedInUser=$auth->getIdentity()->id;
-		$valuesToSend=array('users'=>$users,'project'=>$project,'currentLoggedInUser'=>$currentLoggedInUser,'activityStatuse'=>$activityStatuse);
+		$valuesToSend=array('saveFilters'=>$saveFilters,'comanys'=>$comanys,'users'=>$users,'project'=>$project,'currentLoggedInUser'=>$currentLoggedInUser,'activityStatuse'=>$activityStatuse);
 		$viewModel=new ViewModel($valuesToSend);
 		return $viewModel;
 
@@ -235,11 +238,11 @@ class ActivitiesController extends AbstractActionController
 						//$todayLoginTime = $em->createQuery("SELECT min(l.logintime) as mindt,l.created_date as cdate FROM Application\Entity\Login l  WHERE l.user_id=$userid AND l.created_date=$activityDate")->getResult();
 						$todayLoginTime = $em->getRepository('Application\Entity\Login')->getTodayLoginTime($userid,$activityDate);
 						$workingday=$em->createQuery("SELECT l.id as lid,min(l.logintime) as mindt,l.created_date as cdate FROM Application\Entity\Login l  WHERE l.user_id=$userid AND l.created_date BETWEEN $strDate AND $endDate group by l.created_date ")->getResult();
-						$notLoggedInQuery = $em->createQuery("SELECT l.id as lid,min(l.logintime) as mindt,l.created_date as cdate FROM Application\Entity\Login l  WHERE l.user_id=$userid AND l.created_date BETWEEN $strDate AND $endDate group by l.created_date having mindt > l.created_date+33000")->getResult();
+						$notLoggedInQuery = $em->createQuery("SELECT l.id as lid,min(l.logintime) as mindt,l.created_date as cdate FROM Application\Entity\Login l  WHERE l.user_id=$userid AND l.created_date BETWEEN $strDate AND $endDate group by l.created_date having mindt > l.created_date+35100")->getResult();
 						$holiday=$em->createQuery("SELECT h.id FROM Application\Entity\Holiday h  WHERE h.date BETWEEN $strDate AND $endDate")->getResult();
 						$avglate=0;
 						foreach ($notLoggedInQuery as $rws){
-							$avglate+=$rws['mindt']-(33000+$rws['cdate']);
+							$avglate+=$rws['mindt']-(35100+$rws['cdate']);
 						} 
 						if (count($workingday)>0){
 						$avglate=$avglate/count($workingday);
@@ -806,21 +809,23 @@ class ActivitiesController extends AbstractActionController
 			echo json_encode($response);
 			exit;
 		}else{
+			$selectd_project_id='';
 			$where='';
 			if($id!="" && $id>0){
 				$activityRecord=$em->find('Application\Entity\Activities', $id);
-				$projectid=$activityRecord->getProject_id();
-				$where="m.project_id=$projectid";
+				$selectd_project_id=$activityRecord->getProject_id();
+				$where="m.project_id=$selectd_project_id";
 			}else {
 					$where="1=1";
 				}
 			
+			$comanys = $em->createQuery("SELECT c.id as id,c.name as name FROM Application\Entity\Company c order by c.name ASC")->getArrayResult();
 			$status=$em->createQuery('Select a from Application\Entity\Activitystatuses a Order by a.name ASC')->getArrayResult();
 			$project=$em->getRepository('Application\Entity\Projects')->getProjectsByName('ASC');
 			$milestone=$em->createQuery("Select m.id as id,m.name as name,p.name as pname from Application\Entity\Milestones m JOIN Application\Entity\Projects p WITH m.project_id=p.id  where $where Order by m.name ASC")->getArrayResult();
 			$category=$em->getRepository('Application\Entity\Activitycategories')->getActivitycategoriesByName('ASC');
 			//$category=$em->createQuery('Select ac.id as id,ac.name as name from Application\Entity\Activitycategories ac Order by ac.name ASC')->getArrayResult();
-			$valuesToSend=array('status' =>$status,'project'=>$project,'category'=>$category,'milestone'=>$milestone);
+			$valuesToSend=array('comanys'=>$comanys,'status' =>$status,'project'=>$project,'selectd_project_id' =>$selectd_project_id,'category'=>$category,'milestone'=>$milestone);
 			if($id!="" && $id>0){
 				$activityRecord=$em->find('Application\Entity\Activities', $id);
 				$projectid=$activityRecord->getProject_id();
@@ -981,6 +986,9 @@ class ActivitiesController extends AbstractActionController
 		$sidx = $this->getRequest()->getPost('sidx');
 		$sord = $this->getRequest()->getPost('sord');
 		$assignedId=$this->getRequest()->getPost('assignedid');
+		if($auth->getIdentity()->isadmin!=1){
+			$assignedId=$auth->getIdentity()->id;
+		}
 		$assignedBy=$this->getRequest()->getPost('assignedby');
 		$projectId=$this->getRequest()->getPost('projectid');
 		$duedate=$this->getRequest()->getPost('duedate');
@@ -1056,7 +1064,6 @@ class ActivitiesController extends AbstractActionController
 			$activityLogByUser = $em->createQuery("SELECT al.activity_id as aid FROM Application\Entity\ActivityLog al  WHERE $whereactivityid  group by aid")
 			->getResult();
 		
-		//	print_r($activityLogByUser);exit();
 			foreach ($activityLogByUser as $rws){
 				if($activityIds==""){
 					$activityIds=$rws['aid'];
@@ -1078,6 +1085,7 @@ class ActivitiesController extends AbstractActionController
 			}
 			$filterAssignee=$em->createQuery("SELECT asu.activity_id as activity_id from  Application\Entity\Assignee asu JOIN Application\Entity\Activities a WITH asu.activity_id=a.id Where $whereassignedId group by asu.activity_id");
 			//echo $filterAssignee->getSQL();exit;
+			
 			$filterResult=$filterAssignee->getResult();
 			if (count($filterResult)>0){
 				$activityIds="";
@@ -1159,7 +1167,6 @@ class ActivitiesController extends AbstractActionController
 				JOIN Application\Entity\Activitystatuses as astatus WITH astatus.id=a.status_id
              	WHERE $where ");
 		$totalRecords = $activitiesCountQuery->getResult();
-		//print_r($totalRecords);exit();
 		$totalPages = 0;
 		if (count($totalRecords)>0){
 			$totalPages = ceil(count($totalRecords)/ $limit);
@@ -1271,6 +1278,9 @@ class ActivitiesController extends AbstractActionController
 
 		exit;
 	}
+	
+	
+	
 	public function getmultiuserAction(){
 		$auth = new AuthenticationService();
 		if(!$auth->hasIdentity()){
@@ -1280,9 +1290,12 @@ class ActivitiesController extends AbstractActionController
 		$data=array();
 		$em=$this->getEntityManager();
 		$query=trim($q);
-
-		$user=$em->createQuery("Select u.id as id,u.fname as fname,u.lname as lname,u.email as email from Application\Entity\User u Where u.fname like '".$query."%' or u.email like '".$query."%' and u.isactive=1");
-		//echo $user->getSQL();exit;
+		if(isset($_GET['company'])){
+		$companyid=trim($_GET['company']);
+			$user=$em->createQuery("Select u.id as id,u.fname as fname,u.lname as lname,u.email as email,u.company_id as companyId from Application\Entity\User u Where  (u.fname like '".$query."%' or u.email like '".$query."%')  AND u.company_id='$companyid' AND u.isactive=1 ");
+		}else{
+			$user=$em->createQuery("Select u.id as id,u.fname as fname,u.lname as lname,u.email as email,u.company_id as companyId from Application\Entity\User u Where  (u.fname like '".$query."%' or u.email like '".$query."%')   AND u.isactive=1 ");
+		}
 		$serchuser = $user->getResult();
 		$i=0;
 		foreach($serchuser as $rws){
@@ -1378,6 +1391,85 @@ class ActivitiesController extends AbstractActionController
 				}
 			}
 		}
+		exit;
+	}
+	
+	public function savefilteractivityAction(){
+
+		$response=array();
+		$em=$this->getEntityManager();
+		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity()){
+			return $this->redirect()->toRoute('home');
+		}
+		$common=new Common();
+		
+				$userId =$auth->getIdentity()->id;
+		
+				$savefilter = $this->getRequest()->getPost('savefilter');	
+			
+				$activityFilterName = $this->getRequest()->getPost('activityFilterName');
+				$data['company'] = $this->getRequest()->getPost('company');
+				$data['activitystatus'] = $this->getRequest()->getPost('activitystatus');
+    			$data['userid'] = $this->getRequest()->getPost('userid');
+    			$data['assignedby'] = $this->getRequest()->getPost('assignedby');
+    			$data['projectid'] = $this->getRequest()->getPost('projectid');
+    			$data['duedates'] = $this->getRequest()->getPost('duedates');
+    			$data['alterduedate'] = $this->getRequest()->getPost('alterduedate');
+    			 
+    			$data['activitydate'] = $this->getRequest()->getPost('activitydate');
+    			$data['altactivitydate'] = $this->getRequest()->getPost('altactivitydate');
+    			 
+    			$data['subject'] = $this->getRequest()->getPost('subject');
+    			$data['activityloguser'] = $this->getRequest()->getPost('activityloguser');
+    			$data['duedate'] = $this->getRequest()->getPost('duedate');
+    			$data['altactivitydate'] = $this->getRequest()->getPost('altactivitydate');
+    			
+		
+		if($savefilter>0 ){
+			$obj =$em->find("Application\Entity\Activityfilter",$savefilter);
+		}else{
+			$obj = new Activityfilter();
+		}
+		$obj->setName($activityFilterName);
+		$obj->setUser_id($userId);
+		$obj->setString(json_encode($data));
+		try{
+			$em->persist($obj);
+			$em->flush();
+			$response['returnvalue']="valid";
+		}
+		catch (Exception $e)
+		{
+			echo $e->getMessage();
+			return false;
+		}
+		echo json_encode($response);
+		exit;
+	}
+	
+	public function getfilteractivityAction(){
+		$em=$this->getEntityManager();
+		$auth = new AuthenticationService();
+		if(!$auth->hasIdentity()){
+			return $this->redirect()->toRoute('home');
+		}
+		$response=array();
+		$savefilterid=$this->getRequest()->getPost("savefilterid");
+		if ($savefilterid>0) {
+			$where="af.id='$savefilterid'";
+		}
+		$userId =$auth->getIdentity()->id;
+		$activitysFilter=$em->CreateQuery("SELECT af.id as id,af.user_id as userid,af.string as string FROM Application\Entity\Activityfilter af WHERE $where")->getArrayResult();
+		if(count($activitysFilter)>0){
+			$response['returnvalue']="valid";
+			$response['savefilter']=$activitysFilter[0]['id'];
+		    $response['data']= json_decode($activitysFilter[0]['string']);
+		}else{
+			$response['returnvalue']="invalid";
+		}
+		
+		echo json_encode($response);
 		exit;
 	}
 }

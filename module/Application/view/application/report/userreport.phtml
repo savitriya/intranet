@@ -22,6 +22,34 @@ $auth=new AuthenticationService();
 			    <input type="hidden" id="altenddate">
 		    </div>
 		</div>
+		
+		<div class="span4 control-group">
+				<label class="control-label">Company:</label>
+				<div class="controls">
+					<select id="company" name="company" title="Company">
+						<option value="">--Select--</option>
+						<?php for($i=0;$i<count($comanys);$i++){?>
+						<option value='<?php echo $comanys[$i]['id'];?>'>
+							<?php echo ucfirst($comanys[$i]['name']);?>
+						</option>
+						<?php }?>
+					</select>
+				</div>
+				<div class="controls"><div id="company_error" class="error"></div></div>
+		</div>
+		
+		</div>
+		<div class="row-fluid">
+			
+		<div class="span3 control-group">
+		    <label class="control-label">Project:</label>
+		    <div class="controls">
+			    <select class="input-medium" id="project" name="project">
+					
+				</select>
+			</div>
+		</div>
+			
 		<div class="span3 control-group">
 		    <label class="control-label">User:</label>
 		    <div class="controls">
@@ -35,6 +63,8 @@ $auth=new AuthenticationService();
 				</select>
 			</div>
 		</div>
+	
+		
 		<div class="span2 control-group">
 			<div class="controls">
 		    	<button id="dashboardreport" class="btn btn-success" name="dashboardreport">Report</button>
@@ -45,7 +75,13 @@ $auth=new AuthenticationService();
 
 <script>
 $(document).ready(function(){
-    $("#dashboardreport")//.button()
+
+	$('#company').bind('change', function(ev) {
+		 getProjectByCompany();
+		 getUserByCompany();
+	  });
+
+	$("#dashboardreport")//.button()
 	.click(function( event ) {
 	    event.preventDefault();
 	barchart();
@@ -64,12 +100,13 @@ function barchart(){
 	var strdate = $('#altstrdate').val();
 	var enddate= $('#altenddate').val();
 	var userid= $('#user').val();
+	var project_id=$('#project').val();
    $.ajax({
         type: "POST",
         url: "<?php echo $this->url('userreport');?>",
         dataType:"json",
         async: false,
-        data:{"strdate" : strdate,"enddate":enddate,"userid":userid},
+        data:{"strdate" : strdate,"enddate":enddate,"userid":userid,"project_id":project_id},
         success: function(response){
         	//$("#chart1").empty();
     	    var legends = [];
@@ -147,7 +184,78 @@ function piechart(){
 	    });
  
  	}
+function getProjectByCompany(){
+	var companyId = $("#company").val();
+	 var projectDropDown = document.getElementById('project');		     		     
+	 projectDropDown.options.length=0;
+     var op = document.createElement("option");		     
+	    op.value="";
+	    op.text="--Select--";
+	    projectDropDown.options.add(op);
+     $.ajax({	
+    	 type: "POST",	      
+    	 url: "<?php echo $this->url('getProjectByCompany');?>",
+        data: {companyid: companyId},	
+        dataType:"json",
+        success: function(response)
+         {
+        	 if(response['returnvalue']=="valid"){
+            var $i;				    	
+		    for($i=0;$i<response.data.length;$i++){
+		    var op = document.createElement("option");
+		    op.value=response.data[$i]['id'];
+		    op.text=response.data[$i]['name'];
+		    projectDropDown.options.add(op);
+// 		    $("#company").removeAttr("disabled");
+		    }	
+        	 }else{
+        		 alert("Project not found");
+     	    }
+         }       
+     });
 
+}
+
+
+function getUserByCompany(){
+	 var companyId ="";
+	 var userDropDown="";
+	 var op="";
+		companyId = $("#company").val();
+		userDropDown = document.getElementById('user');		     		     
+		userDropDown.options.length=0;
+    op = document.createElement("option");		     
+	    op.value="";
+	    op.text="--Select--";
+	    userDropDown.options.add(op);
+	
+	
+  $.ajax({	
+ 	 type: "POST",	      
+ 	 url: "<?php echo $this->url('getUserByCompany');?>",
+     data: {companyid: companyId },	
+     dataType:"json",
+     success: function(response)
+      {
+     	 if(response['returnvalue']=="valid"){
+           var $i;				    	
+		    for($i=0;$i<response.data.length;$i++){
+		    var op = document.createElement("option");
+
+		    <?php if($auth->getIdentity()->isadmin==1){?>
+		    op.value=response.data[$i]['id'];
+		    op.text=response.data[$i]['name'];
+		    userDropDown.options.add(op);
+		    
+		    <?php }?>}
+	//	    $("#user").removeAttr("disabled");
+	  	 }else{
+//               bootbox.alert("User not found");
+  	    }
+      }       
+  });
+
+}
  	</script>
 <hr/>
 <div>

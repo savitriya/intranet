@@ -61,6 +61,7 @@ abstract class DomainObject implements NotifyPropertyChanged
 	 * @return void
 	 */
     protected function _onPropertyChanged($propName, $oldValue, $newValue) {
+//     	echo  "propName==$propName //oldValue==$oldValue//newValue==$newValue <br/>";
         if ($this->_listeners) {
         	$em = $this->getEntityManager();
         	$common = new Common();
@@ -123,6 +124,126 @@ abstract class DomainObject implements NotifyPropertyChanged
             		$oldHrMin = $common->convertSpentTime($oldValue);
             		$newHrMin = $common->convertSpentTime($newValue);
             		$this->ahDescription .= " Estimated Hours is changed from - ".$oldHrMin." to ".$newHrMin.".<br/>";
+            	}
+            	elseif($propName == 'asset_name'){
+            		$this->ahDescription .= "Asset Name changed from - ".$oldValue." to ".$newValue.".<br/>";
+            	}
+            	elseif($propName == 'asset_make'){
+            		$this->ahDescription .= "Asset Make changed from - ".$oldValue." to ".$newValue.".<br/>";
+            	}
+            	elseif($propName == 'asset_model'){
+            		$this->ahDescription .= "Asset Model changed from - ".$oldValue." to ".$newValue.".<br/>";
+            	}
+            	elseif($propName == 'serial_number'){
+            		$this->ahDescription .= "Asset Serial Number changed from - ".$oldValue." to ".$newValue.".<br/>";
+            	}
+            	elseif($propName == 'asset_code'){
+            		$this->ahDescription .= "Asset Code changed from - ".$oldValue." to ".$newValue.".<br/>";
+            	}
+            	elseif($propName == 'manufacture_date'){
+            		$oldHrMin = $common->convertSpentTime($oldValue);
+            		$newHrMin = $common->convertSpentTime($newValue);
+            		$this->ahDescription .= "Asset Manufacture Date changed from - ".$oldHrMin." to ".$newHrMin.".<br/>";
+            	}
+            	elseif($propName == 'purchase_date'){
+            		$oldHrMin = $common->convertSpentTime($oldValue);
+            		$newHrMin = $common->convertSpentTime($newValue);
+            		$this->ahDescription .= "Asset Purchase Date changed from - ".$oldHrMin." to ".$newHrMin.".<br/>";
+            	}
+            	elseif($propName == 'warranty_expiry_date'){
+            		$oldHrMin = $common->convertSpentTime($oldValue);
+            		$newHrMin = $common->convertSpentTime($newValue);
+            		$this->ahDescription .= "Asset Warranty Expiry Date changed from - ".$oldHrMin." to ".$newHrMin.".<br/>";
+            	}
+            	elseif($propName == 'scrap_date'){
+            		$oldHrMin = $common->convertSpentTime($oldValue);
+            		$newHrMin = $common->convertSpentTime($newValue);
+            		$this->ahDescription .= "Asset Scrap Date changed from - ".$oldHrMin." to ".$newHrMin.".<br/>";
+            	}
+            	elseif($propName == 'purchase_price'){
+            		$this->ahDescription .= "Asset Purchase Price from - ".$oldValue." to ".$newValue.".<br/>";
+            	}
+            	elseif($propName == 'company_id'){
+            		if(isset($oldValue) && $oldValue > 0){
+            			$oldCompany = $em->createQuery("SELECT c.name FROM Application\Entity\Company c where c.id=$oldValue")->getResult();
+            		}
+            		if(isset($newValue) && $newValue > 0){
+						$newCompany = $em->createQuery("SELECT c.name FROM Application\Entity\Company c where c.id=$newValue")->getResult();
+            		}
+            		$this->ahDescription .= "Company changed from - ".$oldCompany[0]['name']." to ".$newCompany[0]['name'].".<br/>";
+            	}
+            	elseif($propName == 'current_user_id'){
+            	
+            		if(isset($oldValue) && $oldValue > 0){
+            			
+            			$oldUser = $em->createQuery("SELECT u.fname as fname, u.lname as lname FROM Application\Entity\User u where u.id=$oldValue")->getResult();
+            		}
+            		if(isset($newValue) && $newValue > 0){
+						$newUser = $em->createQuery("SELECT u.fname as fname, u.lname as lname FROM Application\Entity\User u where u.id=$newValue")->getResult();
+            		}
+            		if(isset($oldUser)){
+            		$this->ahDescription .= "User changed from - ".$oldUser[0]['fname']." ".$oldUser[0]['lname']." to ".$newUser[0]['fname']." ".$newUser[0]['lname'].".<br/>";
+            	}else{
+            		$this->ahDescription .= "User changed to ".$newUser[0]['fname']." ".$newUser[0]['lname'].".<br/>";
+            	}
+            	}
+            	elseif($propName == 'is_alive'){
+            		if($oldValue == 0)
+            			$oldValueText = 'No';
+            		elseif($oldValue == 1)
+            			$oldValueText = 'Yes';
+            		if($newValue == 0)
+            			$newValueText = 'No';
+            		elseif($newValue == 1)
+            			$newValueText = 'Yes';
+            		$this->ahDescription .= "Is Asset Alive changed from - ".$oldValueText." to ".$newValueText.".<br/>";
+            	}
+            	elseif($propName == 'is_primary'){
+            		if($oldValue == 0)
+            			$oldValueText = 'No';
+            		elseif($oldValue == 1)
+            			$oldValueText = 'Yes';
+            		if($newValue == 0)
+            			$newValueText = 'No';
+            		elseif($newValue == 1)
+            			$newValueText = 'Yes';
+            		$this->ahDescription .= "Is Asset Primary changed from - ".$oldValueText." to ".$newValueText.".<br/>";
+            	}
+            	elseif($propName == 'primary_asset_id'){
+            		if(isset($oldValue) && $oldValue > 0){
+            			$oldPriAsset = $em->createQuery("SELECT a.asset_name as name FROM Application\Entity\Asset a where a.asset_id=$oldValue")->getResult();
+            		}
+            		if(isset($newValue) && $newValue > 0){
+						$newPriAsset = $em->createQuery("SELECT a.asset_name as name FROM Application\Entity\Asset a where a.asset_id=$newValue")->getResult();
+            		}
+					$this->ahDescription .= "Primary Asset changed from - ".$oldPriAsset[0]['name']." to ".$newPriAsset[0]['name'].".<br/>";
+            	}
+                elseif($propName == 'asset_type_id'){
+            		if(isset($oldValue) && $oldValue > 0){
+            			$oldType = $em->createQuery("SELECT am.asset_attribute as name FROM Application\Entity\Assetmaster am where am.asset_master_id=$oldValue")->getResult();
+            		}
+            		if(isset($oldValue) && $oldValue > 0){
+						$newType = $em->createQuery("SELECT am.asset_attribute as name FROM Application\Entity\Assetmaster am where am.asset_master_id=$newValue")->getResult();
+            		}
+					$this->ahDescription .= "Asset Type changed from - ".$oldType[0]['name']." to ".$newType[0]['name'].".<br/>";
+            	}
+            	elseif($propName == 'asset_location_id'){
+            		if(isset($oldValue) && $oldValue > 0){
+            			$oldLocation = $em->createQuery("SELECT am.asset_attribute as name FROM Application\Entity\Assetmaster am where am.asset_master_id=$oldValue")->getResult();
+            		}
+            		if(isset($oldValue) && $oldValue > 0){
+						$newLocation = $em->createQuery("SELECT am.asset_attribute as name FROM Application\Entity\Assetmaster am where am.asset_master_id=$newValue")->getResult();
+            		}
+					$this->ahDescription .= "Asset Location changed from - ".$oldLocation[0]['name']." to ".$newLocation[0]['name'].".<br/>";
+            	}
+            	elseif($propName == 'asset_location_id'){
+            		if(isset($oldValue) && $oldValue > 0){
+            			$oldLocation = $em->createQuery("SELECT am.asset_attribute as name FROM Application\Entity\Assetmaster am where am.asset_master_id=$oldValue")->getResult();
+            		}
+            		if(isset($oldValue) && $oldValue > 0){
+						$newLocation = $em->createQuery("SELECT am.asset_attribute as name FROM Application\Entity\Assetmaster am where am.asset_master_id=$newValue")->getResult();
+            		}
+					$this->ahDescription .= "Asset Location changed from - ".$oldLocation[0]['name']." to ".$newLocation[0]['name'].".<br/>";
             	}
             	$listener->propertyChanged($this, $propName, $oldValue, $newValue);
             }

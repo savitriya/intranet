@@ -719,7 +719,7 @@ class LeavesController extends AbstractActionController
 							   ->setMaxResults( $limit )
 				               ->getResult();
 			}
-			
+			//print_r($leaveRecords);exit;
 			foreach ($leaveRecords as $lr){
 				$common =new Common();
 				$sentMailRecord = $em->getRepository('Application\Entity\Sentmail')->findOneBy(array('parent_id' => $lr['id'],'table_name'=>'leave'));
@@ -728,6 +728,7 @@ class LeavesController extends AbstractActionController
 				if (count($sentMailRecord)>0){
 					$sentMailId = $sentMailRecord->getId();
 					$encrypt = new Encryption();
+					//issue at server due to encoding
 					$encryptedId = $encrypt->encode($sentMailId);
 					if($isUserAdmin)
 					{
@@ -762,6 +763,7 @@ class LeavesController extends AbstractActionController
 				$i++;
 			}
 			header("Content-type: application/json");
+			print_r($response);exit;
 			echo json_encode($response);
 			exit;
 		}

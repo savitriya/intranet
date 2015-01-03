@@ -1,0 +1,101 @@
+<h2 class="title">Assets</h2><hr/>
+<div class="row-fluid">
+	<div class="span4 control-group">
+		<div class="controls">
+			<button id="btnAddAsset" name="btnAddAsset" class="btn btn-success">Add New Asset</button>
+		</div>
+	</div>
+	
+	<div class="span8 control-group">
+		<div class="controls right">
+			<button id="btnAssetCategories" name="btnAssetCategories" class="btn btn-success">Asset Categories</button>
+			<button id="btnAssetLocations" name="btnAssetLocations" class="btn btn-success">Asset Locations</button>
+		</div>
+	</div>
+</div>
+<div style="height: 100%;" id="gridContainer">
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	jQuery("#list").jqGrid({
+		url:"<?php echo $this->url('gridasset'); ?>",
+		datatype: "json",
+		mtype: 'POST',
+		colNames:['Code','Name','Purchase Date','Alive','Primary','User','Type','Comapny','Location','Action'],
+		colModel :[
+		{name:'code', index:'code', width:30, editable:false, sortable:true},
+		{name:'name',index:'name', width:90, editable:false, sortable:true},
+		{name:'dop',index:'dop', width:40, editable:false, sortable:true},
+		{name:'alive', index:'alive', align:'right', width:20, editable:false, sortable:true},
+		{name:'isprimary', index:'isprimary',align:'right', width:20, editable:false, sortable:true},
+		{name:'uname', index:'uname', editable:false, width:70, sortable:true},
+		{name:'type',index:'type', width:30, editable:false, sortable:true},
+		{name:'company', index:'company', width:50, editable:false, sortable:true},
+		{name:'location', index:'location', width:50, editable:false, sortable:true},
+		{name:'action', index:'action', width:50,editable: false,sortable:false}		
+		],
+		//postData: {assignedid:<?php //echo $currentLoggedInUser;?>},
+	  	rowNum:100,
+	    rowList:[100,200,500],
+	    navigator:true,
+	    pager: '#pager',
+	    sortname: 'code',
+	    viewrecords: true,
+	    sortorder: "desc",
+	    height:"auto",
+	});
+	jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+
+	$("#btnAddAsset").click(function( event ) {
+	   event.preventDefault();
+	   window.location.href = "<?php echo $this->url('addasset');?>";
+	});
+	$("#btnAssetCategories").click(function( event ) {
+	   event.preventDefault();
+	   window.location.href = "<?php echo $this->url('asset_categories');?>";
+	});
+	$("#btnAssetLocations").click(function( event ) {
+	   event.preventDefault();
+	   window.location.href = "<?php echo $this->url('asset_locations');?>";
+	});
+});
+
+function deleteAsset(id){
+	if(window.confirm('Are you sure you want to delete this Asset?')) {
+	 $.ajax({
+	     type: "POST",
+	     url: "<?php echo $this->url('deleteasset');?>",
+	     data: {id: id },
+	     dataType:'json',
+	     beforeSend: function () {
+			$('#list').mask("Loading...");
+	 	 },
+	     success: function(response){
+	        if(response['returnvalue']=="valid"){
+	        	alert("Asset deleted");
+	    	        $("#list").trigger('reloadGrid');
+			}
+	        else{
+		        if(response.data['user']=="null"){
+		        	alert("Sorry, you are not allowed to delete this asset.");
+				}
+		        else if(response.data['is_primary']=="null"){
+		        	alert("Sorry, you cannot delete a primary asset that has secondary assets assigned to it.");
+		        }
+			}
+        },
+ 	 	error: function(XMLHttpRequest,textStatus){
+ 	 		alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+	   	},
+		complete: function(){
+	    	setTimeout(function(){		    	
+	    		$('#list').unmask();	
+			},500);
+		}
+	   });
+	}
+}
+</script>

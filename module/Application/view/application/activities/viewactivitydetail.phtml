@@ -278,7 +278,7 @@ function addactivitylog(id){
 	          $("#list").trigger("reloadGrid");
 	       },
 		 	error: function(XMLHttpRequest,textStatus){
-		    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		 		alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 		   	},
 	     });
 }
@@ -309,11 +309,11 @@ function addactivitylog(id){
 	     {   	    		
 	    	              	 
 	    	 if(response['returnvalue']=="valid"){
-        	  alert("record deleted");
+	    		 alert("record deleted");
 	       	  $("#list").trigger('reloadGrid');	        	         
 	      }   else{
 		        if(response.data['user']=="null"){
-		      	  	alert("you are not allowed to delete this activity");
+		        	alert("you are not allowed to delete this activity");
 				}
 			}
         

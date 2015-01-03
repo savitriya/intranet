@@ -28,7 +28,7 @@ if(isset($responce)  && count($responce)>0){
 			<?php if (isset($userTime) && $userTime==1){?>
                         <span style="margin-left: 35px; text-align:justify; "><?php echo ucwords($responce[$i]['milestone'][$j]['user'][$u]['description'][$k]['activity'])." (".$common->convertSpentTime($responce[$i]['milestone'][$j]['user'][$u]['description'][$k]['spent']).")";?></span>
 			<?php }else {?>
-			  <span style="margin-left: 35px; text-align:justify; "><?php echo ucwords($responce[$i]['milestone'][$j]['user'][$u]['description'][$k]['activity']);?></span>
+			  <span style="margin-left: 35px; text-align:justify; "><?php echo ucfirst($responce[$i]['milestone'][$j]['user'][$u]['description'][$k]['activity']);?></span>
 			
 			<?php }?>
 				<br/>

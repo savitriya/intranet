@@ -183,17 +183,17 @@ function add(){
         {   
              if(response['returnvalue']=="valid"){
            	  <?php if(isset($oldPref) && $oldPref->getId()!=null){?>
-					alert("Record has been updated Successfully");
+           	alert("Record has been updated Successfully");
            	  <?php }else{?>
-           	  	alert("Record has been added Successfully");
+           	alert("Record has been added Successfully");
            	  <?php }?>            	  
             	window.location.href="<?php echo $this->url('preferences');?>";
              }                       
              else if(response.returnvalue=="exception"){
-                  alert("This Operation Could not be Completed,Please contact administrator");
+            	 alert("This Operation Could not be Completed,Please contact administrator");
                   return false;
              }else if(response.returnvalue=="duplicate"){
-                  alert("This Preference is already exists");
+            	 alert("This Preference is already exists");
                   return false;
                  }            
              else{

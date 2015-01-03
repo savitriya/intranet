@@ -1,0 +1,163 @@
+<?php 
+use IntranetUtils\Common as Misc;
+$common = new Misc();
+//foreach($efficiencyArray as $company){ //print_r($company['user']);}?>
+
+<h2 class="title">User Efficiency Report</h2><hr/>
+
+<form action="" method="post" id="frmFilter">
+		<div class="row-fluid">
+			<div class="span4 control-group">
+			<label class="control-label">Company:</label>
+			<div class="controls">
+				<select id="company"  name="company">
+					<option value='0' <?php if($selectedcompanyid==0){?>selected="selected"<?php }?>>All</option>
+					<?php for ($c=0;$c<count($viewCompanies);$c++){?>		
+					<option value='<?php echo $viewCompanies[$c]['cid'];?>'
+					<?php if($selectedcompanyid==$viewCompanies[$c]['cid']){?>selected="selected"<?php }?>>
+						<?php echo $viewCompanies[$c]['name'];?>
+					</option>
+					<?php }?>
+				</select>
+			</div>
+		</div>
+		
+		<div class="span3 control-group">
+			<label class="control-label">Month:</label>
+			<div class="controls">
+				<select class="right-margin" id="month" name="month">
+					<option></option>
+					<option value="1" <?php if($selectedMonth==1){echo "selected=selected"; }?>>January</option>
+					<option value="2" <?php if($selectedMonth==2){echo "selected=selected"; }?>>February</option>
+					<option value="3" <?php if($selectedMonth==3){echo "selected=selected"; }?>>March</option>
+					<option value="4" <?php if($selectedMonth==4){echo "selected=selected"; }?>>April</option>
+					<option value="5" <?php if($selectedMonth==5){echo "selected=selected"; }?>>May</option>
+					<option value="6" <?php if($selectedMonth==6){echo "selected=selected"; }?>>June</option>
+					<option value="7" <?php if($selectedMonth==7){echo "selected=selected"; }?>>July</option>
+					<option value="8" <?php if($selectedMonth==8){echo "selected=selected"; }?>>August</option>
+					<option value="9" <?php if($selectedMonth==9){echo "selected=selected"; }?>>September</option>
+					<option value="10" <?php if($selectedMonth==10){echo "selected=selected"; }?>>October</option>
+					<option value="11" <?php if($selectedMonth==11){echo "selected=selected"; }?>>November</option>
+					<option value="12" <?php if($selectedMonth==12){echo "selected=selected"; }?>>December</option>
+				</select>
+			</div>
+		</div>
+		<div class="span3 control-group">
+			<label class="control-label">Year:</label>
+			<div class="controls">
+				<select id="year" class="right-margin" name="year">
+					<option></option>
+					<?php for($y=2011;$y<=date('Y');$y++){?>
+					<option value='<?php echo $y?>'
+					<?php if($selectedYear==$y){echo "selected=selected"; }?>>
+						<?php echo $y?>
+					</option>
+					<?php }?>
+				</select>
+			</div>
+		</div>
+</form>
+
+<table id="projecttable" class="table  table-bordered">
+
+<tr clss="header" style="background: #FBEFEF;">
+
+		<td style="width:10%;text-align:center;">Company Name</td>
+		<td style="width:10%;text-align:center;">User Name</td>
+		<td style="width:8%;text-align:center;">Allocated Hours</td>
+		<td style="width:8%;text-align:center;">Spent Hours</td>
+		<td style="width:15%;text-align:center;">Overun by</td>
+	</tr>
+<?php // print_r($efficiencyArray);?>
+
+	<?php foreach($efficiencyArray as $company){
+			if(isset($company['user']) && count($company['user'])>0){
+			
+				foreach ($company['user'] as $user){
+				
+				
+						echo '<tr style="background-color:#81DAF5 !important;overflow-y: scroll;"><td>'.$company['name'].'</td>';
+						echo  	'<td>'; if(isset($user['name'])){ echo $user['name']; }else{ echo "Not define name";} echo '</td>';
+						echo 	'<td>'.$common->convertSpentTime($user['totalallocated']).'</td>';
+						echo	 '<td>'.$common->convertSpentTime($user['totalspent']).'</td>';
+						
+						$totalspent=explode(":",$common->convertSpentTime($user['totalspent']));
+						$totalspenthr= $totalspent[0].".".($totalspent[1]/0.60);
+						$totalAllocate=explode(":",$common->convertSpentTime($user['totalallocated']));
+						$totalAllocate=$totalAllocate[0].".".($totalAllocate[1]/0.60);
+						if($totalAllocate=='00.00'){
+							$totalAllocate=0.1;
+						}
+						
+						$overrunby=(($totalspenthr-$totalAllocate)/$totalAllocate)*100;
+						echo	 '<td>'.round($overrunby, 2, PHP_ROUND_HALF_DOWN).'%</td></tr>';
+						
+						
+						if(isset($user['project']) && count($user['project'])>0){
+							foreach ($user['project'] as $project){
+								if(!isset($project['allocated'])){
+									$project['allocated']=0;
+								}
+								if(!isset($project['spenttime'])){
+									$project['spenttime']=0;
+								}
+								
+									echo '<tr id="'.$user['id'].$project['id'].'" title="Click to display detail"  style="text-align: right;cursor:pointer;" onClick="showDetail(this.id);"><td></td>';
+									echo  	'<td  style="background-color:#F3F781 !important;">'.$project['name'].'</td>';
+									echo 	'<td  style="background-color:#F3F781 !important;">'. $common->convertSpentTime($project['allocated']). '</td>';
+									echo   '<td  style="background-color:#F3F781 !important;">'.$common->convertSpentTime($project['spenttime']).'</td>';
+									
+									$totalspent=explode(":",$common->convertSpentTime($project['spenttime']));
+									$totalspenthr= $totalspent[0].".".($totalspent[1]/0.60);
+									$totalAllocate=explode(":",$common->convertSpentTime($project['allocated']));
+									$totalAllocate=$totalAllocate[0].".".($totalAllocate[1]/0.60);
+									if($totalAllocate=='00.00'){
+										$totalAllocate=0.1;
+									}
+									
+									$overrunby=(($totalspenthr-$totalAllocate)/$totalAllocate)*100;
+									echo	 '<td style="background-color:#F3F781 !important;">'.round($overrunby, 2, PHP_ROUND_HALF_DOWN).'%</td></tr>';
+
+									
+								if(isset($project['description']) && count($project['description'])>0 ){
+										echo "<tr id='description".$user['id'].$project['id']."' title='Click to hide detail' onClick='hideDetail(this.id);' style='display:none;cursor:pointer;'><td></td><td colspan='4'><ul>";			
+										foreach ($project['description'] as $description){
+											echo "<li>".$common->convertSpentTime($description['spent'])." ".$description['description']."</li>";											
+										}									
+										echo "</ul></td></tr>";
+								}	
+									
+							}								
+						}
+			}
+		}
+	}?>
+
+</table>
+<script type="text/javascript">
+	$(document).ready(function(){
+		
+		
+		$("#company").change(function(){
+			$("#frmFilter").submit();
+		});
+		$("#month").change(function(){
+	if($("#month").val() > 0 && $("#year").val()>0 ){
+				$("#frmFilter").submit();
+		}else if ($("#month").val() ==""  && $("#year").val() =="") {
+			$("#frmFilter").submit();
+		}
+		});
+		
+		$("#year").change(function(){
+			$("#frmFilter").submit();
+		});
+		
+	});
+function showDetail(id){
+		$("#description"+id).show();
+}
+function hideDetail(id){
+	$("#"+id).hide();
+}
+</script>

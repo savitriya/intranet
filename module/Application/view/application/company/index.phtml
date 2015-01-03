@@ -1,5 +1,5 @@
 <h2 class="title">Companies</h2><hr>
-<div style="min-height: 500px;" id="gridContainer">
+<div style="height: 100%;" id="gridContainer">
 	<table id="list">
 	</table>
 	<div id="pager"></div>
@@ -15,8 +15,8 @@ $(document).ready(function(){
 		
 		{name:'company', index:'company', editable:true},
 		],
-	  rowNum:70,
-	    rowList:[10,20,25],
+	  rowNum:100,
+	    rowList:[100,200,500],
 	    navigator:true,
 	    pager: '#pager',
 	    viewrecords: true,
@@ -34,10 +34,10 @@ jQuery("#list").jqGrid('navGrid',"#pager",{add:true,edit:true,del:true, search:f
      	
      	var json=JSON.parse(response.responseText);
         if(json.returnvalue=="valid"){
-  		   alert("Record added successfully");
+        	bootbox.alert("Record added successfully");
   	   }
   	   else{
-  		  alert("Record not added.");
+  		 bootbox.alert("Record not added.");
   	   }
   	  
      	},closeAfterAdd:true  }, // add options
@@ -46,10 +46,10 @@ jQuery("#list").jqGrid('navGrid',"#pager",{add:true,edit:true,del:true, search:f
         
         	var json=JSON.parse(response.responseText);
            if(json.data=="valid"){
-     		   alert("Record deleted successfully");
+        	   bootbox.alert("Record deleted successfully");
      	   }
      	   else{
-     		  alert("Record not deleted,Please make sure there are no users assigned to this company.");
+     		  bootbox.alert("Record not deleted,Please make sure there are no users assigned to this company.");
      	   }
      	  
         	} } // del options

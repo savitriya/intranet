@@ -1,7 +1,7 @@
+<button id="addpreferences" style="float:right;" class="btn btn-success" name="addpreferences" style="margin-bottom:15px;">Add Preference</button>
 <h2 class="title">Preferences</h2><hr/>
-<button id="addpreferences" class="btn btn-success" name="addpreferences" style="margin-bottom:15px;">Add Preference</button>
 
-<div style="min-height: 500px;" id="gridContainer">
+<div style="height: 100%;" id="gridContainer">
 	<table id="list">
 	</table>
 	<div id="pager"></div>
@@ -20,8 +20,8 @@ $(document).ready(function(){
 		{name:'leavecontact',index:'leavecontact', editable:true,sortable:false},
 		{name:'action', index:'action',editable: false,sortable:false}	
 		],
-	  	rowNum:20,
-	    rowList:[10,20,25],
+	  	rowNum:100,
+	    rowList:[100,200,500],
 	    navigator:true,
 	    pager: '#pager',
 	    sortname: 'username',
@@ -46,7 +46,7 @@ function deletePreferences(id){
 	     data: {id: id },
 	     success: function(response)
 	     {   
-	        alert("record deleted");
+	    	 bootbox.alert("record deleted");
 	        $("#list").trigger('reloadGrid');
 	      }
 	   });

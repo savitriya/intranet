@@ -227,17 +227,17 @@ function add(id){
          success: function(response){   
 			if(response['returnvalue']=="valid"){
 				<?php if (isset($milestones) && $milestones->getId()!=null){?>
-					alert("Record has been updated Successfully");
+				bootbox.alert("Record has been updated Successfully");
 					window.location.href = "/milestones";
 				<?php }
 				else{?>
-					alert("Record has been added Successfully");
+				bootbox.alert("Record has been added Successfully");
 					window.location.href = "/milestones";
 				<?php }?>
 				return false;
 			}
 			else if(response.returnvalue=="exception"){
-				alert("This Operation Could not be Completed,Please contact administrator");
+				bootbox.alert("This Operation Could not be Completed,Please contact administrator");
 				return false;
 			}
             else{
@@ -254,16 +254,16 @@ function add(id){
 		            	$("#"+key+"_error").html("Invalid value for "+$("#"+key).attr("title"));
 			               }
 		               else if(response.data[key]=="duplicate"){
-		            	   alert("Milestone aleady exist");
+		            	   bootbox.alert("Milestone aleady exist");
 			              }
 
 		               else if(response.data[key]=="estimatemore"){
-		            	   alert(" Total Milestone Estimate time is more than Project Estimate time");
+		            	   bootbox.alert(" Total Milestone Estimate time is more than Project Estimate time");
 			              }
 		            }}
 		   },
 		   error: function(XMLHttpRequest,textStatus){
-			   alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+			   bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 		   	},
        });
       return false; 

@@ -23,6 +23,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\ChangeTrackingPolicy("NOTIFY")
  * @ORM\Table(name="projects")
  * @property int $id
+ * @property int $companys
  * @property string $name
  * @property int $estimated_startdate
  * @property int $estimated_enddate
@@ -30,6 +31,10 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @property int $actual_enddate
  * @property int $status
  * @property int $estimated_hours
+ * @property int $bd
+ * @property int $manager
+ * @property int $coordinator
+ * @property int $companys
  */
 /** @ORM\Entity @ORM\HasLifecycleCallbacks
  * @ORM\Entity(repositoryClass="Application\Repository\ProjectsRepository")
@@ -43,6 +48,13 @@ class Projects extends DomainObject
 	 * @ORM\GeneratedValue(strategy="AUTO")
 	 */
 	protected  $id;
+	
+	/**
+	 * @ORM\Column(type="integer");
+	 * @ORM\GeneratedValue(strategy="AUTO")
+	 */
+	protected  $company_id;
+	
 	
 	/**
 	 * @ORM\Column(type="string")
@@ -84,6 +96,24 @@ class Projects extends DomainObject
     */
    protected  $estimated_hours;
    
+   /**
+    * @ORM\Column(type="integer",nullable=true)
+    */
+   protected  $bd;
+    
+   /**
+    * @ORM\Column(type="integer",nullable=true)
+    */
+   protected  $manager;
+    
+   /**
+    * @ORM\Column(type="integer",nullable=true)
+    */
+   protected  $coordinator;
+    
+   
+   
+   
 	/**
 	 * @var Doctrine\ORM\EntityManager
 	 */
@@ -124,6 +154,33 @@ class Projects extends DomainObject
 	{
 		return $this->id;
 	}
+	
+	/**
+	 * Sets the Identifier
+	 *
+	 * @param int $id
+	 * @access public
+	 * @return projects
+	 */
+	public function setCompany_id($CompanyId)
+	{
+		$this->company_id = $CompanyId;
+		return $this;
+	}
+	/**
+	 * Returns the id
+	 *
+	 * @access public
+	 * @return int
+	 */
+	public function getCompany_id()
+	{
+		return $this->company_id;
+	}
+	
+	
+	
+	
 	/**
 	 * Sets the name
 	 *
@@ -312,6 +369,78 @@ class Projects extends DomainObject
 		return $this->estimated_hours;
 	}
 
+	
+	
+	/**
+	 * Sets the bd
+	 *
+	 * @param int $bd
+	 * @access public
+	 * @return Post
+	 */
+	public function setBd($bd)
+	{
+		$this->bd = $bd;
+		return $this;
+	}
+	/**
+	 * Returns the bd
+	 *
+	 * @access public
+	 * @return int
+	 */
+	public function getBd()
+	{
+		return $this->bd;
+	}
+	
+	
+	/**
+	 * Sets the Escalation Manager
+	 *
+	 * @param int $manager
+	 * @access public
+	 * @return Post
+	 */
+	public function setManager($manager)
+	{
+		$this->manager = $manager;
+		return $this;
+	}
+	/**
+	 * Returns the mentor
+	 *
+	 * @access public
+	 * @return int
+	 */
+	public function getManager()
+	{
+		return $this->manager;
+	}
+
+	/**
+	 * Sets the coordinator
+	 *
+	 * @param int $cooredinator
+	 * @access public
+	 * @return Post
+	 */
+	public function setCoordinator($coordinator)
+	{
+		$this->coordinator = $coordinator;
+		return $this;
+	}
+	/**
+	 * Returns the coordinator
+	 *
+	 * @access public
+	 * @return int
+	 */
+	public function getCoordinator()
+	{
+		return $this->coordinator;
+	}
+	
 	/**
 	 * Sets the Current Logged-In User Id
 	 *
@@ -323,6 +452,8 @@ class Projects extends DomainObject
 	{
 		$this->loggedin_user_id = $loggedin_user_id;
 	}
+	
+	
 	
 	/**
 	 * Returns the Current Logged-In User Id

@@ -13,10 +13,12 @@ use Application\Repository\UserRepository;
  * @ORM\Entity(repositoryClass="Application\Repository\UserRepository")
  * @ORM\Table(name="user")
  * @property int $id
+ * @property string $employeeid
  * @property string $isactive
  * @property string $password
  * @property string $fname
  * @property string $lname
+ * @property string $designation
  * @property int $mobile
  * @property string $dob
  * @property string $doy
@@ -24,6 +26,7 @@ use Application\Repository\UserRepository;
  * @property int $company_id
  * @property int $joiningdate
  * @property int $needdailyreport
+ * @property int $needallocation
  * @property int $leavingdate
  * @property int $timing_slot_id
  */
@@ -42,7 +45,10 @@ class User
 	 * @ORM\GeneratedValue(strategy="AUTO")
 	 */
 	protected  $id;
-	
+	/**
+	 * @ORM\Column(type="string")
+	 */
+	protected  $employeeid;
 	/**
 	 * @ORM\Column(type="string")
 	 */
@@ -59,6 +65,10 @@ class User
 	 * @ORM\Column(type="string",nullable=true)
 	 */
 	protected  $lname;
+	/**
+	 * @ORM\Column(type="string",nullable=true)
+	 */
+	protected  $designation;
 	/**
 	 * @ORM\Column(type="string",nullable=true)
 	 */
@@ -93,6 +103,10 @@ class User
 	 * @ORM\Column(type="integer",nullable=true)
 	 */
 	protected  $needdailyreport;
+	/**
+	 * @ORM\Column(type="integer",nullable=true)
+	 */
+	protected  $needallocation;
 	
 	/**
 	 * @ORM\Column(type="integer",nullable=true)

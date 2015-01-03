@@ -7,12 +7,12 @@ $common = new Common();?>
 		<td style="width:175px;"><b>Name:</b></td>
 		<td>
 			<label id="name" name="name" title="Name">
-				<?php if(isset($this->getProject[0]['name'])){echo $this->getProject[0]['name'];}?>
+				<?php if(isset($this->getProject[0]['name'])){echo ucfirst($this->getProject[0]['name']);}?>
 			</label>
 		</td>
 		<td style="width:175px;"><b>Status:</b></td>
 		<td><label id="status" name="status" title="Status">
-				<?php if(isset($this->getProject[0]['status'])){echo $this->getProject[0]['status'];}?>
+				<?php if(isset($this->getProject[0]['status'])){echo ucfirst($this->getProject[0]['status']);}?>
 			</label>
 		</td>
 	</tr>
@@ -20,7 +20,7 @@ $common = new Common();?>
 		<td><b>Type:</b></td>
 		<td>
 			<label id="type" name="type" title="Type">
-				<?php if(isset($this->getProject[0]['type'])){echo $this->getProject[0]['type'];}?>
+				<?php if(isset($this->getProject[0]['type'])){echo ucfirst($this->getProject[0]['type']);}?>
 			</label>
 		</td>
 		<td><b>Estimated Start Date:</b></td>
@@ -181,7 +181,7 @@ $common = new Common();?>
 					$("#datatable").html(response);	    	        
     	        },
 		 	 	error: function(XMLHttpRequest,textStatus){
-			    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		 	 		alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 			   	},
 				complete: function(){
 			    	setTimeout(function(){		    	

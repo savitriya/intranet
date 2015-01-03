@@ -1,7 +1,34 @@
-<h2 class="title">Activities</h2><hr/>
+<?php 
+use Zend\Authentication\AuthenticationService;
+$auth=new AuthenticationService();
+$currentuser= $auth->getIdentity()->id; 
+?>
+
+		 
+<button id="btnAddActivity"  style="float:right;" name="btnAddActivity" class="btn btn-success"  aligne="left" style="">Add New Activity</button>
+
+<h2 class="title">Activities</h2>
+
+<hr/>
+
 <form action="" method="post" id="form" name="form" class="form-horizontal">
 	<div class="row-fluid">
-		<div class="span4 control-group">
+			<div class="span4 control-group">
+				<label class="control-label">Company:</label>
+				<div class="controls">
+					<select id="company" name="company" title="Company">
+						<option value="">--Select--</option>
+						<?php for($i=0;$i<count($comanys);$i++){?>
+						<option value='<?php echo $comanys[$i]['id'];?>'>
+							<?php echo ucfirst($comanys[$i]['name']);?>
+						</option>
+						<?php }?>
+					</select>
+				</div>
+				<div class="controls"><div id="company_error" class="error"></div></div>
+			</div>
+			
+	<div class="span4 control-group">
 		<label class="control-label">Project: </label>
 			<div class="controls">
 				<select id="project" name="project">
@@ -18,6 +45,11 @@
 				</select>
 			</div>
 		</div>
+			
+	
+	</div>
+	
+	<div class="row-fluid">
 		<div class="span4 control-group">
 			<label class="control-label">Assigned User: </label>
 			<div class="controls">
@@ -38,7 +70,7 @@
 				</select>
 			</div>
 		</div>
-		<div class="span3 control-group">
+		<div class="span4 control-group">
 			<label class="control-label">Assigned By: </label>
 			<div class="controls">
 				<select id="assignedby" name="assignedby">
@@ -75,24 +107,7 @@
 <!--			<div id="activity_date_error"></div>-->
 			</div>
 		</div>
-		<div class="span3 control-group">
-			<label class="control-label">Activity Status: </label>
-			<div class="controls">
-				<select id="activitystatus" name="activitystatus">
-					<option value="">--Select--</option>
-					<?php if(isset($activityStatuse) && count($activityStatuse)>0){
-						for($i=0;$i<count($activityStatuse);$i++){
-							?>
-					<option value="<?php echo $activityStatuse[$i]['id'];?>">
-						<?php if($activityStatuse[$i]['name']!=null && $activityStatuse[$i]['name']!=""){
-							echo ucwords($activityStatuse[$i]['name']);
-						} ?>
-					</option>
-					<?php }?>
-					<?php }?>
-				</select>
-			</div>
-		</div>
+	
 	</div>
 	<div class="row-fluid">
 		<div class="span4 control-group">
@@ -124,29 +139,81 @@
 	</div>
 	<div class="row-fluid">
 		<div class="span4 control-group">
+			<label class="control-label">Activity Status: </label>
 			<div class="controls">
-				<button id="btnAddActivity" name="btnAddActivity" class="btn btn-success">Add New Activity</button>
+				<select id="activitystatus" name="activitystatus">
+					<option value="">--Select--</option>
+					<?php if(isset($activityStatuse) && count($activityStatuse)>0){
+						for($i=0;$i<count($activityStatuse);$i++){
+							?>
+					<option value="<?php echo $activityStatuse[$i]['id'];?>">
+						<?php if($activityStatuse[$i]['name']!=null && $activityStatuse[$i]['name']!=""){
+							echo ucwords($activityStatuse[$i]['name']);
+						} ?>
+					</option>
+					<?php }?>
+					<?php }?>
+				</select>
 			</div>
 		</div>
+		
+		<div class="span4 control-group">
+			<label class="control-label">Filters: </label>
+			<div class="controls">
+				<select id="savefilterid" name="savefilterid">
+					<option value=""></option>
+					<?php if(isset($saveFilters) && count($saveFilters)>0){
+						for($i=0;$i<count($saveFilters);$i++){
+						if($auth->getIdentity()->isadmin==1){?>
+					<option value="<?php echo $saveFilters[$i]['id'];?>">
+						<?php if($saveFilters[$i]['name']!=null && $saveFilters[$i]['name']!=""){
+							echo ucwords($saveFilters[$i]['name']);
+							if($saveFilters[$i]['userid']!=$currentuser){
+							echo " (".ucwords($saveFilters[$i]['fname']).")";
+						}
+						} ?>
+					</option>
+					<?php }elseif ( $saveFilters[$i]['userid']==$currentuser){?>
+						<option value="<?php echo $saveFilters[$i]['id'];?>">
+						<?php if($saveFilters[$i]['name']!=null && $saveFilters[$i]['name']!=""){
+							echo ucwords($saveFilters[$i]['name']);
+						} ?>
+					</option>
+					<?php } }?>
+					<?php }?>
+				</select>
+			</div>
+		</div>
+		
+		
+	</div>
+	<div class="row-fluid">
+		<div class="span6 control-group">
+		</div>
+		
 		<div class="span6 control-group">
 			<div class="controls">
 				<button id="filterActivity" name="filterActivity" class="btn btn-success right-margin">Apply Filter</button>
-				<button id="clear" name="clear" class="btn btn-success right-margin">Reset Filters<sup>*</sup></button>
-				<span class="help-block">
-					<sup>*</sup>Use <i>Reset Filters &nbsp;</i> button to clear the filters, especially for dates.
-				</span>
+				<button id="clear" name="clear" class="btn btn-success right-margin">Reset Filters</button>
+				<button type="button" id="savefilter" name="savefilter" class="btn btn-success right-margin">Save Filter</button>
+				
 			</div>
 		</div>
 	</div>
 </form>
 <hr />
-<div style="min-height: 500px;" id="gridContainer">
-	<table id="list">
+<div style="height: 100%;" id="gridContainer">
+	<table id="list"  class="table table-striped table-bordered dataTable" style="width: 100%;">
 	</table>
 	<div id="pager"></div>
 </div>
 <script type="text/javascript">
+
 $(document).ready(function(){
+	$('#company').bind('change', function(ev) {
+		 getProjectByCompany();
+	  });
+	
 	jQuery("#list").jqGrid({
 		url:"<?php echo $this->url('gridactivities'); ?>",
 		datatype: "json",
@@ -166,8 +233,8 @@ $(document).ready(function(){
 		{name:'action', index:'action', width:55,editable: false,sortable:false}		
 		],
 		postData: {assignedid:<?php echo $currentLoggedInUser;?>},
-	  	rowNum:20,
-	    rowList:[10,20,25],
+	  	rowNum:100,
+	    rowList:[100,200,500],
 	    navigator:true,
 	    pager: '#pager',
 	    sortname: 'due_date',
@@ -175,6 +242,7 @@ $(document).ready(function(){
 	    sortorder: "desc",
 	    height:"400px",
 	});
+	
 	   $("#due_date").datepicker({
 	       changeMonth: true,
 	       changeYear: true,
@@ -201,8 +269,17 @@ $(document).ready(function(){
 	   $("#clear").click(function( event ) {
 		  event.preventDefault();
 		  clr();
-		});	
-	   jQuery("#list").setGridWidth($('#gridContainer').width(), true);
+		});
+	   $("#savefilter").click(function( event ) {
+		   $("#addActivityFilterModal" ).modal({show:true});
+		   var text=$("#savefilterid :selected").text();
+		   $("#activityFilterName").val(text.trim());
+			});
+		$("#addActivityFilter").click(function( event ) {
+			saveFilterActivity();
+			});	
+			
+	   	jQuery("#list").setGridWidth($('#gridContainer').width(), true);
 		$("#filterActivity").click(function( event ) {
 		   event.preventDefault();
 		   filterActivity();
@@ -211,9 +288,15 @@ $(document).ready(function(){
 		   event.preventDefault();
 		   window.location.href = "<?php echo $this->url('addactivity');?>";
 		});
+		
+		 $('#savefilterid').bind('change', function(ev) {
+			 getFilter();	
+		  });
+		
 	    });
 	    	    
-	    function filterActivity(){
+	
+	function filterActivity(){
 	     var   activitystatus = $("#activitystatus").val();
 		 var   userid = $("#assigneduser").val();
 		 var   assignedby = $("#assignedby").val();
@@ -248,17 +331,17 @@ $(document).ready(function(){
 	    	     success: function(response)
 	    	     {    
 	    	        if(response['returnvalue']=="valid"){
-			            	alert("record deleted");
+	    	        		alert("record deleted");
 			    	        $("#list").trigger('reloadGrid');
 					}
 			        else{
 				        if(response.data['user']=="null"){
-				      	  	alert("you are not allowed to delete this activity");
+				        	alert("you are not allowed to delete this activity");
 						}
 					}
     	        },
 		 	 	error: function(XMLHttpRequest,textStatus){
-			    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		 	 		alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 			   	},
 				complete: function(){
 			    	setTimeout(function(){		    	
@@ -268,7 +351,102 @@ $(document).ready(function(){
 	    	   });
 	    	}
 	    }
-	    function clr(){
+	    function saveFilterActivity(){
+
+			 var   savefilterid = $("#savefilterid").val();
+			 var   activityFilterName=$("#activityFilterName").val();	
+		     var   activitystatus = $("#activitystatus").val();
+		     var   company = $("#company").val();
+			 var   userid = $("#assigneduser").val();
+			 var   assignedby = $("#assignedby").val();
+			 var   projectid = $("#project").val();
+			 var   duedates = $("#due_date").val();
+
+			 var   alterduedate=$("#alternate_due_date").val();	
+			 var   activitydate = $("#activity_date").val();
+			
+		     var   altactivitydates = $("#alternate_activity_date").val();
+		   
+			 var   subject = $("#subject").val();
+			 var   activityloguser = $("#activityloguser").val();
+			 
+				<?php if(isset($saveFilters) && count($saveFilters)>0){
+						for($i=0;$i<count($saveFilters);$i++){
+					if($auth->getIdentity()->id==$saveFilters[$i]['userid']){?>
+						if(activityFilterName=="<?php echo $saveFilters[$i]['name'];?>"){
+								if(savefilterid ==""){
+									alert("Duplicate Filter Name");
+									$("#activityFilterName").val("");
+									return;
+									}
+							}		
+					<?php }?>
+							
+						
+				<?php }}?>
+			
+		 $.ajax({
+		     type: "POST",
+		     url: "<?php echo $this->url('savefilteractivity');?>",             
+		     data: {'savefilter':savefilterid,'activityFilterName':activityFilterName,'company':company,'activitystatus':activitystatus,'userid':userid,'assignedby':assignedby,'projectid':projectid,'duedates':duedates
+			       ,'alterduedate':alterduedate,'activitydate':activitydate,'altactivitydate':altactivitydates,'subject':subject,'activityloguser':activityloguser
+			        },
+		     dataType:'json',
+		    
+		     success: function(response)
+		     	{    
+		    	 if(response['returnvalue']=="valid"){
+			    	 if(savefilterid>0){
+			    		 alert("Filter successfully updated");
+				    	 }else{
+				    		 alert("Filter Save successfully");
+				    		 }
+			    	 $("#addActivityFilterModal" ).modal('hide');
+			    	 }
+	        },
+	 	 	error: function(XMLHttpRequest,textStatus){
+	 	 		alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		   	}
+	 	 	
+		   });
+			 
+		}
+	function getFilter(){
+		var savefilterid=$("#savefilterid").val();
+		 $.ajax({
+    	     type: "POST",
+    	     url: "<?php echo $this->url('getfilteractivity');?>",  
+    	     data: {'savefilterid':savefilterid},           
+    	     dataType:'json',
+    	     success: function(response)
+    	     {   
+                if(response['returnvalue']=="valid"){
+                	
+					$("#company").val(response.data['company']);
+					$("#assigneduser").val(response.data['userid']);
+					$("#assignedby").val(response.data['assignedby']);
+					$("#activitystatus").val(response.data['activitystatus']);
+					$("#project").val(response.data['projectid']);	
+					$("#due_date").val(response.data['duedates']);	
+					$("#alternate_due_date").val(response.data['alterduedate']);
+					
+					$("#activity_date").val(response.data['activitydate']);	
+					$("#alternate_activity_date").val(response.data['altactivitydate']);
+					
+					$("#subject").val(response.data['subject']);	
+					$("#activityloguser").val(response.data['activityloguser']);	
+					filterActivity();
+    	        }
+		    },
+	 	 	error: function(XMLHttpRequest,textStatus){
+	 	 		alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		   	}
+    	   });
+		 
+		}
+	
+	function clr(){
+		 document.getElementById("company").value='';	
 	   	 document.getElementById("assigneduser").value='';
 	   	 document.getElementById("assignedby").value='';
 	   	 document.getElementById("project").value='';
@@ -278,7 +456,67 @@ $(document).ready(function(){
 	   	 document.getElementById("alternate_due_date").value='';
 		 document.getElementById("activityloguser").value='';
 		 document.getElementById("activitystatus").value='';
-
+		 document.getElementById("subject").value='';
+		 filterActivity();
 	    }
-	</script>
+    
+	function getProjectByCompany(){
+		var companyId = $("#company").val();
+		 var projectDropDown = document.getElementById('project');		     		     
+		 projectDropDown.options.length=0;
+	     var op = document.createElement("option");		     
+		    op.value="";
+		    op.text="--Select--";
+		    projectDropDown.options.add(op);
+	     $.ajax({	
+	    	 type: "POST",	      
+	    	 url: "<?php echo $this->url('getProjectByCompany');?>",
+	        data: {companyid: companyId},	
+	        dataType:"json",
+	        success: function(response)
+	         {
+	        	 if(response['returnvalue']=="valid"){
+	            var $i;				    	
+			    for($i=0;$i<response.data.length;$i++){
+			    var op = document.createElement("option");
+			    op.value=response.data[$i]['id'];
+			    op.text=response.data[$i]['name'];
+			    projectDropDown.options.add(op);
+//	 		    $("#company").removeAttr("disabled");
+			    }	
+	        	 }else{
+	        		 alert("Project not found");
+	     	    }
+	         }       
+	     });
 
+	}
+	    
+	</script>
+	
+<div id="addActivityFilterModal" title="Add ActivityFilter" class="modal hide fade" data-backdrop="static" 
+	data-toggle="modal" tabindex="-1" role="dialog" 
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<button class="bootbox-close-button close" type="button" data-dismiss="modal" style="margin-right:5px;">×</button>
+    <div class="modal-header">
+    	<h6 class="title" style="margin-bottom:1px;">Add Activity Filter</h6>
+    </div>
+    <!-- dialog contents -->
+	<div class="modal-body">
+		<div id="addActivityFilterBody">
+		<div class="span4 control-group">
+			<label class="control-label">Filter Name: </label>
+			<div class="controls">
+				<input type="text" id="activityFilterName" name="activityFilterName" title="activityFilterName" /></div>
+		</div>
+		</div>
+    </div>
+    	<div class="modal-footer">
+    	<button class="btn btn-success" data-toggle="modal" style="margin-left:33px;" 
+			type="button" id="closemodeldilog" data-dismiss="modal" >Close</button>
+	    <button class="btn btn-success" data-toggle="modal" style="margin-left:33px" 
+	    	type="button" value="addActivityFilter" id="addActivityFilter" name="addActivityFilter">Submit</button>
+    </div>
+		</div>
+    
+</div>

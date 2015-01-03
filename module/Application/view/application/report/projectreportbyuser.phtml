@@ -1,0 +1,30 @@
+<?php
+use IntranetUtils\Common;
+$common=new Common();
+?>
+
+<?php
+if(isset($reportarray)  && count($reportarray)>0){	
+	?>
+		<h4 style="text-align:center;background-color:#CCD232;padding:2px;border-radius:5px;">
+			<?php echo strtoupper($reportarray['projectName'])." (".$common->convertSpentTime($reportarray['time']).")";?>
+		</h4>
+	
+		<?php foreach ($reportarray['user'] as $user){?>
+				
+				<table style="padding-right: 1%;"><tr style="background:#9B59B6;">
+				<td><?php  echo $user['userName']."(".$common->convertSpentTime($user['time']).")";?></td>
+				</tr></table>
+				<table style="padding-left: 5%;" class="table-fixed-header table-bordered table-condensed fixedCol">
+				<?php foreach ($user['description'] as $activitylog){?>
+				
+				<tr>
+				<td><?php  echo date("d-m-Y",$activitylog['activityDate']);?></td>
+				<td><?php  echo $common->convertSpentTime($activitylog['spent']);?></td>
+				<td><?php  echo ucfirst($activitylog['activity']);?></td>
+				</tr>
+			<?php }?>
+			</table>
+			<?php } ?>
+			 
+ <?php } ?>

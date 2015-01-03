@@ -17,7 +17,7 @@
     </div>
 </div>
 <h2 class="title">Holidays</h2><hr/>
-<div style="min-height: 500px;" id="gridContainer">
+<div style="height: 100%;" id="gridContainer">
 	<table id="list">
 	</table>
 	<div id="pager"></div>
@@ -34,8 +34,8 @@ $(document).ready(function(){
 		{name:'holiday', index:'holiday', editable:true},
 		{name:'date', index:'date',align:'right', editable:true},
 		],
-		rowNum:70,
-	    rowList:[10,20,25],
+		rowNum:100,
+		rowList:[100,200,500],
 	    navigator:true,
 	    pager: '#pager',
 	    sortname: 'date',
@@ -64,7 +64,7 @@ $(document).ready(function(){
 	     	    	$("#addHoliday").html(response);
                  },
 	     	    error: function(XMLHttpRequest,textStatus){
-            	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+	     	    	bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 					   	},
 			   complete: function(){
 					    	setTimeout(function(){		    	
@@ -89,22 +89,22 @@ $(document).ready(function(){
  		 	 },
     	     success: function(response)
     	     {   
-    	        alert("holiday deleted");
+    	    	 bootbox.alert("holiday deleted");
     	        $("#list").trigger("reloadGrid");
     	              },
     	          	error: function(XMLHttpRequest,textStatus){
-				    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+    	          		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 				   	},
 					complete: function(){
 				    	setTimeout(function(){		    	
-				    		$('#addHoliday').unmask();	
+				    		$('#list').unmask();	
 				    		//unmaskloading('addProjects');
 						},500);
 					}
     	   });
  	   	}
  	    }else{
- 	 	    alert("Please select a row to edit first.");
+ 	    	bootbox.alert("Please select a row to edit first.");
  	    }
 	  	}});
 	resizegrid("gridContainer","list");
@@ -129,9 +129,9 @@ function add(id){
         {
          
              if(response['returnvalue']=="valid"){       
-                 if(id!="" && id!=''){alert("Record has been updated Successfully");
+                 if(id!="" && id!=''){bootbox.alert("Record has been updated Successfully");
                  }else{
-                	 alert("Holiday has been added Successfully");
+                	 bootbox.alert("Holiday has been added Successfully");
                  }     	 
                  $( "#addHolidayModal" ).modal('hide');
                  
@@ -141,13 +141,13 @@ function add(id){
              }	              
              if(response['returnvalue']=="update"){            	 
             	 $( "#addHolidayModal" ).modal('hide');
-                 alert("Holiday has been updated Successfully");
+            	 bootbox.alert("Holiday has been updated Successfully");
            	     $("#list").trigger("reloadGrid");           	          		         		 
                     return false;
              }	              
 
               else if(response.returnvalue=="exception"){
-                  alert("This Operation Could not be Completed,Please contact administrator");
+            	  bootbox.alert("This Operation Could not be Completed,Please contact administrator");
                   return false;
              }
              else{
@@ -176,7 +176,7 @@ function add(id){
 		            }}
 		  		 },
 		  	 	error: function(XMLHttpRequest,textStatus){
-			    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		  	 		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 			   	},
 				complete: function(){
 			    	setTimeout(function(){		    	

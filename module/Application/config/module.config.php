@@ -42,6 +42,17 @@ return array(
         				),
         		),
         		
+        		
+        		'birthdaymail' => array(
+        				'type' => 'Zend\Mvc\Router\Http\Literal',
+        				'options' => array(
+        						'route'    => '/birthdaymail',
+        						'defaults' => array(
+        								'controller' => 'Application\Controller\Index',
+        								'action'     => 'birthdaymail',
+        						),
+        				),
+        		),
         		'addlogtime' => array(
         				'type' => 'Zend\Mvc\Router\Http\Literal',
         				'options' => array(
@@ -134,17 +145,37 @@ return array(
         					),
         			),
         	),
-        	'attendancereport' => array(
+        	'timesheet' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
         			'options' => array(
-        					'route'    => '/attendancereport',
+        					'route'    => '/timesheet',
         					'defaults' => array(
         							'controller' => 'Application\Controller\User',
-        							'action'     => 'attendancereport',
+        							'action'     => 'timesheet',
         					),
         			),
         	),
-
+        	'attendancereporttest' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/attendancereporttest',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\User',
+        							'action'     => 'attendancereporttest',
+        					),
+        			),
+        	),
+        	'doorentry' =>array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/doorentry',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\User',
+        							'action'     => 'doorentry',
+        					),
+        			),
+        	),
+        	
         	'loginreportgrid' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
         			'options' => array(
@@ -199,6 +230,164 @@ return array(
         					),
         			),
         	),
+
+        	'userefficiencyreport' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/userefficiencyreport',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Report',
+        							'action'     => 'userefficiencyreport',
+        					),
+        			),
+        	),
+        	
+        	
+        	'projectreportbyuser' => array(
+        			'type' => 'segment',
+        			'options' => array(
+        					'route'    => '/projectreportbyuser/[:id]',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Report',
+        							'action'     => 'projectreportbyuser',
+        					),
+        			),
+        	),
+   // Resource Planning
+        	'resource' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/resource',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'index',
+        					),
+        			),
+        	),
+        	'resourceallocation' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/resourceallocation',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'resourceallocation',
+        					),
+        			),
+        	),
+        	
+        	'allocation' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/allocation',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'allocation',
+        					),
+        			),
+        	),
+        	
+        	'viewallocationdetail' => array(
+        				'type'=>'segment',
+        			'options' => array(
+        					'route'    => '/viewallocationdetail/:id',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'viewallocationdetail',
+        					),
+        			),
+        	),
+      
+        	'gridresourceallocation' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/gridresourceallocation',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'gridresourceallocation',
+        					),
+        			),
+        	),
+
+        	'deleteresourceallocation' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/deleteresourceallocation',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'deleteresourceallocation',
+        					),
+        			),
+        	),
+        	
+        	
+        	'addresourceallocation' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/addresourceallocation',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'addresourceallocation',
+        					),
+        			),
+        	),
+        	
+        	
+        	
+        	'getskills' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/getskills',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'getskills',
+        					),
+        			),
+        	),
+        	'addskills' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/addskills',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'addskills',
+        					),
+        			),
+        	),        
+        	'adduserskills' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/adduserskills',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'adduserskills',
+        					),
+        			),
+        	),
+        	
+        	
+        	'skillssets' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/skillssets',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'skillssets',
+        					),
+        			),
+        	),
+        	
+
+        	'filterallocation' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/filterallocation',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Resourceplanning',
+        							'action'     => 'filterallocation',
+        					),
+        			),
+        	),
+        	
         	'weeklyreport' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
         			'options' => array(
@@ -243,7 +432,29 @@ return array(
         			),
         	),
         	
-      
+        	'projecthealthreport' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/projecthealthreport',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Report',
+        							'action'     => 'projecthealthreport',
+        					),
+        			),
+        	),
+        	
+
+        	'filterprojecthealthreport' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/filterprojecthealthreport',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Report',
+        							'action'     => 'filterprojecthealthreport',
+        					),
+        			),
+        	),
+        	
         	'userreport' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
         			'options' => array(
@@ -307,6 +518,27 @@ return array(
         			),
         	),
         	
+        	'automatereport' => array(
+        			'type'=>'segment',
+        			'options' => array(
+        					'route'    => '/automatereport[/:day]',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\User',
+        							'action'     => 'automatereport',
+        					),
+        			),
+        	),
+        	
+        	'reportnotfilled' => array(
+        			'type'=>'segment',
+        			'options' => array(
+        					'route'    => '/reportnotfilled[/:day]',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\User',
+        							'action'     => 'reportnotfilled',
+        					),
+        			),
+        	),
         	'editmyprofile' => array(
         			'type'=>'segment',
         			'options' => array(
@@ -402,6 +634,8 @@ return array(
         			),
         	),
         	
+      
+        	
         	'gridactivitylog' => array(
         			'type' => 'segment',
         			'options' => array(
@@ -445,6 +679,17 @@ return array(
         					),
         			),
         	),
+        	'loginbydoor' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/loginbydoor',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Admin',
+        							'action'     => 'loginbydoor',
+        					),
+        			),
+        	),
+        	
         	'company' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
         			'options' => array(
@@ -527,6 +772,18 @@ return array(
         					),
         			),
         	),
+        	
+        	'addsundayasholiday' => array(
+        			'type' => 'segment',
+        			'options' => array(
+        					'route'    => '/addsundayasholiday[/:month/:year]',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Admin',
+        							'action'     => 'addsundayasholiday',
+        					),
+        			),
+        	),
+        	 
         	'addholiday' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
         			'options' => array(
@@ -701,6 +958,27 @@ return array(
         					),
         			),
         	),
+        	'getprojectallocationdetail' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/getprojectallocationdetail',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Projects',
+        							'action'     => 'getprojectallocationdetail',
+        					),
+        			),
+        	),
+        	
+        	'getuserallocationdetailbyproject' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/getuserallocationdetailbyproject',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Projects',
+        							'action'     => 'getuserallocationdetailbyproject',
+        					),
+        			),
+        	),
         	'gridprojects' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
         			'options' => array(
@@ -731,6 +1009,18 @@ return array(
         					),
         			),
         	),
+        	'getProjectByCompany' =>array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/getProjectByCompany',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Projects',
+        							'action'     => 'getProjectByCompany',
+        					),
+        			),
+        	),
+        	 
+        	
         	//	 'activities
         	'sendmail' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
@@ -742,6 +1032,28 @@ return array(
         					),
         			),
         	),
+        	'savefilteractivity' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/savefilteractivity',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Activities',
+        							'action'     => 'savefilteractivity',
+        					),
+        			),
+        	),
+        	
+        	'getfilteractivity' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/getfilteractivity',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Activities',
+        							'action'     => 'getfilteractivity',
+        					),
+        			),
+        	),
+        	
         	'activities' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
         			'options' => array(
@@ -1097,6 +1409,20 @@ return array(
         					),
         			),
         	),
+        	'getUserByCompany' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/getUserByCompany',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\User',
+        							'action'     => 'getUserByCompany',
+        					),
+        			),
+        	),
+        	
+        	
+        	
+        	
         	'projectreport' => array(
         			'type' => 'Zend\Mvc\Router\Http\Literal',
         			'options' => array(
@@ -1106,6 +1432,77 @@ return array(
         							'action'     => 'projectreport',
         					),
         			),
+        	),
+        	'overrunprojects' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/overrunprojects',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Report',
+        							'action'     => 'overrunprojects',
+        					),
+        			),
+        	),
+        	
+        	'asset' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/asset',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Asset',
+        							'action'     => 'index',
+        					),
+        			),
+        	),
+        	'gridasset' => array(
+        			'type' => 'Zend\Mvc\Router\Http\Literal',
+        			'options' => array(
+        					'route'    => '/gridasset',
+        					'defaults' => array(
+        							'controller' => 'Application\Controller\Asset',
+        							'action'     => 'gridasset',
+        					),
+        			),
+        	),
+            'deleteasset' => array(
+        		'type' => 'Zend\Mvc\Router\Http\Literal',
+        		'options' => array(
+        				'route'    => '/deleteasset',
+        				'defaults' => array(
+        						'controller' => 'Application\Controller\Asset',
+        						'action'     => 'deleteasset',
+        				),
+        		),
+        	),
+	        'addasset' => array(
+	        	'type'=>'segment',
+	        	'options' => array(
+	        			'route'    => '/addasset[/:id]',
+	        			'defaults' => array(
+	        					'controller' => 'Application\Controller\Asset',
+	        					'action'     => 'addasset',
+	        			),
+	        	),
+        	),
+        	'asset_categories' => array(
+	        	'type'=>'Zend\Mvc\Router\Http\Literal',
+	        	'options' => array(
+	        			'route'    => '/asset-categories',
+	        			'defaults' => array(
+	        					'controller' => 'Application\Controller\Asset',
+	        					'action'     => 'assetcategories',
+	        			),
+	        	),
+        	),
+        	'asset_locations' => array(
+	        	'type'=>'Zend\Mvc\Router\Http\Literal',
+	        	'options' => array(
+	        			'route'    => '/asset-locations',
+	        			'defaults' => array(
+	        					'controller' => 'Application\Controller\Asset',
+	        					'action'     => 'assetlocations',
+	        			),
+	        	),
         	),
         	
             // The following is a route to simplify getting started creating
@@ -1169,6 +1566,10 @@ return array(
     		'Application\Controller\Company' => 'Application\Controller\CompanyController',
     		'Application\Controller\Report' => 'Application\Controller\ReportController',
     		'Application\Controller\Script' => 'Application\Controller\ScriptController',
+    		'Application\Controller\Asset' => 'Application\Controller\AssetController',
+		    'Application\Controller\Assetmaster' => 'Application\Controller\AssetmasterController',
+		    'Application\Controller\Assethistory' => 'Application\Controller\AssethistoryController',
+		    'Application\Controller\Resourceplanning' => 'Application\Controller\ResourceplanningController',
         ),
     ),
     'view_manager' => array(
@@ -1207,5 +1608,4 @@ return array(
             )
         ),
     ),
-   
 );

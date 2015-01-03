@@ -1,0 +1,25 @@
+<html>
+<body>
+
+<form action="" method="post"
+enctype="multipart/form-data">
+<label for="file">Filename:
+<?php 
+
+if(isset($response['returnvalue']) && $response['returnvalue'] !=""){
+		echo '<div id="errormessage" class="error">'.$response['returnvalue'].'</div>';
+} ?></label>
+<input type="file" name="file" id="file"><br>
+<input type="submit" name="submit" value="Submit">
+</form>
+
+</body>
+</html> 
+<script type="text/javascript"> 
+$(document).ready(function(){
+
+$('#file').bind('click', function(ev) {
+			$("#errormessage").html("");
+		  });
+});
+</script>

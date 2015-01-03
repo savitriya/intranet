@@ -28,12 +28,12 @@ function add(){
          success: function(nofifyResponse)
          { 
         	 if(nofifyResponse['returnvalue']=="valid"){
-				alert('Record has been added successfully');
+        		 alert('Record has been added successfully');
 				document.getElementById("inoutform").reset();
 				//window.location.reload(true);
              }
         	 else if(nofifyResponse.returnvalue=="exception"){
-                 alert("This Operation Could not be Completed,Please contact administrator");
+        		 alert("This Operation Could not be Completed,Please contact administrator");
                  return false;
            		 }
            else{
@@ -52,7 +52,7 @@ function add(){
 		            }}
              },
   		   error: function(XMLHttpRequest,textStatus){
-		    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+  			 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 		   	},
 			complete: function(){
 		    	setTimeout(function(){		    	

@@ -22,7 +22,9 @@ use Zend\Authentication\Storage\Session as SessionStorage;
 use Application\Entity\User;
 use Application\Entity\Projects;
 use Application\Entity\Holiday;
+use Application\Entity\Dailyquote;
 use Application\Entity\Activities;
+use Application\Entity\Timingslot;
 use Zend\Json\Decoder;
 
 
@@ -92,6 +94,7 @@ class IndexController extends AbstractActionController
 		}
 
 	}
+	
 	public function setpreferencesAction(){
 		$em=$this->getEntityManager();
 		$user=$em->getRepository("Application\Entity\User")->findAll();
@@ -117,29 +120,118 @@ class IndexController extends AbstractActionController
 	public function indexAction()
  	{   
  		
+ 		$em=$this->getEntityManager();
+ 		$common = new Misc();
  		
+ 			
  		$auth = new AuthenticationService();
- 		$userid=$auth->getIdentity()->id;
- 		if($auth->getIdentity()->isadmin==1){
- 			if($this->params('id')!=""){
- 				$userid=$this->params('id');
- 			}
- 		}
- 		
- 		$common=new Misc();
-     	$em=$this->getEntityManager();
-     	
-		$birthdayUsers="";
-		$selfBirthday=0;
 		if(!$auth->hasIdentity()){
 			return $this->redirect()->toRoute('login');
 		}
-		$currentDate=date("m-d");
-		$birthDayQuery = $em->createQuery("SELECT u.id as uid,u.fname as fname,u.lname as lname FROM Application\Entity\User u  Where u.dob='$currentDate'");
+		$userid=$auth->getIdentity()->id;
+			
+		if($auth->getIdentity()->isadmin==1){
+			if($this->params('id')!=""){
+				$userid=$this->params('id');
+			}
+		}
+			
+			
+		$selectedYear =date("Y");
+		$selectedMonth =date('m');
+		$fromdate=$selectedYear."-".$selectedMonth."-1";
+		$todate=$selectedYear."-".$selectedMonth."-".cal_days_in_month(CAL_GREGORIAN,$selectedMonth,$selectedYear);
+		$fromdate=$common->ConvertLocalTimezoneToGMT($fromdate,"Asia/Calcutta","Y-m-d H:i:s");
+		$todate=$common->ConvertLocalTimezoneToGMT($todate,"Asia/Calcutta","Y-m-d H:i:s");
+			
+		$fromdate=strtotime($fromdate);
+		$todate=strtotime($todate);
+			
+		$allocationQuery=$em->CreateQuery("SELECT ra.user_id as user_id,u.company_id as company_id
+				,sum(ra.duration) as allocated,ra.project_id as project_id,p.name as project_name,ts.slot_login_time as timeSlot
+				FROM Application\Entity\User u
+				LEFT JOIN Application\Entity\ResourceAllocation ra WITH u.id=ra.user_id
+				LEFT JOIN Application\Entity\Projects as p WITH p.id=ra.project_id
+				LEFT JOIN Application\Entity\TimingSlot ts WITH ts.slot_id=u.timing_slot_id
+				WHERE ra.allocation_date BETWEEN $fromdate AND $todate AND ra.user_id=$userid GROUP BY ra.project_id")->getArrayResult();
+			
+		$activityReport=$em->createQuery("Select u.id as user_id,u.company_id as company_id,u.fname as fname
+				,u.lname as lname,sum(al.seconds_spent) as spenttime,al.project_id as project_id,p.name as project_name
+				,ts.slot_login_time as timeSlot
+				FROM Application\Entity\User u
+				LEFT JOIN Application\Entity\ActivityLog as al WITH u.id=al.user_id
+				LEFT JOIN Application\Entity\Projects as p WITH p.id=al.project_id
+				LEFT JOIN Application\Entity\TimingSlot ts WITH ts.slot_id=u.timing_slot_id
+				where al.activity_date BETWEEN $fromdate AND $todate AND al.user_id=$userid  group By al.project_id")->getResult();
+			
+// 		print_r($activityReport);exit;
+		$projectArray=array();
+		$totalallocateinmonth=0;
+// 		$timingslot=0;
+		foreach ($activityReport as $spent){
+			$timingslot=$spent['timeSlot'];
+			$projectRecordIndex=-1;
+			for($i=0;$i<count($projectArray);$i++){
+				if($projectArray[$i]['id']==$spent['project_id']){
+					$projectRecordIndex=$i;
+					break;
+				}
+			}
+			if ($projectRecordIndex==-1){
+				$projectRecordIndex=count($projectArray);
+				$projectArray[$projectRecordIndex]['id']=$spent['project_id'];
+				$projectArray[$projectRecordIndex]['name']=ucfirst($spent['project_name']);
+				$projectArray[$projectRecordIndex]['spenttime'] =0;
+				$projectArray[$projectRecordIndex]['allocated'] =0;
+				$projectArray[$projectRecordIndex]['allocatedstr'] =0;
+			}
+			$projectArray[$projectRecordIndex]['spenttime'] +=$spent['spenttime'];
+		}
+			
+		foreach ($allocationQuery as $allocated){
+			$timingslot=$allocated['timeSlot'];
+			$projectRecordIndex=-1;
+			for($i=0;$i<count($projectArray);$i++){
+				if($projectArray[$i]['id']==$allocated['project_id']){
+					$projectRecordIndex=$i;
+					break;
+				}
+			}
+			if ($projectRecordIndex==-1){
+				$projectRecordIndex=count($projectArray);
+				$projectArray[$projectRecordIndex]['id']=$allocated['project_id'];
+				$projectArray[$projectRecordIndex]['name']=ucfirst($allocated['project_name']);
+				$projectArray[$projectRecordIndex]['spenttime'] =0;
+				$projectArray[$projectRecordIndex]['allocated'] =0;
+				$projectArray[$projectRecordIndex]['allocatedstr'] =0;
+			}
+			$projectArray[$projectRecordIndex]['allocated'] +=$allocated['allocated'];
+			$projectArray[$projectRecordIndex]['allocatedstr'] +=$allocated['allocated']*60*60;
+		
+			$totalallocateinmonth +=$allocated['allocated'];
+		}
+		$birthdayUsers="";
+		$selfBirthday=0;
+		
+// 		$currentDate=date("Y-m-d H:i:s");
+// 		$currentDate=strtotime($currentDate);
+		$birthDayQuery = $em->createQuery("SELECT u.id as uid,u.fname as fname,u.lname as lname,u.dob as dob FROM Application\Entity\User u  Where u.isactive=1 ");
 		$birthDayQueryResult=$birthDayQuery->getResult();
 
+		
 		if(count($birthDayQueryResult)>0){
+			
+				
 			foreach ($birthDayQueryResult as $rw){
+				$birthDate= $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",$rw['dob']),"Asia/Calcutta","d/m/Y");
+				$birthDate= explode("/", $birthDate);
+				$birthDateDay=$birthDate[0];
+				$birthDateMonth=$birthDate[1];
+				
+				$todayDate=date('d');
+				$todayMonth=date('m');
+				
+				if($todayMonth==$birthDateMonth && $todayDate==$birthDateDay){
 				$name=$rw['fname'];
 				if(isset($rw['lname']) && $rw['lname']!=""){
 					$name.=" ".$rw['lname'];
@@ -156,10 +248,11 @@ class IndexController extends AbstractActionController
 				else{
 					$birthdayUsers.=",".ucwords($name);
 				}
+				}
 			}
 		}
 		//echo "Select a.subject as subject,a.due_date as date from Application\Entity\Activities a JOIN Application\Entity\Assignee as WITH a.id=as.activity_id Where as.user_id=".$auth->getIdentity()->id." order by a.due_date DESC";exit;
-		$activityRecord=$em->createQuery("Select a.id as id,a.subject as subject,a.due_date as date,p.name as pname from Application\Entity\Activities a JOIN Application\Entity\Assignee asu WITH a.id=asu.activity_id JOIN Application\Entity\Activitystatuses aas WITH aas.id=a.status_id JOIN Application\Entity\Projects p WITH p.id=a.project_id Where asu.user_id=$userid AND aas.name!='Closed' order by a.due_date ASC ")
+		$activityRecord=$em->createQuery("Select a.id as id,a.subject as subject,a.due_date as date,p.name as pname from Application\Entity\Activities a JOIN Application\Entity\Assignee asu WITH a.id=asu.activity_id JOIN Application\Entity\Activitystatuses aas WITH aas.id=a.status_id JOIN Application\Entity\Projects p WITH p.id=a.project_id Where asu.user_id=$userid AND aas.name!='Closed' order by a.due_date DESC ")
 		->setFirstResult(0)
 		->setMaxResults(5);
 		$activityRecordResult=$activityRecord->getResult();
@@ -169,8 +262,11 @@ class IndexController extends AbstractActionController
 // 		$loginTime=$em->CreateQuery("Select l.created_date as cdate,min(l.logintime) as mindt,max(l.logouttime) as maxdt FROM Application\Entity\Login l where l.user_id=$loginUserId and l.created_date=$date")->getResult();
         $loginTime=$em->getRepository('Application\Entity\Login')->getTodayLoginTime($userid,$activityDate);
 		$todayLoginTime=$loginTime[0]['mindt']-$loginTime[0]['cdate'];
+		$todayLoginTimeStr=$todayLoginTime;
          $todayLoginTime=$common->convertSpentTime($todayLoginTime);
-		 $lateBy=$loginTime[0]['mindt']-$loginTime[0]['cdate']-33000;
+         
+		 $lateBy=$loginTime[0]['mindt']-$loginTime[0]['cdate']-$loginTime[0]['timeSlot'];
+		 $timingslot=$loginTime[0]['timeSlot'];
 		 if ($lateBy>0){
 		 	$lateBy=$common->convertSpentTime($lateBy);
 		 }else{
@@ -190,18 +286,71 @@ class IndexController extends AbstractActionController
 		//print_r($username);exit;
 		$username=ucwords($username->__get('fname')." ".$username->__get('lname'));
 		
+		
+		$dailyQuote = $em->CreateQuery("SELECT da.id as id,da.heading as heading, da.description as description FROM Application\Entity\Dailyquote da")->getArrayResult();
+		
 		return new ViewModel(array(
 				'test' => $this->getEntityManager()->getRepository('Application\Entity\User')->findAll(),
 				'birthdayUsers'=>$birthdayUsers,
 				'selfBirthday'=>$selfBirthday,
 				'activityRecordResult'=>$activityRecordResult,
 				'lateBy'=>$lateBy,
+				'todayLoginTimeStr'=>$todayLoginTimeStr,
 				'todayLoginTime'=>$todayLoginTime,
 				'userid'=>$userid,
 				'username'=>$username,
+				'projectArray'=>$projectArray,
+				'totalallocateinmonth'=>$totalallocateinmonth,
+				'timingslot'=>$timingslot,
+				'dailyQuote'=>$dailyQuote
 		));
 	}
 
+	public  function birthdaymailAction(){
+		$em=$this->getEntityManager();
+		$common = new Misc();
+			
+		$auth = new AuthenticationService();
+		
+		$birthDayQuery = $em->createQuery("SELECT u.id as uid,u.email as email,u.fname as fname,u.lname as lname,u.dob as dob FROM Application\Entity\User u ");
+		$birthDayQueryResult=$birthDayQuery->getResult();
+		
+		
+		if(count($birthDayQueryResult)>0){
+				
+		
+			foreach ($birthDayQueryResult as $rw){
+				$birthDate= $common->ConvertGMTToLocalTimezone(date("Y-m-d H:i:s",$rw['dob']),"Asia/Calcutta","d/m/Y");
+				$birthDate= explode("/", $birthDate);
+				$birthDateDay=$birthDate[0];
+				$birthDateMonth=$birthDate[1];
+		
+				$todayDate=date('d');
+				$todayMonth=date('m');
+		
+				if($todayMonth==$birthDateMonth && $todayDate==$birthDateDay){
+
+					$name=$rw['fname'];
+					if(isset($rw['lname']) && $rw['lname']!=""){
+						$name.=" ".$rw['lname'];
+					}
+					$content="Dear ".ucwords($rw['fname'])." ,<br/><br/><br/><b>Many Many Happy Returns of the day</b> <br/><br/>
+					May you have all the joy your heart can hold, All the smiles a day can bring and May God continue to bless the work of your hands and grant you continued favor in your life. </b>
+					<br/><br/><br/><br/>
+					<div style='font-family:arial,sans-serif;font-size:13px'><div><b>Thanks &amp; Regards,</b></div><div><b>Team IntraNet</b></div></div>
+					";
+				
+					$to=$rw['email'];
+					if (APPLICATION_ENV == "development") {
+						$common->sendEmail("Happy Birthday Testing Ignore It",$content,$to,"Savitriya");
+					} else {
+						$common->sendEmail("Happy Birthday",$content,$to,"Savitriya");
+					}
+				}
+			}
+		}
+	}
+	
 	public function getRepository()
 	{
 		return  $this->getEntityManager()->getRepository('Application\Entity\User');

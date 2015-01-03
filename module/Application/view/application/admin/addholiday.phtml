@@ -34,11 +34,6 @@ $common=new Common();
 	</form>
 <script type="text/javascript">
 $(document).ready(function(){
-	$("#ok")//.button()
-	   .click(function( event ) {
-     event.preventDefault();
-     add('<?php if(isset($holiday) && $holiday->getId()!="" && $holiday->getId()!=null){ echo $holiday->getId();}?>');
- });
 $( "#holidaydate" ).datepicker({altField:"#altholidaydate", altFormat: "yy-mm-dd", changeMonth: true,
 	    changeYear: true, });
 });

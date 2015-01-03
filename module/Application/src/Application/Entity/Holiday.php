@@ -11,17 +11,17 @@ use Zend\InputFilter\InputFilterInterface;
 /**
  * A music holiday
  *
- * @ORM\Entity
- *  
+ * @ORM\Entity 
  * @ORM\Table(name="holiday")
  * @property string $holidayname
  * @property string $date
  * @property int $id
  */
-/** @ORM\Entity @ORM\HasLifecycleCallbacks
+/**
  * 
- * */
-
+ * @ORM\Entity @ORM\HasLifecycleCallbacks
+ *
+ */
 
 class Holiday extends DomainObject 
 {

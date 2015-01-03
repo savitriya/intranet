@@ -29,15 +29,6 @@ $auth = new AuthenticationService();
 	</div>
 	<div class="row-fluid">
 		<div class="span5 control-group">
-			<label class="control-label">Email:<sup style="color:#FF0000;">*</sup></label>
-			<div class="controls">
-				<input type="text" name="email" id="email" title="Email" 
-				<?php if(isset($contact) && $contact['0']['email']!=""){?> 
-				value="<?php echo $contact['0']['email'];}?>" tabindex="3" />
-			</div>
-			<div class="controls"><div id="email_error" class="error"></div></div>
-		</div>
-		<div class="span5 control-group">
 			<label class="control-label">Company:<sup style="color:#FF0000;">*</sup></label>
 			<div class="controls">
 				<select id="companyid" name="companyid" title="Company Name" tabindex="4">
@@ -53,7 +44,42 @@ $auth = new AuthenticationService();
 			</div>
 			<div class="controls"><div id="companyid_error" class="error"></div></div>
 		</div>
+		<?php if($auth->getIdentity()->isadmin==1){?>
+		<div class="span5 control-group">
+			<label class="control-label">Designation:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" name="designation" id="designation" title="Designation" 
+					<?php if(isset($contact) && $contact['0']['designation']!=""){?> 
+					value="<?php echo $contact['0']['designation'];}?>" tabindex="2" />
+			</div>
+			<div class="controls"><div id="designation_error" class="error"></div></div>
+		</div>
+		<?php }else{?>
+		<div class="span5 control-group">
+			<label class="control-label">Email:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" name="email" id="email" title="Email" 
+				<?php if(isset($contact) && $contact['0']['email']!=""){?> 
+				value="<?php echo $contact['0']['email'];}?>" tabindex="3" />
+			</div>
+			<div class="controls"><div id="email_error" class="error"></div></div>
+		</div>
+		<?php }?>
+		</div>
+	<?php if($auth->getIdentity()->isadmin==1){?>
+	<div class="row-fluid">
+		<div class="span5 control-group">
+			<label class="control-label">Email:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls">
+				<input type="text" name="email" id="email" title="Email" 
+				<?php if(isset($contact) && $contact['0']['email']!=""){?> 
+				value="<?php echo $contact['0']['email'];}?>" tabindex="3" />
+			</div>
+			<div class="controls"><div id="email_error" class="error"></div></div>
+		</div>
+	
 	</div>
+	<?php }?>
 	<div class="row-fluid">
 		<div class="span5 control-group">
 			<label class="control-label">Joining Date:<sup style="color:#FF0000;">*</sup></label>
@@ -174,6 +200,8 @@ $auth = new AuthenticationService();
 					value="1" <?php if(isset($contact) && $contact['0']['needdailyreport']==1){echo 'checked="yes"';}?> />
 			</div>
 		</div>
+		
+		
 	</div>
 	<div class="row-fluid">
 		<div class="span5 control-group">
@@ -181,6 +209,13 @@ $auth = new AuthenticationService();
 			<div class="controls">
 				<input type="checkbox" name="isactive" id="isactive" title="IsActive" value="1" tabindex="12" 
 					<?php if(isset($contact) && $contact['0']['isactive']==1){echo 'checked="yes"';}?> />
+			</div>
+		</div>
+		<div class="span5 control-group">
+			<label class="control-label">Need Allocation:</label>
+			<div class="controls">
+				<input type="checkbox" name="needallocation" id="needallocation" title="NeeedAllocation" tabindex="15" 
+					value="1" <?php if(isset($contact) && $contact['0']['needallocation']==1){echo 'checked="yes"';}?> />
 			</div>
 		</div>
 	</div>
@@ -230,7 +265,7 @@ $(document).ready(function(){
 		});
 });
 
-function add(contactid,uid){ 
+function add(contactid,uid){
 	 
     $.ajax({
         type: "POST",
@@ -241,18 +276,22 @@ function add(contactid,uid){
         {   
     	   if(response['returnvalue']=="valid"){
         	   <?php if(isset($contact) && $contact['0']['contactid']!=null && $contact['0']['uid']!=null){?>
-				alert("User has been updated Successfully");
+        	   alert("User has been updated Successfully");
        	  <?php }else{?>
-       	  	alert("User has been added Successfully");
-       	  <?php }?>            	  
+       		alert("User has been added Successfully");
+       	  <?php }     
+       	if($auth->getIdentity()->isadmin == 1){ ?>       	  
         	window.location.href="<?php echo $this->url('users');?>";
+       	<?php }else{?>
+    	window.location.href="<?php echo $this->url('myprofile');?>";
+       	<?php }?>
            }
            else if(response.returnvalue=="exception"){
-               alert("This Operation Could not be Completed,Please contact administrator");
+        	   alert("This Operation Could not be Completed,Please contact administrator");
                return false;
           }
           else if(response.returnvalue=="duplicate"){
-        	  alert("Project name aleady exist");
+        	  alert("User name aleady exist");
               return false;
          }
           else{
@@ -273,7 +312,7 @@ function add(contactid,uid){
 	            	$("#"+key+"_error").html("Invalid value for "+$("#"+key).attr("title"));
 		        }
 	            else if(response.data[key]=="emailduplicate"){
-					alert("This email address already exists.");
+	            	alert("This email address already exists.");
                }
 			}
 		}

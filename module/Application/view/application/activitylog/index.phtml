@@ -1,6 +1,6 @@
 <h2 class="title">Activity Log</h2><hr/>
 <div id="addactivitylog" name="addactivitylog"></div>
-<div style="min-height: 500px;margin:0 10px;" id="gridContainer">
+<div style="height: 100%;margin:0 10px;" id="gridContainer">
 	<table id="list">
 	</table>
 	<div id="pager"></div>
@@ -24,8 +24,8 @@ $(document).ready(function(){
 		{name:'activity_date', index:'activity_date', editable:true},
 		{name:'seconds_spent', index:'seconds_spent', editable:true},
 		],
-	  rowNum:20,
-	    rowList:[10,20,25],
+	  rowNum:100,
+	    rowList:[100,200,500],
 	    navigator:true,
 	    pager: '#pager',
 	    sortname: 'project_name',
@@ -50,10 +50,10 @@ jQuery("#list").jqGrid('navGrid',"#pager",{add:false,edit:false,del:false, searc
             $("#addactivitylog").html(response);
                    },
                  	error: function(XMLHttpRequest,textStatus){
-           	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+                 		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
            	   	},
            	 error: function(XMLHttpRequest,textStatus){
-      	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+           		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
       	   	},
       	  complete: function(){
   	    	setTimeout(function(){		    	
@@ -75,7 +75,7 @@ jQuery("#list").jqGrid('navGrid',"#pager",{add:false,edit:false,del:false, searc
 	 	 },
      success: function(response)
      {   
-        alert("record deleted");
+    	 bootbox.alert("record deleted");
          window.location.reload();
                },
      error: function(XMLHttpRequest,textStatus){

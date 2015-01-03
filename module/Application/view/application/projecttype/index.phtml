@@ -36,8 +36,8 @@ $(document).ready(function(){
 		{name:'color',index:'color',editable:true},
 		{name:'isdefault',index:'isdefault',sort:false},		
 		],
-	  	rowNum:20,
-	    rowList:[10,20,25],
+	  	rowNum:100,
+	    rowList:[100,200,500],
 	    navigator:true,
 	    pager: '#pager',
 	    sortname: 'name',
@@ -46,7 +46,7 @@ $(document).ready(function(){
 	    //width:"1000",
 	    height:"400",
 	});	
-	 jQuery("#list").jqGrid('navGrid',"#pager",{add:false,edit:false,del:false, search:false, refresh:false}).navButtonAdd('#pager',{caption:"Add New", onClickButton:function(){
+	 jQuery("#list").jqGrid('navGrid',"#pager",{add:false,edit:true,del:false, search:false, refresh:false}).navButtonAdd('#pager',{caption:"Add New", onClickButton:function(){
 		$( "#addProjecttypeModal" ).modal({show:true});
 		var id=jQuery('#list').getGridParam('selrow');
 		$.ajax({
@@ -75,7 +75,7 @@ $(document).ready(function(){
 	        	  alert("record deleted");
 		        		   },
 		        		   error: function(XMLHttpRequest,textStatus){
-						    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		        			   alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 						   	},
 							complete: function(){
 						    	setTimeout(function(){		    	
@@ -89,8 +89,9 @@ $(document).ready(function(){
 	   resizegrid("gridContainer","list");
 	   jQuery("#list").setGridWidth($('#gridContainer').width(), true);
 	   $("#ok").click(function( event ) {
+		   var id=jQuery('#list').getGridParam('selrow');
 	     event.preventDefault();
-	     add('<?php if(isset($projecttype) && $projecttype->getId()!=null){echo $projecttype->getId();}?>');
+	     add('<?php if(isset($projecttype)){echo $projecttype->getId();}?>');
 	 });
 	   $("#pager_left").css('width','130px');
 	});	 

@@ -1,0 +1,164 @@
+<script type="text/javascript" src="/js/bootbox.min.js"></script>
+<link rel="stylesheet" href="/css/chosen.css">
+ 
+<?php 
+
+use Zend\Authentication\AuthenticationService;
+$auth=new AuthenticationService();
+$currentuser= $auth->getIdentity()->id;
+?>
+
+<h2 class="title">Add User Skills</h2><hr/>
+	
+		<div class="span4 control-group">
+			
+			
+			<div class="span4 control-group">
+			<label class="control-label">User:</label>
+			<div class="controls">
+				<select id="userid" name="user" title="User" class="input-medium">
+					<option value="">--Select--</option>
+					<?php if(isset($users) && $users!=null && $users!=""){?>
+					<?php if(isset($users) && count($users)>0){
+						for($i=0;$i<count($users);$i++){
+							?>
+					<option value="<?php echo $users[$i]->__get('id');?>"
+					<?php if($currentuser==$users[$i]->__get('id')){echo 'selected="selected"';}?>>
+						<?php if($users[$i]->__get('lname')!=null && $users[$i]->__get('lname')!=""){
+							echo ucwords($users[$i]->__get('fname')." ".$users[$i]->__get('lname'));
+						}else{ echo ucwords($users[$i]->__get('fname'));
+							} ?>
+					</option>
+					<?php }?>
+				</select>
+						<?php }?>
+			</div>
+		</div>
+		<?php }?>
+<br/>
+	<div class="span4 control-group" style="">
+			<label>Skills In</label><br/>
+			<select name="skills" id="skills" data-placeholder="Choose a Skills" class="chosen-select" multiple style="width:350px;" tabindex="4">
+				<?php
+					if(isset($skills) && sizeof($skills)>0){
+						foreach ($skills as $row) {
+							
+				?>
+				<option value="<?php echo $row->getId(); ?>" ><?php echo $row->getName(); ?></option>
+				<?php 	}
+					}
+				?>
+			</select>
+					<i class="icon-plus" onclick="openSkillsDilog()"></i>
+			</div>
+			<button type="button" onclick="adduserskills()">Add</button>
+		</div>
+		
+	
+<div id="addskillsdilog" class="groove-table signupddivie" style="display:none" >
+	<h2 class="title">Add Skills</h2><hr/>
+		<div class="span4 control-group">
+			<label class="control-label small-label">Skills:<sup style="color:#FF0000;">*</sup></label>
+			<div class="controls small-margin">
+				<input type="text" id="skillname" name="skillname"
+					title="Skill Name" <?php if(isset($skill) && $skill->getName()!=''){?>
+					value="<?php echo $skill->getName();}?>">
+			</div>
+			<div class="controls small-margin"><div id="skillname_error" class="error"></div></div>
+			<button onclick="addSkills()">ADD</button>
+		</div>
+	
+</div> 
+
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	 $( "#addskillsdilog" ).dialog({ autoOpen:false, width:400,title:'Add Skills',});
+});
+function openSkillsDilog(){
+// 	$( "#addskillsdilog" ).modal({show:true});
+	$("#addskillsdilog").dialog("open" );
+}
+function addSkills(){
+	var skills = $("#skillname").val();
+	$.ajax({
+		type: "POST",
+		url: "<?php echo $this->url('addskills');?>",	         
+		data: {skills: skills },
+		dataType:'json',
+		success: function(response)
+		{ 
+			 if(response['returnvalue']=="valid"){
+					alert("skills added succesfully");
+				 }
+		},
+		error: function(XMLHttpRequest,textStatus){
+			alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		},
+	});
+}
+function getUserSkills(id){
+	var id = $("#userid").val();
+
+	$.ajax({
+		type: "POST",
+		url: "<?php echo $this->url('getuserskills');?>",	         
+		data: {userid: id },
+		dataType:'json',
+		success: function(response)
+		{ 
+			var myObject=response.data;
+			$("#skills option:selected").removeAttr("selected");
+			
+			for(i=0; i< myObject.length; i++){
+				$("#skills > option").each(function() {
+					this.selected=true;
+// 				    alert(this.text + ' ' + this.value);
+				});
+			}
+		},
+		error: function(XMLHttpRequest,textStatus){
+			alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		},
+	});
+}
+
+function adduserskills(){
+	var userid = $("#userid").val();
+	var skills = $("#skills").val();
+
+	$.ajax({
+		type: "POST",
+		url: "<?php echo $this->url('adduserskills');?>",	         
+		data: {userid: userid , skills :skills},
+		dataType:'json',
+		success: function(response)
+		{ 
+			var myObject=response.data;
+			$("#skills option:selected").removeAttr("selected");
+			for(i=0; i< myObject.length; i++){
+				$("#skills > option").each(function() {
+					this.selected=true;
+// 				    alert(this.text + ' ' + this.value);
+				});
+			}
+		},
+		error: function(XMLHttpRequest,textStatus){
+			alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+		},
+	});
+	
+}
+
+  var config = {
+    '.chosen-select'           : {},
+    '.chosen-select-deselect'  : {allow_single_deselect:true},
+    '.chosen-select-no-single' : {disable_search_threshold:10},
+    '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+    '.chosen-select-width'     : {width:"95%"}
+  }
+  for (var selector in config) {
+    $(selector).chosen(config[selector]);
+  }
+</script>
+

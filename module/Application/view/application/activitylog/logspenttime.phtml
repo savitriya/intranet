@@ -137,7 +137,7 @@
 			 .click(function( event ) {
 			  event.preventDefault();
 			  if($("#activityid").val()==""){
-				  alert("Please select activity first");
+				  bootbox.alert("Please select activity first");
 				  return false;
 			  }
 			
@@ -156,7 +156,7 @@
 			          $("#addactivitylog").append("<div><sup>*</sup>Please make sure that you have selected right activity from drop down,currently your selected activity is <b>"+$("#activityid option:selected").text()+"</b></div>");
 			       },
 			        	error: function(XMLHttpRequest,textStatus){
-				    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+			        		bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 				   	},
 					complete: function(){
 				    	setTimeout(function(){		    	
@@ -251,7 +251,7 @@ function getactivity(){
        success: function(response)
         {	
         if(response['returnvalue']=="invalid"){
-            alert("Activity not found");
+        	bootbox.alert("Activity not found");
          } 	
        	 var $i;				    	
 		    for($i=0;$i<response.data.length;$i++){
@@ -262,7 +262,7 @@ function getactivity(){
 		    }				    
 	     },
 	     error: function(XMLHttpRequest,textStatus){
-	    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+	    	 bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 	   	},
     });
  }
@@ -292,7 +292,7 @@ function activitydetail(){
 	    	   $("#div1").append("<b>Assigned To:</b> " +response.data[0]['assigned_to_id']);
 	    	   },
 	  	     error: function(XMLHttpRequest,textStatus){
-		    	 alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
+	  	    	bootbox.alert('This Operation Could not be Completed. Please check your Internet Connection and try Again. If problem persists please contact Support');
 		   	},
 			complete: function(){
 		    	setTimeout(function(){		    	
